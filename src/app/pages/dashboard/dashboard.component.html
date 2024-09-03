@@ -1,0 +1,460 @@
+<app-dynamic-modal
+  [title]="'Add new Invoice'"
+  [showModal]="showModalAddInvoice"
+  (closeModal)="closeModalAddInvoice()"
+>
+</app-dynamic-modal>
+
+<app-dynamic-modal
+  [title]="'Add new Cash In'"
+  [showModal]="showModalAddCashIn"
+  (closeModal)="closeModalAddCashIn()"
+>
+</app-dynamic-modal>
+
+<app-date-popup #datePopup></app-date-popup>
+
+<div class="m-4 p-4 bg-gray-200 rounded-[20px]">
+  <div class="w-full flex items-center justify-between mb-2">
+    <span class="text-xl font-semibold">Statistics</span>
+    <div class="flex gap-10">
+      <span
+        class="text-sm cursor-pointer p-2 rounded-md"
+        [ngClass]="{
+          'bg-custom-yellow': selectedTimeRange === 'All Time',
+          'hover:bg-custom-light-yellow': selectedTimeRange !== 'All Time'
+        }"
+        (click)="changeTimeRange('All Time')"
+        >All Time</span
+      >
+      <span
+        class="text-sm cursor-pointer p-2 rounded-md"
+        [ngClass]="{
+          'bg-custom-yellow': selectedTimeRange === 'Daily',
+          'hover:bg-custom-light-yellow': selectedTimeRange !== 'Daily'
+        }"
+        (click)="changeTimeRange('Daily')"
+        >Daily</span
+      >
+      <span
+        class="text-sm cursor-pointer p-2 rounded-md"
+        [ngClass]="{
+          'bg-custom-yellow': selectedTimeRange === 'Weekly',
+          'hover:bg-custom-light-yellow': selectedTimeRange !== 'Weekly'
+        }"
+        (click)="changeTimeRange('Weekly')"
+        >Weekly</span
+      >
+      <span
+        class="text-sm cursor-pointer p-2 rounded-md"
+        [ngClass]="{
+          'bg-custom-yellow': selectedTimeRange === 'Monthly',
+          'hover:bg-custom-light-yellow': selectedTimeRange !== 'Monthly'
+        }"
+        (click)="changeTimeRange('Monthly')"
+        >Monthly</span
+      >
+      <span
+        class="text-sm cursor-pointer p-2 rounded-md"
+        [ngClass]="{
+          'bg-custom-yellow': selectedTimeRange === 'Yearly',
+          'hover:bg-custom-light-yellow': selectedTimeRange !== 'Yearly'
+        }"
+        (click)="changeTimeRange('Yearly')"
+        >Yearly</span
+      >
+    </div>
+  </div>
+  <div class="flex flex-col bg-white p-4 rounded-[15px] gap-10">
+    <div class="w-full flex flex-col md:flex-row gap-8">
+      <ng-container [ngSwitch]="selectedTimeRange">
+        <ng-container *ngSwitchDefault>
+          <div class="w-full lg:w-5/12 flex flex-col">
+            <ng-container [ngSwitch]="selectedTimeRange">
+              <ng-container *ngSwitchCase="'Weekly'">
+                <div class="flex flex-col gap-4">
+                  <div class="w-full flex items-center">
+                    <div class="mr-2.5">
+                      <div class="relative inline-block w-full">
+                        <select
+                          class="leading-8 text-[40px] font-semibold pr-14 appearance-none form-select text-center border border-[#A4A4A4] rounded-xl px-3 py-2 placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow"
+                        >
+                          <option value="" disabled selected hidden>
+                            Week
+                          </option>
+                        </select>
+                        <div
+                          class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+                        >
+                          <svg
+                            width="35"
+                            height="21"
+                            viewBox="0 0 35 21"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M-0.000184845 1.01761L17.5337 20.9999L34.9998 0.982161L-0.000184845 1.01761Z"
+                              fill="black"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ml-2.5">
+                      <div class="relative inline-block w-full">
+                        <select
+                          class="leading-8 text-[40px] font-semibold pr-14 appearance-none form-select text-center border border-[#A4A4A4] rounded-xl px-3 py-2 placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow"
+                        >
+                          <option value="" disabled selected hidden>
+                            Month
+                          </option>
+                        </select>
+                        <div
+                          class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+                        >
+                          <svg
+                            width="35"
+                            height="21"
+                            viewBox="0 0 35 21"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M-0.000184845 1.01761L17.5337 20.9999L34.9998 0.982161L-0.000184845 1.01761Z"
+                              fill="black"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="w-full flex flex-col gap-1">
+                    <span class="text-xl font-semibold text-custom-light-green">
+                      Total Cash In
+                    </span>
+                    <span
+                      class="text-5xl font-semibold text-custom-light-green"
+                    >
+                      Rp. 1.000.000.000
+                    </span>
+                  </div>
+                  <div class="w-full flex flex-col gap-1">
+                    <span class="text-xl font-semibold text-custom-dark-red">
+                      Total Cash Out
+                    </span>
+                    <span class="text-5xl font-semibold text-custom-dark-red">
+                      Rp. 3.320.000.000
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+              <ng-container *ngSwitchCase="'Monthly'">
+                <div class="flex flex-col gap-4">
+                  <div class="w-full flex items-center">
+                    <div class="mr-2.5">
+                      <div class="relative inline-block w-full">
+                        <select
+                          class="leading-8 text-[40px] font-semibold pr-14 appearance-none form-select text-center border border-[#A4A4A4] rounded-xl px-3 py-2 placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow"
+                        >
+                          <option value="" disabled selected hidden>
+                            Month
+                          </option>
+                        </select>
+                        <div
+                          class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+                        >
+                          <svg
+                            width="35"
+                            height="21"
+                            viewBox="0 0 35 21"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M-0.000184845 1.01761L17.5337 20.9999L34.9998 0.982161L-0.000184845 1.01761Z"
+                              fill="black"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ml-2.5">
+                      <div class="relative inline-block w-full">
+                        <select
+                          class="leading-8 text-[40px] font-semibold pr-14 appearance-none form-select text-center border border-[#A4A4A4] rounded-xl px-3 py-2 placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow"
+                        >
+                          <option value="" disabled selected hidden>
+                            Year
+                          </option>
+                        </select>
+                        <div
+                          class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+                        >
+                          <svg
+                            width="35"
+                            height="21"
+                            viewBox="0 0 35 21"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M-0.000184845 1.01761L17.5337 20.9999L34.9998 0.982161L-0.000184845 1.01761Z"
+                              fill="black"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="w-full flex flex-col gap-1">
+                    <span class="text-xl font-semibold text-custom-light-green">
+                      Total Cash In
+                    </span>
+                    <span
+                      class="text-5xl font-semibold text-custom-light-green"
+                    >
+                      Rp. 1.000.000.000
+                    </span>
+                  </div>
+                  <div class="w-full flex flex-col gap-1">
+                    <span class="text-xl font-semibold text-custom-dark-red">
+                      Total Cash Out
+                    </span>
+                    <span class="text-5xl font-semibold text-custom-dark-red">
+                      Rp. 3.320.000.000
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+              <ng-container *ngSwitchCase="'Yearly'">
+                <div class="flex flex-col gap-4">
+                  <div class="w-full flex items-center">
+                    <span class="text-[40px] font-semibold">In</span>
+                    <div class="mx-2.5">
+                      <div class="relative inline-block w-full">
+                        <select
+                          class="leading-8 text-[40px] font-semibold pr-14 appearance-none form-select text-center border border-[#A4A4A4] rounded-xl px-3 py-2 placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow"
+                        >
+                          <option value="" disabled selected hidden>
+                            Year
+                          </option>
+                        </select>
+                        <div
+                          class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+                        >
+                          <svg
+                            width="35"
+                            height="21"
+                            viewBox="0 0 35 21"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M-0.000184845 1.01761L17.5337 20.9999L34.9998 0.982161L-0.000184845 1.01761Z"
+                              fill="black"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="w-full flex flex-col gap-1">
+                    <span class="text-xl font-semibold text-custom-light-green">
+                      Total Cash In
+                    </span>
+                    <span
+                      class="text-5xl font-semibold text-custom-light-green"
+                    >
+                      Rp. 1.000.000.000
+                    </span>
+                  </div>
+                  <div class="w-full flex flex-col gap-1">
+                    <span class="text-xl font-semibold text-custom-dark-red">
+                      Total Cash Out
+                    </span>
+                    <span class="text-5xl font-semibold text-custom-dark-red">
+                      Rp. 3.320.000.000
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
+          </div>
+          <div class="w-full lg:w-7/12 overflow-scroll">
+            <ng-container [ngSwitch]="selectedTimeRange">
+              <ng-container *ngSwitchDefault>
+                <app-dynamic-bar-chart
+                  [barChartData]="barChartData"
+                  [barChartOptions]="barChartOptions"
+                  [barChartPlugins]="barChartPlugins"
+                  [barChartLegend]="barChartLegend"
+                ></app-dynamic-bar-chart>
+              </ng-container>
+            </ng-container>
+          </div>
+        </ng-container>
+        <ng-container *ngSwitchCase="'All Time'">
+          <div
+            class="w-full flex flex-col md:flex-row items-center justify-center gap-8"
+          >
+            <div class="flex flex-col gap-4">
+              <div class="w-full flex flex-col gap-1">
+                <span class="text-[40px] font-semibold">All Time</span>
+                <span class="text-xl font-semibold text-custom-light-green">
+                  Total Cash In
+                </span>
+                <span class="text-5xl font-semibold text-custom-light-green">
+                  Rp. 1.000.000.000
+                </span>
+              </div>
+              <div class="w-full flex flex-col gap-1">
+                <span class="text-xl font-semibold text-custom-dark-red">
+                  Total Cash Out
+                </span>
+                <span class="text-5xl font-semibold text-custom-dark-red">
+                  Rp. 3.320.000.000
+                </span>
+              </div>
+            </div>
+            <app-dynamic-pie-chart
+              [pieChartData]="pieChartData"
+              [pieChartOptions]="pieChartOptions"
+              [pieChartPlugins]="pieChartPlugins"
+              [pieChartLegend]="pieChartLegend"
+            ></app-dynamic-pie-chart>
+          </div>
+        </ng-container>
+        <ng-container *ngSwitchCase="'Daily'">
+          <div
+            class="w-full flex flex-col md:flex-row items-center justify-center gap-8"
+          >
+            <div class="flex flex-col gap-4">
+              <div class="w-full flex flex-col gap-1">
+                <div class="w-full flex items-center gap-4">
+                  <span class="text-[40px] font-semibold"
+                    >Day, Date Month Year
+                  </span>
+                  <svg
+                    (click)="openDatePopup()"
+                    class="w-[30px] cursor-pointer"
+                    width="35"
+                    height="36"
+                    viewBox="0 0 35 36"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M0.0499287 0.5V9.25H35V0.5H0.0499287ZM0.0499287 13.625V35.1063C0.0499287 35.325 0.249643 35.5 0.499287 35.5H34.5007C34.7504 35.5 34.9501 35.325 34.9501 35.1063V13.625H0H0.0499287ZM5.0428 18H10.0357V22.375H5.0428V18ZM15.0285 18H20.0214V22.375H15.0285V18ZM25.0143 18H30.0071V22.375H25.0143V18ZM5.0428 26.75H10.0357V31.125H5.0428V26.75ZM15.0285 26.75H20.0214V31.125H15.0285V26.75Z"
+                      fill="black"
+                    />
+                  </svg>
+                </div>
+                <span class="text-xl font-semibold text-custom-light-green">
+                  Total Cash In
+                </span>
+                <span class="text-5xl font-semibold text-custom-light-green">
+                  Rp. 1.000.000.000
+                </span>
+              </div>
+              <div class="w-full flex flex-col gap-1">
+                <span class="text-xl font-semibold text-custom-dark-red">
+                  Total Cash Out
+                </span>
+                <span class="text-5xl font-semibold text-custom-dark-red">
+                  Rp. 3.320.000.000
+                </span>
+              </div>
+            </div>
+            <app-dynamic-pie-chart
+              [pieChartData]="pieChartData"
+              [pieChartOptions]="pieChartOptions"
+              [pieChartPlugins]="pieChartPlugins"
+              [pieChartLegend]="pieChartLegend"
+            ></app-dynamic-pie-chart>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+  <div class="mt-4 m-y-4 bg-gray-200 rounded-[20px]">
+    <div
+      class="flex flex-col md:flex-row w-full items-stretch rounded-[15px] justify-between gap-4"
+    >
+      <div class="flex flex-col w-full h-auto">
+        <span class="text-xl font-semibold mb-2">Balance</span>
+        <div
+          class="flex flex-col items-center rounded-[15px] w-full bg-white p-4 gap-10 md:gap-20 h-full"
+        >
+          <div class="w-full flex flex-col gap-1">
+            <span class="text-2xl font-semibold">Starting Balance</span>
+            <span class="text-4xl font-semibold text-center"
+              >Rp. 1.000.000.000</span
+            >
+          </div>
+          <div class="w-full flex flex-col gap-1">
+            <span class="text-2xl font-semibold">Ending Balance</span>
+            <span class="text-4xl font-semibold text-center"
+              >Rp. 3.320.000.000</span
+            >
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col w-full h-auto">
+        <span class="text-xl font-semibold mb-2">Recently Updated</span>
+        <div
+          class="flex flex-col items-center rounded-[15px] w-full bg-white p-4 gap-4 h-full"
+        >
+          <div class="w-full" *ngFor="let card of cardsRecentlyUpdated">
+            <app-dynamic-card
+              [headerText]="card.headerText"
+              [sections]="card.sections"
+            >
+            </app-dynamic-card>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col w-full h-auto">
+        <span class="text-xl font-semibold mb-2">Waiting For Approval</span>
+        <div
+          class="flex flex-col items-center rounded-[15px] w-full bg-white p-4 gap-4 h-full"
+        >
+          <div class="w-full" *ngFor="let card of cardsWaitingForApproval">
+            <app-dynamic-card
+              [headerText]="card.headerText"
+              [sections]="card.sections"
+            >
+            </app-dynamic-card>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="m-4 p-4 bg-gray-200 rounded-[20px]">
+  <span class="w-full flex text-xl font-semibold mb-2"
+    >Do you want to add a new update?</span
+  >
+  <div
+    class="flex flex-col md:flex-row w-full items-center bg-white py-4 px-4 xl:px-[200px] rounded-[15px] justify-center gap-4"
+  >
+    <button
+      class="w-full h-auto bg-custom-light-yellow text-base px-4 py-2 rounded-xl font-medium hover:bg-custom-yellow"
+      (click)="handleButtonClick('new invoice')"
+    >
+      Add new Invoice
+    </button>
+    <button
+      class="w-full h-auto bg-custom-light-yellow text-base px-4 py-2 rounded-xl font-medium hover:bg-custom-yellow"
+      (click)="handleButtonClick('new cash in')"
+    >
+      Add new Cash In
+    </button>
+    <button
+      class="w-full h-auto bg-custom-light-yellow text-base px-4 py-2 rounded-xl font-medium hover:bg-custom-yellow"
+      (click)="handleButtonClick('new cash out document')"
+    >
+      Create New Cash Out Document
+    </button>
+  </div>
+</div>

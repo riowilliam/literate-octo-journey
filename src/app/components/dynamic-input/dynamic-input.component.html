@@ -1,0 +1,75 @@
+<div class="flex flex-col">
+  <label *ngIf="label" [ngClass]="labelClass">{{ label }}</label>
+  <ng-container [ngSwitch]="type">
+    <input
+      *ngSwitchCase="'text'"
+      type="text"
+      [value]="value"
+      [placeholder]="placeholder"
+      [disabled]="disabled"
+      (input)="handleInput($event)"
+      [ngClass]="inputClass"
+    />
+
+    <input
+      *ngSwitchCase="'number'"
+      type="text"
+      [value]="value | rupiahMask"
+      [placeholder]="placeholder"
+      [disabled]="disabled"
+      (input)="handleInput($event)"
+      [ngClass]="inputClass"
+    />
+
+    <div class="relative inline-block w-full" *ngSwitchCase="'dropdown'">
+      <select
+        class="pr-8 appearance-none"
+        [value]="value"
+        [disabled]="disabled"
+        (change)="handleSelect($event)"
+        [ngClass]="inputClass"
+      >
+        <option value="" disabled selected hidden>{{ placeholder }}</option>
+        <option *ngFor="let option of options" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+      <div
+        class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          ></path>
+        </svg>
+      </div>
+    </div>
+
+    <textarea
+      *ngSwitchCase="'textarea'"
+      [value]="value"
+      [placeholder]="placeholder"
+      [disabled]="disabled"
+      (input)="handleInput($event)"
+      [ngClass]="inputClass"
+    ></textarea>
+
+    <input
+      *ngSwitchCase="'datepicker'"
+      type="date"
+      [value]="value"
+      [disabled]="disabled"
+      (change)="handleDateChange($event)"
+      [ngClass]="inputClass"
+    />
+  </ng-container>
+</div>

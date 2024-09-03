@@ -1,0 +1,21 @@
+<app-content-chart>
+  <app-dynamic-bar-chart
+    [barChartData]="barChartData"
+    [barChartOptions]="barChartOptions"
+    [barChartPlugins]="barChartPlugins"
+    [barChartLegend]="barChartLegend"
+  >
+  </app-dynamic-bar-chart>
+</app-content-chart>
+<app-content-card>
+  <div class="flex gap-4" *ngFor="let card of cards">
+    <app-dynamic-card
+      [headerText]="card.headerText"
+      [sections]="card.sections"
+      [headerClass]="'h-[38px]'"
+      [headerTextClass]="'text-xs'"
+      [cardClass]="'w-full min-w-[212px] max-w-full h-[180px]'"
+    >
+    </app-dynamic-card>
+  </div>
+</app-content-card>

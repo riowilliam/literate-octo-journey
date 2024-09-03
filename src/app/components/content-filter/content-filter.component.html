@@ -1,0 +1,33 @@
+<div class="m-4 p-4 bg-gray-200 rounded-[20px]">
+  <div class="w-full flex flex-wrap items-center justify-between mb-4">
+    <span class="font-semibold text-2xl">{{ title }}</span>
+    <button
+      *ngIf="hasButton"
+      class="bg-custom-light-yellow px-4 py-2 rounded"
+      (click)="onButtonClick()"
+    >
+      {{ label }}
+    </button>
+  </div>
+  <div
+    class="flex flex-col lg:flex-row w-full items-center bg-white p-4 rounded-[15px] justify-between gap-4"
+  >
+    <div class="flex flex-col lg:flex-row gap-4 w-full lg:w-auto">
+      <ng-content></ng-content>
+    </div>
+    <div class="flex flex-col gap-2">
+      <button
+        class="w-full min-w-[140px] max-w-[140px] bg-custom-light-yellow text-xs px-4 py-2 rounded rounded-xl font-semibold hover:bg-custom-yellow"
+        (click)="onButtonClickApply()"
+      >
+        Apply Filter
+      </button>
+      <button
+        class="w-full min-w-[140px] max-w-[140px] bg-custom-light-yellow text-xs px-4 py-2 rounded rounded-xl font-semibold hover:bg-custom-yellow"
+        (click)="onButtonClickClear()"
+      >
+        Clear Filter
+      </button>
+    </div>
+  </div>
+</div>

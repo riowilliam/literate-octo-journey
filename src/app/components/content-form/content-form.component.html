@@ -1,0 +1,36 @@
+<div class="m-4 p-4 bg-gray-200 rounded-[20px] h-[calc(100vh-105px)]">
+  <div class="flex items-center justify-between mb-4">
+    <ng-container [ngSwitch]="hasId">
+      <span *ngSwitchCase="true" class="font-semibold text-xl"
+        >{{ title }} : {{ id }}</span
+      >
+      <span *ngSwitchDefault class="font-semibold text-xl">{{ title }}</span>
+    </ng-container>
+    <span *ngIf="hasValue" class="font-semibold text-xl">
+      {{ value }}
+    </span>
+  </div>
+  <div class="relative bg-white p-4 rounded-[15px]">
+    <div class="w-full overflow-x-auto">
+      <ng-content></ng-content>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-center mt-4">
+    <button
+      type="submit"
+      class="w-full min-w-[180px] max-w-[180px] py-2 px-4 bg-custom-light-yellow text-xs font-semibold rounded-lg hover:bg-custom-yellow focus:outline-none focus:ring-2 focus:ring-custom-light-yellow focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+    >
+      Submit and Generate
+    </button>
+  </div>
+  <div *ngIf="hasId" class="flex items-center justify-center mt-4">
+    <button
+      type="submit"
+      class="w-full min-w-[180px] max-w-[180px] py-2 px-4 bg-custom-light-red text-xs font-semibold rounded-lg hover:bg-custom-red focus:outline-none focus:ring-2 focus:ring-custom-light-red focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+      (click)="backNavigate()"
+    >
+      Back
+    </button>
+  </div>
+</div>

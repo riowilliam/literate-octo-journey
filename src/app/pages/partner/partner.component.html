@@ -1,0 +1,108 @@
+<app-dynamic-modal
+  [title]="'Add new Partner'"
+  [showModal]="showModalAdd"
+  (closeModal)="closeModalAdd()"
+>
+</app-dynamic-modal>
+
+<app-dynamic-modal
+  [title]="'Edit Partner'"
+  [showModal]="showModalEdit"
+  (closeModal)="closeModalEdit()"
+>
+</app-dynamic-modal>
+
+<app-dynamic-modal
+  [title]="'Detail Partner'"
+  [showModal]="showModalDetail"
+  (closeModal)="closeModalDetail()"
+>
+</app-dynamic-modal>
+
+<app-content-filter
+  [title]="'Filter'"
+  (buttonClickApply)="handleButtonClick({ key: 'apply' })"
+  (buttonClickClear)="handleButtonClick({ key: 'clear' })"
+>
+  <app-dynamic-input
+    type="text"
+    [value]="textValue"
+    placeholder="Enter text"
+    [disabled]="isDisabled"
+    label="Partner Name"
+    [inputClass]="
+      'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+    "
+    [labelClass]="'font-medium text-sm mb-1'"
+    (valueChange)="handleValueChange($event)"
+  ></app-dynamic-input>
+
+  <app-dynamic-input
+    type="dropdown"
+    [value]="selectedOption"
+    placeholder="Select an option"
+    [options]="dropdownOptions"
+    [disabled]="isDisabled"
+    label="Document Tracking"
+    [inputClass]="
+      'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+    "
+    [labelClass]="'font-medium text-sm mb-1'"
+    (valueChange)="handleValueChange($event)"
+  ></app-dynamic-input>
+
+  <app-dynamic-input
+    type="dropdown"
+    [value]="selectedOption"
+    placeholder="Select an option"
+    [options]="dropdownOptions"
+    [disabled]="isDisabled"
+    label="PPN WAPU"
+    [inputClass]="
+      'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+    "
+    [labelClass]="'font-medium text-sm mb-1'"
+    (valueChange)="handleValueChange($event)"
+  ></app-dynamic-input>
+
+  <div class="flex flex-wrap items-end content-center gap-4">
+    <app-dynamic-input
+      type="datepicker"
+      [value]="dateValue"
+      [disabled]="isDisabled"
+      label="Created Date"
+      [inputClass]="
+        'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+      "
+      [labelClass]="'font-medium text-sm mb-1'"
+      (valueChange)="handleValueChange($event)"
+    ></app-dynamic-input>
+
+    <span class="mb-2 font-medium text-sm">Until</span>
+
+    <app-dynamic-input
+      type="datepicker"
+      [value]="dateValue"
+      [disabled]="isDisabled"
+      [inputClass]="
+        'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+      "
+      [labelClass]="'font-medium text-sm mb-1'"
+      (valueChange)="handleValueChange($event)"
+    ></app-dynamic-input>
+  </div>
+</app-content-filter>
+
+<app-content-table
+  [title]="'Partner List'"
+  [label]="'Add New Partner'"
+  [hasButton]="true"
+  (buttonClick)="handleButtonClick({ key: 'add' })"
+>
+  <app-dynamic-table
+    [headers]="headers"
+    [rows]="data"
+    (buttonClick)="handleButtonClick($event)"
+  >
+  </app-dynamic-table>
+</app-content-table>

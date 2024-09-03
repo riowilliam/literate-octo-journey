@@ -1,0 +1,67 @@
+<app-content-filter
+  [title]="'Filter'"
+  (buttonClickApply)="handleButtonClick({ key: 'apply' })"
+  (buttonClickClear)="handleButtonClick({ key: 'clear' })"
+>
+  <app-dynamic-input
+    type="text"
+    [value]="textValue"
+    placeholder="Enter text"
+    [disabled]="isDisabled"
+    label="Vendor Name"
+    [inputClass]="
+      'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+    "
+    [labelClass]="'font-medium text-sm mb-1'"
+    (valueChange)="handleValueChange($event)"
+  ></app-dynamic-input>
+
+  <app-dynamic-input
+    type="dropdown"
+    [value]="selectedOption"
+    placeholder="Select an option"
+    [options]="dropdownOptions"
+    [disabled]="isDisabled"
+    label="Source"
+    [inputClass]="
+      'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+    "
+    [labelClass]="'font-medium text-sm mb-1'"
+    (valueChange)="handleValueChange($event)"
+  ></app-dynamic-input>
+
+  <div class="flex flex-wrap items-end content-center gap-4">
+    <app-dynamic-input
+      type="datepicker"
+      [value]="dateValue"
+      [disabled]="isDisabled"
+      label="Created Date"
+      [inputClass]="
+        'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+      "
+      [labelClass]="'font-medium text-sm mb-1'"
+      (valueChange)="handleValueChange($event)"
+    ></app-dynamic-input>
+
+    <span class="mb-2 font-medium text-sm">Until</span>
+
+    <app-dynamic-input
+      type="datepicker"
+      [value]="dateValue"
+      [disabled]="isDisabled"
+      [inputClass]="
+        'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+      "
+      [labelClass]="'font-medium text-sm mb-1'"
+      (valueChange)="handleValueChange($event)"
+    ></app-dynamic-input>
+  </div>
+</app-content-filter>
+
+<app-content-table
+  [title]="'Cash Out Mutation'"
+  [value]="'Total : Rp. 650.346.871'"
+  [hasValue]="true"
+>
+  <app-dynamic-table [headers]="headers" [rows]="data"> </app-dynamic-table>
+</app-content-table>

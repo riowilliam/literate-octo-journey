@@ -1,0 +1,46 @@
+<app-dynamic-modal
+  [title]="'Add new Item'"
+  [showModal]="showModalAdd"
+  (closeModal)="closeModalAdd()"
+>
+</app-dynamic-modal>
+
+<app-dynamic-modal
+  [title]="'Edit Item'"
+  [showModal]="showModalEdit"
+  (closeModal)="closeModalEdit()"
+>
+</app-dynamic-modal>
+
+<app-content-filter
+  [title]="'Filter'"
+  (buttonClickApply)="handleButtonClick({ key: 'apply' })"
+  (buttonClickClear)="handleButtonClick({ key: 'clear' })"
+>
+  <app-dynamic-input
+    type="text"
+    [value]="textValue"
+    placeholder="Enter text"
+    [disabled]="isDisabled"
+    label="Item Name"
+    [inputClass]="
+      'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+    "
+    [labelClass]="'font-medium text-sm mb-1'"
+    (valueChange)="handleValueChange($event)"
+  ></app-dynamic-input>
+</app-content-filter>
+
+<app-content-table
+  [title]="'Item List'"
+  [label]="'Add New Item'"
+  [hasButton]="true"
+  (buttonClick)="handleButtonClick({ key: 'add' })"
+>
+  <app-dynamic-table
+    [headers]="headers"
+    [rows]="data"
+    (buttonClick)="handleButtonClick($event)"
+  >
+  </app-dynamic-table>
+</app-content-table>

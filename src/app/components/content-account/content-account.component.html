@@ -1,0 +1,14 @@
+<div
+  class="flex flex-col items-center justify-between"
+  [ngClass]="bgColor"
+  [ngClass]="contentAccount ? 'h-[calc(100vh-75px)]' : 'h-screen'"
+>
+  <div class="flex items-center justify-center flex-grow w-full">
+    <div class="shadow-lg rounded-lg">
+      <ng-content></ng-content>
+    </div>
+  </div>
+  <div *ngIf="hasTrademark" class="py-4 text-sm text-center">
+    © 2024 LordDev
+  </div>
+</div>

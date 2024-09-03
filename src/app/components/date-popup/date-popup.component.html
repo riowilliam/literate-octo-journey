@@ -1,0 +1,14 @@
+<div
+  class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50"
+  *ngIf="isOpen"
+  (click)="close()"
+>
+  <div
+    class="bg-white p-4 rounded-lg shadow-lg"
+    (click)="$event.stopPropagation()"
+  >
+    <button class="absolute top-2 right-2" (click)="close()">X</button>
+    <!-- Add your date picker or any other content here -->
+    <input type="date" class="w-full border border-gray-300 rounded-md p-2" />
+  </div>
+</div>

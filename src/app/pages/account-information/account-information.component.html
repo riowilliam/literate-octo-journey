@@ -1,0 +1,116 @@
+<div class="bg-custom-light-gray">
+  <app-content-account class="bg-white">
+    <app-dynamic-account
+      [header]="'Account Information'"
+      [bgColor]="'bg-white'"
+    >
+      <div class="w-full flex flex-col gap-6 my-6">
+        <div class="w-full sm:px-28 flex justify-center items-center">
+          <div
+            class="w-full flex justify-between items-center border-b-2 border-black pb-2"
+          >
+            <div class="flex justify-between items-center gap-2">
+              <svg
+                width="20"
+                height="17"
+                viewBox="0 0 20 17"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g clip-path="url(#clip0_640_6742)">
+                  <path
+                    d="M10 8.46045C10.7911 8.46045 11.5645 8.22585 12.2223 7.78633C12.8801 7.3468 13.3928 6.72209 13.6955 5.99118C13.9983 5.26028 14.0775 4.45601 13.9231 3.68009C13.7688 2.90417 13.3878 2.19143 12.8284 1.63202C12.269 1.07261 11.5563 0.691651 10.7804 0.53731C10.0044 0.382969 9.20017 0.462182 8.46927 0.764933C7.73836 1.06768 7.11365 1.58037 6.67412 2.23817C6.2346 2.89597 6 3.66933 6 4.46045C6 5.52132 6.42143 6.53873 7.17157 7.28888C7.92172 8.03902 8.93913 8.46045 10 8.46045ZM10 1.60331C10.5651 1.60331 11.1175 1.77088 11.5873 2.08482C12.0572 2.39877 12.4234 2.84499 12.6397 3.36707C12.8559 3.88914 12.9125 4.46362 12.8022 5.01785C12.692 5.57208 12.4199 6.08118 12.0203 6.48075C11.6207 6.88033 11.1116 7.15245 10.5574 7.26269C10.0032 7.37294 9.42869 7.31636 8.90662 7.10011C8.38454 6.88386 7.93832 6.51765 7.62437 6.04779C7.31043 5.57794 7.14286 5.02554 7.14286 4.46045C7.14286 3.70269 7.44388 2.97596 7.97969 2.44015C8.51551 1.90433 9.24224 1.60331 10 1.60331Z"
+                    fill="black"
+                  />
+                  <path
+                    d="M15.7554 11.5277C15.0152 10.5589 14.1233 9.78724 13.1341 9.25985C12.1449 8.73246 11.0793 8.46045 10.0023 8.46045C8.92534 8.46045 7.8597 8.73246 6.87051 9.25985C5.88133 9.78724 4.9894 10.5589 4.24923 11.5277C4.08876 11.74 3.99964 12.02 4 12.3108V15.3173C4 15.6205 4.09725 15.9112 4.27036 16.1256C4.44347 16.34 4.67826 16.4604 4.92308 16.4604H15.0769C15.3217 16.4604 15.5565 16.34 15.7296 16.1256C15.9027 15.9112 16 15.6205 16 15.3173V12.3108C16.0016 12.0208 15.9142 11.7409 15.7554 11.5277ZM15.0769 15.3173H4.92308V12.3051C5.57718 11.4521 6.36459 10.7729 7.23739 10.3087C8.11019 9.84459 9.05012 9.60524 9.99999 9.60524C10.9499 9.60524 11.8898 9.84459 12.7626 10.3087C13.6354 10.7729 14.4228 11.4521 15.0769 12.3051V15.3173Z"
+                    fill="black"
+                  />
+                </g>
+                <defs>
+                  <clipPath id="clip0_640_6742">
+                    <rect
+                      width="20"
+                      height="16"
+                      fill="white"
+                      transform="translate(0 0.460449)"
+                    />
+                  </clipPath>
+                </defs>
+              </svg>
+              <span class="text-xs font-semibold shadow-drop">user</span>
+            </div>
+            <button
+              (click)="navigateTo('/change-username')"
+              class="w-full min-w-[80px] max-w-[80px] h-full min-h-[20px] max-h-[20px] px-4 bg-custom-light-yellow text-xs font-semibold rounded hover:bg-custom-yellow focus:outline-none focus:ring-2 focus:ring-custom-light-yellow focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+            >
+              Change
+            </button>
+          </div>
+        </div>
+        <div class="w-full sm:px-28 flex justify-center items-center">
+          <div
+            class="w-full flex justify-between items-center border-b-2 border-black pb-2"
+          >
+            <div class="flex justify-between items-center gap-2">
+              <svg
+                width="20"
+                height="17"
+                viewBox="0 0 20 17"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M20 2.48682C20 1.38682 19.1 0.486816 18 0.486816H2C0.9 0.486816 0 1.38682 0 2.48682V14.4868C0 15.5868 0.9 16.4868 2 16.4868H18C19.1 16.4868 20 15.5868 20 14.4868V2.48682ZM18 2.48682L10 7.48682L2 2.48682H18ZM18 14.4868H2V4.48682L10 9.48682L18 4.48682V14.4868Z"
+                  fill="black"
+                />
+              </svg>
+
+              <span class="text-xs font-semibold shadow-drop"
+                >user&#64;gmail.com</span
+              >
+            </div>
+            <button
+              (click)="navigateTo('/change-email')"
+              class="w-full min-w-[80px] max-w-[80px] h-full min-h-[20px] max-h-[20px] px-4 bg-custom-light-yellow text-xs font-semibold rounded hover:bg-custom-yellow focus:outline-none focus:ring-2 focus:ring-custom-light-yellow focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+            >
+              Change
+            </button>
+          </div>
+        </div>
+        <div class="w-full sm:px-28 flex justify-center items-center">
+          <div
+            class="w-full flex justify-between items-center border-b-2 border-black pb-2"
+          >
+            <div class="flex justify-between items-center gap-2">
+              <svg
+                width="20"
+                height="17"
+                viewBox="0 0 20 17"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M19.0371 11.2699L14.3261 9.58111L14.3131 9.57631C14.0685 9.49263 13.8017 9.45904 13.5369 9.4786C13.272 9.49815 13.0174 9.57023 12.7961 9.68831C12.77 9.70206 12.745 9.71702 12.7211 9.73311L10.2871 11.3931C8.74507 10.7939 7.15306 9.52991 6.40405 8.3123L8.48207 6.33548C8.50207 6.31548 8.52107 6.29548 8.53907 6.27388C8.6835 6.09732 8.77113 5.89493 8.79416 5.68473C8.81719 5.47453 8.7749 5.26303 8.67107 5.06907V5.05947L6.55406 1.28423C6.41679 1.03084 6.18078 0.819757 5.88124 0.682494C5.5817 0.545232 5.2347 0.48915 4.89204 0.522622C3.537 0.665269 2.2932 1.19764 1.39295 2.02031C0.4927 2.84298 -0.00244095 3.89969 9.04871e-06 4.99307C9.04871e-06 11.3451 6.46005 16.5132 14.4001 16.5132C15.7668 16.5151 17.0877 16.119 18.116 15.3988C19.1444 14.6786 19.8098 13.6836 19.9882 12.5995C20.0301 12.3255 19.9601 12.048 19.7887 11.8084C19.6173 11.5687 19.3537 11.3799 19.0371 11.2699ZM14.4001 15.2332C11.0065 15.2302 7.75285 14.1504 5.35317 12.2306C2.95349 10.3109 1.60373 7.708 1.60002 4.99307C1.59626 4.21185 1.94807 3.45625 2.58976 2.86737C3.23145 2.27849 4.11914 1.89661 5.08705 1.79303C5.08664 1.79623 5.08664 1.79944 5.08705 1.80263L7.18706 5.56267L5.12005 7.54189C5.09902 7.56118 5.07996 7.58178 5.06305 7.60349C4.91256 7.78823 4.82428 8.00093 4.80676 8.22099C4.78924 8.44104 4.84307 8.66099 4.96304 8.8595C5.86905 10.3419 7.73606 11.8243 9.60908 12.5483C9.85904 12.6434 10.1356 12.685 10.4116 12.669C10.6877 12.653 10.9538 12.58 11.1841 12.4571C11.2098 12.4434 11.2345 12.4284 11.2581 12.4123L13.6891 10.7531L18.3891 12.4371H18.4001C18.2723 13.2126 17.7956 13.9241 17.0594 14.4388C16.3232 14.9534 15.3778 15.2358 14.4001 15.2332Z"
+                  fill="black"
+                />
+              </svg>
+              <span class="text-xs font-semibold shadow-drop"
+                >+62 822-4486-2020</span
+              >
+            </div>
+            <button
+              (click)="navigateTo('/change-contact')"
+              class="w-full min-w-[80px] max-w-[80px] h-full min-h-[20px] max-h-[20px] px-4 bg-custom-light-yellow text-xs font-semibold rounded hover:bg-custom-yellow focus:outline-none focus:ring-2 focus:ring-custom-light-yellow focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+            >
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="w-full flex justify-center items-center">
+        <span class="text-sm font-semibold shadow-drop">Role: Super Admin</span>
+      </div>
+    </app-dynamic-account>
+  </app-content-account>
+</div>
