@@ -1,5 +1,5 @@
 {
-  "name": "literate-octo-journey",
+  "name": "fision-web",
   "version": "1.0.0",
   "author": {
     "email": "riowilliamsimamora@gmail.com",
@@ -25,9 +25,7 @@
     "@angular/router": "^18.2.0",
     "chart.js": "^4.4.4",
     "chartjs-plugin-datalabels": "^2.2.0",
-    "glob": "^11.0.0",
     "ng2-charts": "^6.0.1",
-    "rimraf": "^6.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"

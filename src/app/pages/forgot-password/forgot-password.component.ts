@@ -11,7 +11,7 @@ import { DynamicAccountComponent } from '../../components/dynamic-account/dynami
 import { Router } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
 import { LoaderService } from '../../services/loader.service';
-import { AuthService } from '../../services/auth.service';
+import { HttpService } from '../../services/http.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -31,7 +31,7 @@ export class ForgotPasswordComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService,
+    private httpService: HttpService,
     private loaderService: LoaderService,
     private notificationService: NotificationService
   ) {
@@ -46,25 +46,25 @@ export class ForgotPasswordComponent {
 
   onSubmit() {
     if (this.forgotPasswordForm.valid) {
-      const { email } = this.forgotPasswordForm.value;
-      if (email === 'user@gmail.com') {
-        this.loaderService.show();
-        setTimeout(() => {
-          this.loaderService.hide();
-          this.notificationService.show(
-            'Reset Passoword was successful!',
-            'success'
-          );
-          this.authService.removeToken();
-          this.router.navigate(['/login']);
-        }, 1500);
-      } else {
-        this.loaderService.show();
-        setTimeout(() => {
-          this.loaderService.hide();
-          this.notificationService.show('Something went wrong!', 'error');
-        }, 1500);
-      }
+      // const { email } = this.forgotPasswordForm.value;
+      // if (email === 'user@gmail.com') {
+      //   this.loaderService.show();
+      //   setTimeout(() => {
+      //     this.loaderService.hide();
+      //     this.notificationService.show(
+      //       'Reset Passoword was successful!',
+      //       'success'
+      //     );
+      //     this.authService.removeToken();
+      //     this.router.navigate(['/login']);
+      //   }, 1500);
+    } else {
+      // this.loaderService.show();
+      // setTimeout(() => {
+      //   this.loaderService.hide();
+      //   this.notificationService.show('Something went wrong!', 'error');
+      // }, 1500);
+      // }
     }
   }
 }

@@ -1,0 +1,19 @@
+services:
+  web:
+    container_name: web
+    image: "fision:1.0.0"
+    ports:
+      - "4200:80"
+    build:
+      context: .
+      args:
+        API_URL: ${API_URL}
+        DEPLOY: dev
+        NGINX: nginx.conf
+    volumes:
+      - .:/app
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "14"

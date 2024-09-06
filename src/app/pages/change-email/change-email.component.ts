@@ -11,7 +11,7 @@ import { DynamicAccountComponent } from '../../components/dynamic-account/dynami
 import { Router } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
 import { LoaderService } from '../../services/loader.service';
-import { AuthService } from '../../services/auth.service';
+import { HttpService } from '../../services/http.service';
 
 @Component({
   selector: 'app-change-email',
@@ -31,7 +31,7 @@ export class ChangeEmailComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService,
+    private httpService: HttpService,
     private loaderService: LoaderService,
     private notificationService: NotificationService
   ) {
@@ -46,25 +46,25 @@ export class ChangeEmailComponent {
 
   onSubmit() {
     if (this.changeEmailForm.valid) {
-      const { email } = this.changeEmailForm.value;
-      if (email === 'user@gmail.com') {
-        this.loaderService.show();
-        setTimeout(() => {
-          this.loaderService.hide();
-          this.notificationService.show(
-            'Change Email was successful!',
-            'success'
-          );
-          this.authService.removeToken();
-          this.router.navigate(['/login']);
-        }, 1500);
-      } else {
-        this.loaderService.show();
-        setTimeout(() => {
-          this.loaderService.hide();
-          this.notificationService.show('Something went wrong!', 'error');
-        }, 1500);
-      }
+      // const { email } = this.changeEmailForm.value;
+      // if (email === 'user@gmail.com') {
+      //   this.loaderService.show();
+      //   setTimeout(() => {
+      //     this.loaderService.hide();
+      //     this.notificationService.show(
+      //       'Change Email was successful!',
+      //       'success'
+      //     );
+      //     this.authService.removeToken();
+      //     this.router.navigate(['/login']);
+      //   }, 1500);
+    } else {
+      // this.loaderService.show();
+      // setTimeout(() => {
+      //   this.loaderService.hide();
+      //   this.notificationService.show('Something went wrong!', 'error');
+      // }, 1500);
+      // }
     }
   }
 }
