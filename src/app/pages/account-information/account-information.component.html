@@ -38,7 +38,9 @@
                   </clipPath>
                 </defs>
               </svg>
-              <span class="text-xs font-semibold shadow-drop">user</span>
+              <span class="text-xs font-semibold shadow-drop">{{
+                fullName
+              }}</span>
             </div>
             <button
               (click)="navigateTo('/change-username')"
@@ -66,9 +68,7 @@
                 />
               </svg>
 
-              <span class="text-xs font-semibold shadow-drop"
-                >user&#64;gmail.com</span
-              >
+              <span class="text-xs font-semibold shadow-drop">{{ email }}</span>
             </div>
             <button
               (click)="navigateTo('/change-email')"
@@ -95,9 +95,9 @@
                   fill="black"
                 />
               </svg>
-              <span class="text-xs font-semibold shadow-drop"
-                >+62 822-4486-2020</span
-              >
+              <span class="text-xs font-semibold shadow-drop">{{
+                contact
+              }}</span>
             </div>
             <button
               (click)="navigateTo('/change-contact')"
@@ -109,7 +109,9 @@
         </div>
       </div>
       <div class="w-full flex justify-center items-center">
-        <span class="text-sm font-semibold shadow-drop">Role: Super Admin</span>
+        <span class="text-sm font-semibold shadow-drop"
+          >Role: {{ roleCode }}</span
+        >
       </div>
     </app-dynamic-account>
   </app-content-account>

@@ -3,12 +3,24 @@
     <form [formGroup]="changeUsernameForm" (ngSubmit)="onSubmit()">
       <div class="mb-6 w-full sm:min-w-[400px] sm:max-w-[400px]">
         <label for="username" class="block font-semibold mb-2 text-left text-sm"
-          >Username</label
+          >New Username</label
         >
         <input
           id="username"
           formControlName="username"
           type="text"
+          class="shadow-drop w-full px-4 py-2 text-sm bg-custom-thin-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-custom-light-yellow h-[40px]"
+        />
+      </div>
+
+      <div class="mb-6 w-full sm:min-w-[400px] sm:max-w-[400px]">
+        <label for="password" class="block font-semibold mb-2 text-left text-sm"
+          >Password Confirmation</label
+        >
+        <input
+          id="password"
+          formControlName="password"
+          type="password"
           class="shadow-drop w-full px-4 py-2 text-sm bg-custom-thin-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-custom-light-yellow h-[40px]"
         />
       </div>

@@ -15,7 +15,7 @@
       </thead>
       <tbody class="bg-white divide-y-2 divide-gray-200">
         <tr
-          *ngFor="let row of paginatedRows; let last = last"
+          *ngFor="let row of rows; let last = last"
           class="hover:bg-gray-100"
           [ngClass]="{ 'border-b-2 border-gray-200': last }"
         >
@@ -26,7 +26,7 @@
             <ng-container
               *ngIf="header?.renderType(row[header.key], row) as renderType"
             >
-              <ng-container [ngSwitch]="header?.renderType(row[header.key])">
+              <ng-container [ngSwitch]="renderType">
                 <button
                   *ngSwitchCase="'button'"
                   (click)="onButtonClick(row, header.key)"
@@ -36,9 +36,9 @@
                 </button>
                 <span *ngSwitchCase="'number'">{{ row[header.key] }}</span>
                 <span *ngSwitchCase="'text'">{{ row[header.key] }}</span>
-                <span *ngSwitchCase="'currency'">{{
-                  row[header.key] | currency : "IDR"
-                }}</span>
+                <span *ngSwitchCase="'currency'">
+                  {{ row[header.key] | currency : "IDR" }}
+                </span>
                 <span *ngSwitchCase="'date'">{{
                   row[header.key] | date : "yyyy-MM-dd"
                 }}</span>
@@ -68,7 +68,6 @@
       </tbody>
     </table>
   </div>
-  <!-- Pagination Controls -->
   <div class="mt-4 flex items-center justify-center gap-2">
     <button
       (click)="goToFirstPage()"
@@ -112,8 +111,6 @@
       &raquo;
     </button>
   </div>
-
-  <!-- Loading Indicator -->
   <div
     *ngIf="isLoading"
     class="absolute inset-0 flex items-center justify-center bg-opacity-50 bg-gray-700 z-40 rounded-[15px]"

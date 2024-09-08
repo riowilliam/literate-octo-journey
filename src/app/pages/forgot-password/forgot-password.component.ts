@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
 import { LoaderService } from '../../services/loader.service';
 import { HttpService } from '../../services/http.service';
+import { ForgotPasswordResponse } from './dto/forgot-password.dto';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-forgot-password',
@@ -46,25 +48,44 @@ export class ForgotPasswordComponent {
 
   onSubmit() {
     if (this.forgotPasswordForm.valid) {
-      // const { email } = this.forgotPasswordForm.value;
-      // if (email === 'user@gmail.com') {
-      //   this.loaderService.show();
-      //   setTimeout(() => {
-      //     this.loaderService.hide();
-      //     this.notificationService.show(
-      //       'Reset Passoword was successful!',
-      //       'success'
-      //     );
-      //     this.authService.removeToken();
-      //     this.router.navigate(['/login']);
-      //   }, 1500);
+      const { email } = this.forgotPasswordForm.value;
+
+      this.loaderService.show();
+
+      this.httpService
+        .post<ForgotPasswordResponse>(
+          environment.API_URL,
+          `api/sendResetPassword?email=${email}`,
+          null
+        )
+        .subscribe({
+          next: (response) => {
+            this.loaderService.hide();
+            if (
+              response?.status === 200 &&
+              response?.info?.toLowerCase() ===
+                'email sent, please check your email.'
+            ) {
+              this.notificationService.show(response.info, 'success');
+              this.router.navigate(['/login']);
+            } else {
+              this.notificationService.show(response.info, 'info');
+            }
+          },
+          error: (error) => {
+            this.loaderService.hide();
+            this.notificationService.show(
+              'Failed to send reset instructions.',
+              'error'
+            );
+            console.error('Forgot password error:', error);
+          },
+        });
     } else {
-      // this.loaderService.show();
-      // setTimeout(() => {
-      //   this.loaderService.hide();
-      //   this.notificationService.show('Something went wrong!', 'error');
-      // }, 1500);
-      // }
+      this.notificationService.show(
+        'Please enter a valid email address.',
+        'error'
+      );
     }
   }
 }

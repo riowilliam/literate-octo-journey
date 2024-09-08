@@ -20,6 +20,7 @@ import { ChangeUsernameComponent } from './pages/change-username/change-username
 import { authRedirectGuard } from './guards/auth-redirect.guard';
 import { authGuard } from './guards/auth.guard';
 import { AccountInformationComponent } from './pages/account-information/account-information.component';
+import { UserComponent } from './pages/user/user.component';
 
 export const routes: Routes = [
   {
@@ -59,6 +60,7 @@ export const routes: Routes = [
   { path: 'project', component: ProjectComponent, canActivate: [authGuard] },
   { path: 'contract', component: ContractComponent, canActivate: [authGuard] },
   { path: 'items', component: ItemsComponent, canActivate: [authGuard] },
+  { path: 'user', component: UserComponent, canActivate: [authGuard] },
   {
     path: 'regular-cash-out',
     component: RegularCashOutComponent,

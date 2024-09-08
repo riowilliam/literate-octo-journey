@@ -29,20 +29,12 @@ export class DynamicTableComponent {
   @Input() rows: any[] = [];
   @Output() buttonClick = new EventEmitter<{ row: any; key: string }>();
 
-  currentPage = 1;
-  itemsPerPage = 10;
+  @Input() currentPage: number = 1;
+  @Input() pageSize: number = 10;
   pageRange = 5;
   isLoading = false;
-
-  get paginatedRows() {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.rows.slice(startIndex, endIndex);
-  }
-
-  get totalPages() {
-    return Math.ceil(this.rows.length / this.itemsPerPage);
-  }
+  @Input() totalPages: number = 0;
+  @Output() buttonPagination = new EventEmitter<number>();
 
   get pageNumbers() {
     const pages = [];
@@ -69,44 +61,44 @@ export class DynamicTableComponent {
     this.buttonClick.emit({ row, key });
   }
 
-  async goToPage(page: number) {
+  goToPage(page: number) {
     if (page > 0 && page <= this.totalPages) {
       this.isLoading = true;
-      await this.loadPage(page);
+      this.loadPage(page);
       this.isLoading = false;
     }
   }
 
-  async nextPage() {
+  nextPage() {
     if (this.currentPage < this.totalPages) {
       this.isLoading = true;
-      await this.loadPage(this.currentPage + 1);
+      this.loadPage(this.currentPage + 1);
       this.isLoading = false;
     }
   }
 
-  async prevPage() {
+  prevPage() {
     if (this.currentPage > 1) {
       this.isLoading = true;
-      await this.loadPage(this.currentPage - 1);
+      this.loadPage(this.currentPage - 1);
       this.isLoading = false;
     }
   }
 
-  async goToFirstPage() {
+  goToFirstPage() {
     this.isLoading = true;
-    await this.loadPage(1);
+    this.loadPage(1);
     this.isLoading = false;
   }
 
-  async goToLastPage() {
+  goToLastPage() {
     this.isLoading = true;
-    await this.loadPage(this.totalPages);
+    this.loadPage(this.totalPages);
     this.isLoading = false;
   }
 
-  private async loadPage(page: number) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  loadPage(page: number) {
+    this.buttonPagination.emit(page);
     this.currentPage = page;
   }
 }

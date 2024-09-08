@@ -1,24 +1,31 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+  HttpParams,
+} from '@angular/common/http';
+import { catchError, Observable, throwError } from 'rxjs';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HttpService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   get<T>(
     baseUrl: string,
     endpoint: string,
-    params?: any,
+    params?: HttpParams,
     headers?: HttpHeaders
   ): Observable<T> {
-    const httpParams = new HttpParams({ fromObject: params });
-    return this.http.get<T>(`${baseUrl}/${endpoint}`, {
-      params: httpParams,
-      headers,
-    });
+    return this.http
+      .get<T>(`${baseUrl}/${endpoint}`, {
+        params,
+        headers,
+      })
+      .pipe(catchError(this.handleError.bind(this)));
   }
 
   post<T>(
@@ -27,7 +34,9 @@ export class HttpService {
     body: any,
     headers?: HttpHeaders
   ): Observable<T> {
-    return this.http.post<T>(`${baseUrl}/${endpoint}`, body, { headers });
+    return this.http
+      .post<T>(`${baseUrl}/${endpoint}`, body, { headers })
+      .pipe(catchError(this.handleError.bind(this)));
   }
 
   put<T>(
@@ -36,7 +45,9 @@ export class HttpService {
     body: any,
     headers?: HttpHeaders
   ): Observable<T> {
-    return this.http.put<T>(`${baseUrl}/${endpoint}`, body, { headers });
+    return this.http
+      .put<T>(`${baseUrl}/${endpoint}`, body, { headers })
+      .pipe(catchError(this.handleError.bind(this)));
   }
 
   delete<T>(
@@ -44,6 +55,15 @@ export class HttpService {
     endpoint: string,
     headers?: HttpHeaders
   ): Observable<T> {
-    return this.http.delete<T>(`${baseUrl}/${endpoint}`, { headers });
+    return this.http
+      .delete<T>(`${baseUrl}/${endpoint}`, { headers })
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    if (error.status === 401) {
+      this.authService.logout();
+    }
+    return throwError(() => new Error('An error occurred'));
   }
 }

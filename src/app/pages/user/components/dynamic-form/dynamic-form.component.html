@@ -1,0 +1,160 @@
+<form [formGroup]="dynamicForm" (ngSubmit)="onSubmit()">
+  <div class="w-full flex flex-col items-center justify-center">
+    <div
+      class="flex flex-col items-center justify-center p-5 sm:min-w-[400px] sm:max-w-[400px]"
+    >
+      <div *ngFor="let field of formConfig" class="w-full">
+        <label [for]="field.key" class="text-sm mb-1">{{ field.label }}</label>
+
+        <div *ngIf="field.type === 'text'" class="relative inline-block w-full">
+          <input
+            [id]="field.key"
+            [type]="field.type"
+            [formControlName]="field.key"
+            [placeholder]="'Enter text'"
+            class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+            [ngClass]="{
+              'border-red-500 focus:ring-red-500':
+                dynamicForm.get(field.key)?.invalid &&
+                (dynamicForm.get(field.key)?.touched ||
+                  dynamicForm.get(field.key)?.dirty),
+              'border-[#A4A4A4] focus:ring-custom-light-yellow':
+                dynamicForm.get(field.key)?.valid ||
+                !(
+                  dynamicForm.get(field.key)?.touched ||
+                  dynamicForm.get(field.key)?.dirty
+                )
+            }"
+          />
+        </div>
+
+        <div
+          *ngIf="field.type === 'email'"
+          class="relative inline-block w-full"
+        >
+          <input
+            [id]="field.key"
+            [type]="field.type"
+            [formControlName]="field.key"
+            [placeholder]="'Enter text'"
+            [pattern]="field.pattern"
+            class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+            [ngClass]="{
+              'border-red-500 focus:ring-red-500':
+                dynamicForm.get(field.key)?.invalid &&
+                (dynamicForm.get(field.key)?.touched ||
+                  dynamicForm.get(field.key)?.dirty),
+              'border-[#A4A4A4] focus:ring-custom-light-yellow':
+                dynamicForm.get(field.key)?.valid ||
+                !(
+                  dynamicForm.get(field.key)?.touched ||
+                  dynamicForm.get(field.key)?.dirty
+                )
+            }"
+          />
+        </div>
+
+        <div
+          *ngIf="field.type === 'select'"
+          class="relative inline-block w-full"
+        >
+          <select
+            [id]="field.key"
+            [formControlName]="field.key"
+            class="w-full pr-8 appearance-none form-select text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+            [ngClass]="{
+              'border-red-500 focus:ring-red-500':
+                dynamicForm.get(field.key)?.invalid &&
+                (dynamicForm.get(field.key)?.touched ||
+                  dynamicForm.get(field.key)?.dirty),
+              'border-[#A4A4A4] focus:ring-custom-light-yellow':
+                dynamicForm.get(field.key)?.valid ||
+                !(
+                  dynamicForm.get(field.key)?.touched ||
+                  dynamicForm.get(field.key)?.dirty
+                )
+            }"
+          >
+            <option [value]="null" disabled hidden>Select an option</option>
+            <option [value]="''" disabled hidden>Select an option</option>
+            <option *ngFor="let option of field.options" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+          <div
+            class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+          >
+            <svg
+              width="16"
+              height="8"
+              viewBox="0 0 16 8"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M0.988143 0.507823L8.5 7.50022L15.9881 0.492631L0.988143 0.507823Z"
+                fill="black"
+                fill-opacity="0.5"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <div *ngIf="field.type === 'tel'" class="relative inline-block w-full">
+          <input
+            [id]="field.key"
+            [type]="field.type"
+            [formControlName]="field.key"
+            [placeholder]="'Enter text'"
+            [inputMode]="field.inputmode"
+            [pattern]="field.pattern"
+            class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+            [ngClass]="{
+              'border-red-500 focus:ring-red-500':
+                dynamicForm.get(field.key)?.invalid &&
+                (dynamicForm.get(field.key)?.touched ||
+                  dynamicForm.get(field.key)?.dirty),
+              'border-[#A4A4A4] focus:ring-custom-light-yellow':
+                dynamicForm.get(field.key)?.valid ||
+                !(
+                  dynamicForm.get(field.key)?.touched ||
+                  dynamicForm.get(field.key)?.dirty
+                )
+            }"
+          />
+        </div>
+
+        <div
+          *ngIf="
+            dynamicForm.get(field.key)?.invalid &&
+            (dynamicForm.get(field.key)?.touched ||
+              dynamicForm.get(field.key)?.dirty)
+          "
+          class="text-red-500 text-xs mt-1"
+        >
+          {{ getErrorMessage(field.key) }}
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="w-full flex items-center justify-between p-5 sm:min-w-[400px] sm:max-w-[400px]"
+    >
+      <button
+        type="submit"
+        class="w-full min-w-[140px] max-w-[140px] py-2 px-4 bg-custom-light-yellow text-xs font-semibold rounded-lg hover:bg-custom-yellow focus:outline-none focus:ring-2 focus:ring-custom-light-yellow focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+        [disabled]="dynamicForm.invalid"
+      >
+        Submit
+      </button>
+
+      <button
+        type="button"
+        class="w-full min-w-[140px] max-w-[140px] py-2 px-4 bg-custom-light-red text-xs font-semibold rounded-lg hover:bg-custom-red focus:outline-none focus:ring-2 focus:ring-custom-light-red focus:ring-opacity-50"
+        (click)="closeModal()"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</form>

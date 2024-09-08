@@ -36,7 +36,7 @@ export class ChangeContactComponent {
     private notificationService: NotificationService
   ) {
     this.changeContactForm = this.fb.group({
-      contact: ['', [Validators.required, Validators.required]],
+      contact: ['', [Validators.required]],
     });
   }
 

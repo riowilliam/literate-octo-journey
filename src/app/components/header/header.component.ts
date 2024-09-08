@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { LoaderService } from '../../services/loader.service';
 
 @Component({
   selector: 'app-header',
@@ -64,6 +65,7 @@ export class HeaderComponent {
         { name: 'Project', link: '/project', isActive: false },
         { name: 'Contract', link: '/contract', isActive: false },
         { name: 'Items', link: '/items', isActive: false },
+        { name: 'User', link: '/user', isActive: false },
       ],
       subMenuOpen: false,
       isActive: false,
@@ -72,18 +74,26 @@ export class HeaderComponent {
 
   menuOpen = false;
 
-  userName = 'user';
+  fullName!: string;
 
   mobileMenuOpen = false;
   isMasterDataOpen: boolean = false;
   isCashOutOpen: boolean = false;
 
-  constructor(private router: Router, private authService: AuthService) {
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private loaderService: LoaderService
+  ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.updateActiveStates();
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.fullName = this.authService.getFullName();
   }
 
   toggleMasterDataMenu(event: MouseEvent) {
@@ -124,8 +134,12 @@ export class HeaderComponent {
   }
 
   logout() {
-    this.authService.removeToken();
-    this.router.navigate(['/login']);
+    this.loaderService.show();
+    setTimeout(() => {
+      this.loaderService.hide();
+      this.authService.flush();
+      this.router.navigate(['/login']);
+    }, 1500);
   }
 
   toggleMenu() {

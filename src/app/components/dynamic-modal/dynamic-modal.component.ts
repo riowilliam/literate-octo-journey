@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  SimpleChanges,
+  OnChanges,
+  OnDestroy,
+} from '@angular/core';
 
 @Component({
   selector: 'app-dynamic-modal',
@@ -8,9 +16,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   templateUrl: './dynamic-modal.component.html',
   styleUrls: ['./dynamic-modal.component.scss'],
 })
-export class DynamicModalComponent {
+export class DynamicModalComponent implements OnChanges, OnDestroy {
   @Input() title: string = '';
-  @Input() content: string = '';
   @Input() showModal: boolean = false;
   @Output() closeModal = new EventEmitter<void>();
 
@@ -25,5 +32,19 @@ export class DynamicModalComponent {
       return;
     }
     this.close();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['showModal']) {
+      if (this.showModal) {
+        document.body.classList.add('overflow-hidden');
+      } else {
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+  }
+
+  ngOnDestroy() {
+    document.body.classList.remove('overflow-hidden');
   }
 }
