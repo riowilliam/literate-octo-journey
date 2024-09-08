@@ -1,14 +1,12 @@
 services:
-  web:
-    container_name: web
-    image: "fision:1.0.0"
+  fision-web:
+    container_name: fision-web
+    image: "riowilliam08/fision-web:latest"
     ports:
       - "4200:80"
     build:
       context: .
       args:
-        API_URL: ${API_URL}
-        DEPLOY: dev
         NGINX: nginx.conf
     volumes:
       - .:/app

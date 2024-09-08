@@ -12,8 +12,6 @@ RUN npm install
 
 COPY . .
 
-RUN sed -i "s|API_URL_PLACEHOLDER|${API_URL}|g" src/environments/environment.ts
-
 RUN npm run build
 
 FROM nginx:alpine
