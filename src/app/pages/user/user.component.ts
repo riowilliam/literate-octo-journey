@@ -220,6 +220,12 @@ export class UserComponent {
               value: role.roleCode,
               label: role.roleName,
             }));
+            this.formConfig = this.formConfig.map((config: any) => {
+              if (config.key === 'formRole') {
+                return { ...config, options: this.dropdownOptions };
+              }
+              return config;
+            });
             sessionStorage.setItem(
               'role_list',
               JSON.stringify(this.dropdownOptions)
@@ -307,7 +313,6 @@ export class UserComponent {
   }
 
   createUser(formValue: any) {
-    this.loaderService.show();
     this.httpService
       .post<FormUserResponse>(
         environment.API_URL,
@@ -325,13 +330,12 @@ export class UserComponent {
       )
       .subscribe({
         next: (response) => {
-          this.loaderService.hide();
+          this.closeModalAdd();
           if (
             response.status === 200 &&
             response.info.toLowerCase() ===
               'user has been created. please contact the user to check email for the password.'
           ) {
-            this.closeModalAdd();
             this.fetchUsers();
             this.notificationService.show(response.info, 'success');
           } else {
@@ -339,7 +343,6 @@ export class UserComponent {
           }
         },
         error: (error) => {
-          this.loaderService.hide();
           this.notificationService.show('Error creating user.', 'error');
           console.error('Error creating user', error);
         },
@@ -347,11 +350,10 @@ export class UserComponent {
   }
 
   editUser(formValue: any) {
-    this.loaderService.show();
     this.httpService
       .post<FormUserResponse>(
         environment.API_URL,
-        `api/user/editeUser?username=${formValue.formUsername}`,
+        `api/user/editUser?username=${formValue.formUsername}`,
         new FormUserRequest(
           formValue.formUsername,
           formValue.formFullName,
@@ -365,12 +367,11 @@ export class UserComponent {
       )
       .subscribe({
         next: (response) => {
-          this.loaderService.hide();
+          this.closeModalEdit();
           if (
             response.status === 200 &&
             response.info.toLowerCase() === 'user has been updated.'
           ) {
-            this.closeModalAdd();
             this.fetchUsers();
             this.notificationService.show(response.info, 'success');
           } else {
@@ -378,7 +379,6 @@ export class UserComponent {
           }
         },
         error: (error) => {
-          this.loaderService.hide();
           this.notificationService.show('Error updating user.', 'error');
           console.error('Error updating user', error);
         },

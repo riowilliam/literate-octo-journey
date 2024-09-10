@@ -20,10 +20,6 @@ export class AuthService {
     return token ? token : '';
   }
 
-  removeToken(): void {
-    sessionStorage.removeItem('token');
-  }
-
   setFullName(fullName: string): void {
     sessionStorage.setItem('full_name', fullName);
   }
@@ -31,10 +27,6 @@ export class AuthService {
   getFullName(): string {
     const fullName = sessionStorage.getItem('full_name');
     return fullName ? fullName : '';
-  }
-
-  removeFullName(): void {
-    sessionStorage.removeItem('full_name');
   }
 
   setUserRole(userRole: string): void {
@@ -46,10 +38,6 @@ export class AuthService {
     return userRole ? userRole : '';
   }
 
-  removeUserRole(): void {
-    sessionStorage.removeItem('user_role');
-  }
-
   setUsername(fullName: string): void {
     sessionStorage.setItem('username', fullName);
   }
@@ -59,15 +47,8 @@ export class AuthService {
     return username ? username : '';
   }
 
-  removeUsername(): void {
-    sessionStorage.removeItem('username');
-  }
-
   flush(): void {
-    this.removeToken();
-    this.removeFullName();
-    this.removeUserRole();
-    this.removeUsername();
+    sessionStorage.clear();
   }
 
   logout() {
