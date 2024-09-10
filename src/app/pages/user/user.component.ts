@@ -98,7 +98,6 @@ export class UserComponent {
       class: 'bg-custom-light-yellow px-4 py-2 rounded hover:bg-custom-yellow',
     },
   ];
-  selectedOption: string = '';
   dropdownOptions: Array<{ value: string; label: string }> = [];
   formConfig!: any;
 
@@ -134,7 +133,7 @@ export class UserComponent {
       formFullName: ['', Validators.required],
       formEmail: ['', [Validators.required, Validators.email]],
       formContact: ['', [Validators.required, Validators.pattern(/^[0-9]*$/)]],
-      formRole: ['', Validators.required],
+      formRole: [null, Validators.required],
     });
     this.formConfig = [
       { key: 'formUsername', label: 'Username', type: 'text' },
@@ -283,7 +282,7 @@ export class UserComponent {
       formFullName: '',
       formEmail: '',
       formContact: '',
-      formRole: '',
+      formRole: null,
     });
     this.showModalAdd = false;
     this.disableFormControls(false);
