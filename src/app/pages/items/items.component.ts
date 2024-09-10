@@ -7,6 +7,21 @@ import { ContentFilterComponent } from '../../components/content-filter/content-
 import { ContentCardComponent } from '../../components/content-card/content-card.component';
 import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
 import { CommonModule } from '@angular/common';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { AuthService } from '../../services/auth.service';
+import { LoaderService } from '../../services/loader.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpService } from '../../services/http.service';
+import {
+  FormItemRequest,
+  FormItemResponse,
+  Item,
+  ItemList,
+  ItemResponse,
+} from './dto/items.dto';
+import { DynamicFormOnPopUpComponent } from '../../components/dynamic-form-on-pop-up/dynamic-form-on-pop-up.component';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-items',
@@ -20,14 +35,22 @@ import { CommonModule } from '@angular/common';
     ContentCardComponent,
     DynamicCardComponent,
     CommonModule,
+    DynamicFormOnPopUpComponent,
   ],
   templateUrl: './items.component.html',
   styleUrl: './items.component.scss',
 })
 export class ItemsComponent {
+  itemForm!: FormGroup;
   showModalAdd = false;
   showModalEdit = false;
-
+  filterForm: FormGroup;
+  data: Item[] = [];
+  totalPages!: number;
+  pageNo: number = 0;
+  pageSize: number = 10;
+  sortBy: string = '';
+  sortOrder: string = '';
   headers: {
     key: string;
     label: string;
@@ -47,9 +70,9 @@ export class ItemsComponent {
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
     { key: 'item_name', renderType: () => 'text', label: 'Item Name' },
-    { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
+    { key: 'created_tm', renderType: () => 'date', label: 'Created Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
-    { key: 'modified_date', renderType: () => 'date', label: 'Modified Date' },
+    { key: 'modified_tm', renderType: () => 'date', label: 'Modified Date' },
     { key: 'modified_by', renderType: () => 'text', label: 'Modified By' },
     {
       key: 'action',
@@ -58,167 +81,71 @@ export class ItemsComponent {
       class: 'bg-custom-light-yellow px-4 py-2 rounded hover:bg-custom-yellow',
     },
   ];
+  formConfig!: any;
 
-  data = [
-    {
-      no: 1,
-      item_name: 'Vendor A',
-      created_date: '2024-03-24',
-      created_by: 'Admin A',
-      modified_date: '2024-06-28',
-      modified_by: 'Admin B',
-      action: 'Edit',
-    },
-    {
-      no: 2,
-      item_name: 'Vendor B',
-      created_date: '2024-02-23',
-      created_by: 'Admin B',
-      modified_date: '2024-02-12',
-      modified_by: 'Admin C',
-      action: 'Edit',
-    },
-    {
-      no: 3,
-      item_name: 'Vendor C',
-      created_date: '2024-06-22',
-      created_by: 'Admin C',
-      modified_date: '2024-05-27',
-      modified_by: 'Admin D',
-      action: 'Edit',
-    },
-    {
-      no: 4,
-      item_name: 'Vendor D',
-      created_date: '2024-07-30',
-      created_by: 'Admin D',
-      modified_date: '2023-10-08',
-      modified_by: 'Admin E',
-      action: 'Edit',
-    },
-    {
-      no: 5,
-      item_name: 'Vendor E',
-      created_date: '2024-02-18',
-      created_by: 'Admin E',
-      modified_date: '2023-09-12',
-      modified_by: 'Admin F',
-      action: 'Edit',
-    },
-    {
-      no: 6,
-      item_name: 'Vendor F',
-      created_date: '2024-03-11',
-      created_by: 'Admin F',
-      modified_date: '2023-12-06',
-      modified_by: 'Admin G',
-      action: 'Edit',
-    },
-    {
-      no: 7,
-      item_name: 'Vendor G',
-      created_date: '2024-05-04',
-      created_by: 'Admin G',
-      modified_date: '2024-05-23',
-      modified_by: 'Admin H',
-      action: 'Edit',
-    },
-    {
-      no: 8,
-      item_name: 'Vendor H',
-      created_date: '2024-06-07',
-      created_by: 'Admin H',
-      modified_date: '2023-10-30',
-      modified_by: 'Admin I',
-      action: 'Edit',
-    },
-    {
-      no: 9,
-      item_name: 'Vendor I',
-      created_date: '2023-12-25',
-      created_by: 'Admin I',
-      modified_date: '2024-07-13',
-      modified_by: 'Admin J',
-      action: 'Edit',
-    },
-    {
-      no: 10,
-      item_name: 'Vendor J',
-      created_date: '2023-12-26',
-      created_by: 'Admin J',
-      modified_date: '2024-04-01',
-      modified_by: 'Admin K',
-      action: 'Edit',
-    },
-    {
-      no: 11,
-      item_name: 'Vendor K',
-      created_date: '2024-03-13',
-      created_by: 'Admin K',
-      modified_date: '2023-10-08',
-      modified_by: 'Admin L',
-      action: 'Edit',
-    },
-    {
-      no: 12,
-      item_name: 'Vendor L',
-      created_date: '2024-04-16',
-      created_by: 'Admin L',
-      modified_date: '2023-12-07',
-      modified_by: 'Admin M',
-      action: 'Edit',
-    },
-    {
-      no: 13,
-      item_name: 'Vendor M',
-      created_date: '2024-02-23',
-      created_by: 'Admin M',
-      modified_date: '2023-12-02',
-      modified_by: 'Admin N',
-      action: 'Edit',
-    },
-    {
-      no: 14,
-      item_name: 'Vendor N',
-      created_date: '2024-03-11',
-      created_by: 'Admin N',
-      modified_date: '2024-04-08',
-      modified_by: 'Admin O',
-      action: 'Edit',
-    },
-    {
-      no: 15,
-      item_name: 'Vendor O',
-      created_date: '2024-05-12',
-      created_by: 'Admin O',
-      modified_date: '2024-08-19',
-      modified_by: 'Admin P',
-      action: 'Edit',
-    },
-  ];
+  constructor(
+    private fb: FormBuilder,
+    private httpService: HttpService,
+    private authService: AuthService,
+    private loaderService: LoaderService,
+    private notificationService: NotificationService
+  ) {
+    this.filterForm = this.fb.group({
+      itemName: [''],
+    });
+  }
 
-  textValue: string = '';
-  numberValue: number | null = null;
-  selectedOption: string = '';
-  dropdownOptions: Array<{ value: string; label: string }> = [
-    { value: 'Test', label: 'Test' },
-  ];
-  textareaValue: string = '';
-  dateValue: Date | null = null;
-  isDisabled: boolean = false;
+  ngOnInit() {
+    this.fetchItems();
+    this.itemForm = this.fb.group({
+      id: [''],
+      formItemName: ['', Validators.required],
+    });
+    this.formConfig = [
+      { key: 'id', label: 'ID', type: 'text', hidden: true },
+      { key: 'formItemName', label: 'Item Name', type: 'text' },
+    ];
+  }
 
-  handleValueChange(event: any) {
-    console.log('Value changed:', event);
-    if (event.type === 'text') {
-      this.textValue = event.value;
-    } else if (event.type === 'number') {
-      this.numberValue = event.value;
-    } else if (event.type === 'dropdown') {
-      this.selectedOption = event.value;
-    } else if (event.type === 'textarea') {
-      this.textareaValue = event.value;
-    } else if (event.type === 'datepicker') {
-      this.dateValue = event.value;
+  fetchItems() {
+    const params = new HttpParams()
+      .set('pageNo', this.pageNo)
+      .set('pageSize', this.pageSize)
+      .set('sortBy', this.sortBy)
+      .set('sortOrder', this.sortOrder)
+      .set('itemName', this.filterForm.get('itemName')?.value || '');
+    this.loaderService.show();
+    this.httpService
+      .get<ItemResponse>(
+        environment.API_URL,
+        'api/item/getItemListPaging',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          this.data = [...ItemList.fromApiResponse(response?.data?.content)];
+          this.totalPages = response?.data?.totalPages;
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          console.error('Failed to fetch items', error);
+        },
+      });
+  }
+
+  onPageChange(event: any) {
+    this.pageNo = event - 1;
+    this.fetchItems();
+  }
+
+  handleValueChange(value: any, key: string) {
+    const control = this.filterForm.get(key);
+    if (control) {
+      control.setValue(value);
     }
   }
 
@@ -228,22 +155,120 @@ export class ItemsComponent {
         this.showModalAdd = true;
         break;
       case 'action':
+        this.itemForm.patchValue({
+          id: row?.row?.id,
+          formItemName: row?.row?.item_name,
+        });
         this.showModalEdit = true;
         break;
       case 'apply':
-        console.log('Do request to apply filter');
+        this.pageNo = 0;
+        this.pageSize = 10;
+        this.sortBy = '';
+        this.sortOrder = '';
+        this.fetchItems();
         break;
       case 'clear':
-        console.log('Do request to clear filter');
+        this.filterForm.reset({
+          itemName: '',
+        });
+        this.fetchItems();
         break;
     }
   }
 
   closeModalAdd() {
+    this.itemForm.reset({
+      formItemName: '',
+    });
     this.showModalAdd = false;
   }
 
   closeModalEdit() {
+    this.showModalEdit = false;
+  }
+
+  handleFormSubmit(formValue: any, type: string): void {
+    if (type === 'add') {
+      this.createItem(formValue);
+    } else {
+      this.editItem({
+        formItemName: this.itemForm.get('formItemName')?.value,
+        id: this.itemForm.get('id')?.value,
+      });
+    }
+  }
+
+  createItem(formValue: any) {
+    this.httpService
+      .post<FormItemResponse>(
+        environment.API_URL,
+        `api/item/createItem?username=${this.authService.getUsername()}`,
+        new FormItemRequest(formValue.formItemName),
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalAdd();
+          if (
+            response.status === 200 &&
+            response.info.toLowerCase() === 'data has been saved.'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.fetchItems();
+            this.notificationService.show(response.info, 'success');
+          } else {
+            this.notificationService.show(response.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.notificationService.show('Error creating item.', 'error');
+          console.error('Error creating item', error);
+        },
+      });
+  }
+
+  editItem(formValue: any) {
+    this.httpService
+      .post<FormItemResponse>(
+        environment.API_URL,
+        `api/item/editItem?username=${this.authService.getUsername()}`,
+        new FormItemRequest(formValue.formItemName, formValue.id),
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalEdit();
+          if (
+            response.status === 200 &&
+            response.info.toLowerCase() === 'data has been updated.'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.fetchItems();
+            this.notificationService.show(response.info, 'success');
+          } else {
+            this.notificationService.show(response.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.notificationService.show('Error updating item.', 'error');
+          console.error('Error updating item', error);
+        },
+      });
+  }
+
+  handleFormCancel(): void {
+    this.showModalAdd = false;
     this.showModalEdit = false;
   }
 }

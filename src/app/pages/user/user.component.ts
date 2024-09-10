@@ -21,8 +21,8 @@ import { AuthService } from '../../services/auth.service';
 import { LoaderService } from '../../services/loader.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RoleResponse } from './dto/role.dto';
-import { DynamicFormComponent } from './components/dynamic-form/dynamic-form.component';
 import { NotificationService } from '../../services/notification.service';
+import { DynamicFormOnPopUpComponent } from '../../components/dynamic-form-on-pop-up/dynamic-form-on-pop-up.component';
 
 @Component({
   selector: 'app-user',
@@ -36,7 +36,7 @@ import { NotificationService } from '../../services/notification.service';
     ContentCardComponent,
     DynamicCardComponent,
     CommonModule,
-    DynamicFormComponent,
+    DynamicFormOnPopUpComponent,
   ],
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss',
@@ -46,10 +46,6 @@ export class UserComponent {
   showModalAdd = false;
   showModalEdit = false;
   filterForm: FormGroup;
-  fullName!: string;
-  email!: string;
-  roleCode!: string;
-  contact!: string;
   data: User[] = [];
   totalPages!: number;
   pageNo: number = 0;
@@ -253,11 +249,11 @@ export class UserComponent {
         break;
       case 'action':
         this.userForm.patchValue({
-          formUsername: row.row.username,
-          formFullName: row.row.fullname,
-          formEmail: row.row.email,
-          formContact: row.row.contact,
-          formRole: this.getRoleValue(row.row.role),
+          formUsername: row?.row?.username,
+          formFullName: row?.row?.fullname,
+          formEmail: row?.row?.email,
+          formContact: row?.row?.contact,
+          formRole: this.getRoleValue(row?.row?.role),
         });
         this.showModalEdit = true;
         this.disableFormControls(true);
@@ -336,6 +332,10 @@ export class UserComponent {
             response.info.toLowerCase() ===
               'user has been created. please contact the user to check email for the password.'
           ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
             this.fetchUsers();
             this.notificationService.show(response.info, 'success');
           } else {
@@ -372,6 +372,10 @@ export class UserComponent {
             response.status === 200 &&
             response.info.toLowerCase() === 'user has been updated.'
           ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
             this.fetchUsers();
             this.notificationService.show(response.info, 'success');
           } else {

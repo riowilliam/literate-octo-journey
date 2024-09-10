@@ -10,13 +10,13 @@ import {
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-dynamic-form',
+  selector: 'app-dynamic-form-on-pop-up',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
-  templateUrl: './dynamic-form.component.html',
-  styleUrls: ['./dynamic-form.component.scss'],
+  templateUrl: './dynamic-form-on-pop-up.component.html',
+  styleUrls: ['./dynamic-form-on-pop-up.component.scss'],
 })
-export class DynamicFormComponent implements OnChanges {
+export class DynamicFormOnPopUpComponent implements OnChanges {
   @Input() formConfig: any[] = [];
   @Output() formSubmit = new EventEmitter<any>();
   @Output() formCancel = new EventEmitter<void>();
