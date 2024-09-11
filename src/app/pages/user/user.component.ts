@@ -183,11 +183,19 @@ export class UserComponent {
       .subscribe({
         next: (response) => {
           this.loaderService.hide();
-          this.data = [...UserList.fromApiResponse(response?.data?.content)];
-          this.totalPages = response?.data?.totalPages;
+          if (
+            response.status === 200 &&
+            response.info.toLowerCase() === 'success'
+          ) {
+            this.data = [...UserList.fromApiResponse(response?.data?.content)];
+            this.totalPages = response?.data?.totalPages;
+          } else {
+            this.notificationService.show(response.info, 'info');
+          }
         },
         error: (error: any) => {
           this.loaderService.hide();
+          this.notificationService.show(error, 'error');
           console.error('Failed to fetch users', error);
         },
       });
@@ -199,6 +207,7 @@ export class UserComponent {
   }
 
   fetchRoles() {
+    this.loaderService.show();
     this.httpService
       .get<RoleResponse>(
         environment.API_URL,
@@ -210,7 +219,11 @@ export class UserComponent {
       )
       .subscribe({
         next: (response) => {
-          if (response.status === 200) {
+          this.loaderService.hide();
+          if (
+            response.status === 200 &&
+            response.info.toLowerCase() === 'success'
+          ) {
             this.dropdownOptions = response.data.map((role) => ({
               value: role.roleCode,
               label: role.roleName,
@@ -225,9 +238,13 @@ export class UserComponent {
               'role_list',
               JSON.stringify(this.dropdownOptions)
             );
+          } else {
+            this.notificationService.show(response.info, 'info');
           }
         },
         error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
           console.error('Failed to fetch roles', error);
         },
       });

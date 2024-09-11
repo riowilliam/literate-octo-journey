@@ -10,10 +10,16 @@ import { RupiahMaskPipe } from '../../masks/rupiah.mask';
   styleUrls: ['./dynamic-input.component.scss'],
 })
 export class DynamicInputComponent {
-  @Input() type: 'text' | 'number' | 'dropdown' | 'textarea' | 'datepicker' =
-    'text';
+  @Input() type:
+    | 'text'
+    | 'number'
+    | 'dropdown'
+    | 'textarea'
+    | 'datepicker'
+    | 'searchable-dropdown' = 'text';
   @Input() value: any = '';
-  @Input() options: { value: string; label: string }[] = [];
+  @Input() options: { value: string; label: string; shortLabel?: string }[] =
+    [];
   @Input() placeholder: string = '';
   @Input() disabled: boolean = false;
   @Input() dateFormat: string = 'yyyy-MM-dd';
@@ -22,6 +28,13 @@ export class DynamicInputComponent {
   @Input() labelClass: any = '';
 
   @Output() valueChange = new EventEmitter<any>();
+
+  filteredOptions = this.options;
+  showDropdown = false;
+
+  ngOnChanges() {
+    this.filteredOptions = [...this.options];
+  }
 
   handleInput(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -40,5 +53,40 @@ export class DynamicInputComponent {
     const input = event.target as HTMLInputElement;
     this.value = input.value;
     this.valueChange.emit(this.value);
+  }
+
+  filterOptions(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const searchTerm = input.value.toLowerCase();
+
+    this.filteredOptions = this.options.filter((option) => {
+      const optionLabel = option.label.toLowerCase();
+      const directMatch = optionLabel.includes(searchTerm);
+      const acronymMatch = this.isAcronymMatch(searchTerm, option.label);
+      return directMatch || acronymMatch;
+    });
+  }
+
+  isAcronymMatch(searchTerm: string, optionLabel: string): boolean {
+    const acronym = optionLabel
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .toLowerCase();
+
+    return acronym.startsWith(searchTerm);
+  }
+
+  selectOption(value: string) {
+    this.value = value;
+    this.valueChange.emit(this.value);
+    this.showDropdown = false;
+    this.filteredOptions = this.options;
+  }
+
+  hideDropdown() {
+    setTimeout(() => {
+      this.showDropdown = false;
+    }, 200);
   }
 }

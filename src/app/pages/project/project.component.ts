@@ -150,11 +150,21 @@ export class ProjectComponent {
       .subscribe({
         next: (response) => {
           this.loaderService.hide();
-          this.data = [...ProjectList.fromApiResponse(response?.data?.content)];
-          this.totalPages = response?.data?.totalPages;
+          if (
+            response.status === 200 &&
+            response.info.toLowerCase() === 'success'
+          ) {
+            this.data = [
+              ...ProjectList.fromApiResponse(response?.data?.content),
+            ];
+            this.totalPages = response?.data?.totalPages;
+          } else {
+            this.notificationService.show(response.info, 'info');
+          }
         },
         error: (error: any) => {
           this.loaderService.hide();
+          this.notificationService.show(error, 'error');
           console.error('Failed to fetch project', error);
         },
       });
@@ -180,7 +190,7 @@ export class ProjectComponent {
         this.projectForm.patchValue({
           formProjectName: row?.row?.project_name,
           formStartDate: row?.row?.start_date,
-          formStatus: this.getRoleValue(row?.row?.status),
+          formStatus: this.getStatusValue(row?.row?.status),
         });
         this.showModalEdit = true;
         break;
@@ -310,10 +320,10 @@ export class ProjectComponent {
     this.showModalEdit = false;
   }
 
-  getRoleValue(role: string): string | undefined {
-    const roleOption = this.dropdownOptions.find(
-      (option) => option.label === role
+  getStatusValue(status: string): string | undefined {
+    const statusOption = this.dropdownOptions.find(
+      (option) => option.label === status
     );
-    return roleOption ? roleOption.value : undefined;
+    return statusOption ? statusOption.value : undefined;
   }
 }

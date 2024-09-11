@@ -127,11 +127,19 @@ export class ItemsComponent {
       .subscribe({
         next: (response) => {
           this.loaderService.hide();
-          this.data = [...ItemList.fromApiResponse(response?.data?.content)];
-          this.totalPages = response?.data?.totalPages;
+          if (
+            response.status === 200 &&
+            response.info.toLowerCase() === 'success'
+          ) {
+            this.data = [...ItemList.fromApiResponse(response?.data?.content)];
+            this.totalPages = response?.data?.totalPages;
+          } else {
+            this.notificationService.show(response.info, 'info');
+          }
         },
         error: (error: any) => {
           this.loaderService.hide();
+          this.notificationService.show(error, 'error');
           console.error('Failed to fetch items', error);
         },
       });
@@ -180,6 +188,7 @@ export class ItemsComponent {
   closeModalAdd() {
     this.itemForm.reset({
       formItemName: '',
+      id: '',
     });
     this.showModalAdd = false;
   }

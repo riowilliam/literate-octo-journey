@@ -82,6 +82,68 @@
             </div>
           </ng-container>
 
+          <ng-container *ngIf="field.type === 'searchable-dropdown'">
+            <div class="relative w-full">
+              <input
+                type="text"
+                [id]="field.key"
+                [formControlName]="field.key"
+                placeholder="{{ field.placeholder }}"
+                (input)="filterOptions($event, field.key)"
+                (focus)="
+                  showDropdown[field.key] = true; setInitialOptions(field.key)
+                "
+                (blur)="hideDropdown(field.key)"
+                class="w-full pr-8 appearance-none form-select text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+                [ngClass]="{
+                  'border-red-500 focus:ring-red-500':
+                    dynamicForm.get(field.key)?.invalid &&
+                    (dynamicForm.get(field.key)?.touched ||
+                      dynamicForm.get(field.key)?.dirty),
+                  'border-[#A4A4A4] focus:ring-custom-light-yellow':
+                    dynamicForm.get(field.key)?.valid ||
+                    !(
+                      dynamicForm.get(field.key)?.touched ||
+                      dynamicForm.get(field.key)?.dirty
+                    )
+                }"
+                autocomplete="off"
+              />
+              <div
+                *ngIf="showDropdown[field.key]"
+                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md h-[80px] overflow-auto mt-2"
+              >
+                <ul>
+                  <li
+                    *ngFor="let option of filteredOptions[field.key]"
+                    (click)="selectOption(option, field.key)"
+                    class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  >
+                    {{ option.label }}
+                  </li>
+                </ul>
+              </div>
+              <div
+                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+          </ng-container>
+
           <div
             *ngIf="
               dynamicForm.get(field.key)?.invalid &&

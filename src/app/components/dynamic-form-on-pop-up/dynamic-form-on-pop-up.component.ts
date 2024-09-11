@@ -24,6 +24,9 @@ export class DynamicFormOnPopUpComponent implements OnChanges {
   @Input() dynamicForm!: FormGroup;
   @Input() formValue: any;
 
+  showDropdown: { [key: string]: boolean } = {};
+  filteredOptions: { [key: string]: any[] } = {};
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['formValue'] && this.formValue) {
       this.dynamicForm.patchValue(this.formValue);
@@ -51,6 +54,49 @@ export class DynamicFormOnPopUpComponent implements OnChanges {
       return this.getPatternErrorMessage(fieldKey);
     }
     return '';
+  }
+
+  filterOptions(event: Event, key: string): void {
+    const input = event.target as HTMLInputElement;
+    const searchTerm = input.value.toLowerCase();
+
+    const field = this.formConfig.find((f) => f.key === key);
+    if (field && field.options) {
+      this.filteredOptions[key] = field.options.filter((option: any) => {
+        const optionLabel = option.label.toLowerCase();
+        const directMatch = optionLabel.includes(searchTerm);
+        const acronymMatch = this.isAcronymMatch(searchTerm, option.label);
+        return directMatch || acronymMatch;
+      });
+    }
+  }
+
+  setInitialOptions(key: string): void {
+    const field = this.formConfig.find((f) => f.key === key);
+    if (field && field.options) {
+      this.filteredOptions[key] = field.options;
+    }
+  }
+
+  isAcronymMatch(searchTerm: string, optionLabel: string): boolean {
+    const acronym = optionLabel
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .toLowerCase();
+    return acronym.startsWith(searchTerm);
+  }
+
+  selectOption(option: any, key: string): void {
+    this.dynamicForm.get(key)?.setValue(option.label);
+    this.showDropdown[key] = false;
+    this.filteredOptions[key] = [];
+  }
+
+  hideDropdown(key: string): void {
+    setTimeout(() => {
+      this.showDropdown[key] = false;
+    }, 200);
   }
 
   private getPatternErrorMessage(fieldKey: string): string {

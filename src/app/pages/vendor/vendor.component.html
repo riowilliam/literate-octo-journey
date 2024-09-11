@@ -3,6 +3,13 @@
   [showModal]="showModalAdd"
   (closeModal)="closeModalAdd()"
 >
+  <app-dynamic-form-on-pop-up
+    [dynamicForm]="vendorForm"
+    [formConfig]="formConfig"
+    (formSubmit)="handleFormSubmit($event, 'add')"
+    (formCancel)="handleFormCancel()"
+  >
+  </app-dynamic-form-on-pop-up>
 </app-dynamic-modal>
 
 <app-dynamic-modal
@@ -10,6 +17,21 @@
   [showModal]="showModalEdit"
   (closeModal)="closeModalEdit()"
 >
+  <app-dynamic-form-on-pop-up
+    [formValue]="{
+      formVendorName: vendorForm.get('formVendorName')?.value,
+      formBankAccount: vendorForm.get('formBankAccount')?.value,
+      formBankAccountName: vendorForm.get('formBankAccountName')?.value,
+      formBankName: getBank(vendorForm.get('formBankName')?.value, 'label'),
+      vendorId: vendorForm.get('vendorId')?.value,
+      bankCode: vendorForm.get('bankCode')?.value
+    }"
+    [dynamicForm]="vendorForm"
+    [formConfig]="formConfig"
+    (formSubmit)="handleFormSubmit($event, 'edit')"
+    (formCancel)="handleFormCancel()"
+  >
+  </app-dynamic-form-on-pop-up>
 </app-dynamic-modal>
 
 <app-content-filter
@@ -19,55 +41,55 @@
 >
   <app-dynamic-input
     type="text"
-    [value]="textValue"
+    [value]="filterForm.get('vendorName')?.value"
     placeholder="Enter text"
-    [disabled]="isDisabled"
     label="Vendor Name"
+    formControlName="vendorName"
     [inputClass]="
       'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'vendorName')"
   ></app-dynamic-input>
 
   <app-dynamic-input
-    type="dropdown"
-    [value]="selectedOption"
+    type="searchable-dropdown"
+    [value]="filterForm.get('bankName')?.value"
     placeholder="Select an option"
     [options]="dropdownOptions"
-    [disabled]="isDisabled"
     label="Bank Name"
+    formControlName="bankName"
     [inputClass]="
       'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'bankName')"
   ></app-dynamic-input>
 
   <app-dynamic-input
     type="text"
-    [value]="textValue"
+    [value]="filterForm.get('bankAccount')?.value"
     placeholder="Enter text"
-    [disabled]="isDisabled"
     label="Bank Account"
+    formControlName="bankAccount"
     [inputClass]="
       'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'bankAccount')"
   ></app-dynamic-input>
 
   <app-dynamic-input
     type="text"
-    [value]="textValue"
+    [value]="filterForm.get('bankAccountName')?.value"
     placeholder="Enter text"
-    [disabled]="isDisabled"
     label="Bank Account Name"
+    formControlName="bankAccountName"
     [inputClass]="
       'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'bankAccountName')"
   ></app-dynamic-input>
 </app-content-filter>
 
@@ -80,6 +102,10 @@
   <app-dynamic-table
     [headers]="headers"
     [rows]="data"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [currentPage]="pageNo + 1"
+    (buttonPagination)="onPageChange($event)"
     (buttonClick)="handleButtonClick($event)"
   >
   </app-dynamic-table>
