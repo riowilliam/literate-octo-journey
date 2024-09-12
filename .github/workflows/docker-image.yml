@@ -20,7 +20,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build -t riowilliam08/fision-web:latest --build-arg API_URL=${{ vars.API_URL }}.
+        run: docker build -t riowilliam08/fision-web:latest --build-arg API_URL=${{ vars.API_URL }} .
 
       - name: Push Docker image
         run: docker push riowilliam08/fision-web:latest
