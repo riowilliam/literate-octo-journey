@@ -15,6 +15,7 @@
             >
             <input
               id="no-{{ i }}"
+              name="no-{{ i }}"
               type="text"
               formControlName="no"
               class="h-full form-input w-16 text-center mb-2"
@@ -27,6 +28,7 @@
           <div class="flex flex-col">
             <input
               id="no-{{ i }}"
+              name="no-{{ i }}"
               type="text"
               formControlName="no"
               class="h-full form-input w-16 text-center mb-2"
@@ -50,6 +52,7 @@
                 <input
                   *ngSwitchCase="'text'"
                   id="{{ field.name }}-{{ i }}"
+                  name="{{ field.name }}-{{ i }}"
                   type="text"
                   [formControlName]="field.name"
                   [placeholder]="field.placeholder"
@@ -61,6 +64,7 @@
                 <input
                   *ngSwitchCase="'number'"
                   id="{{ field.name }}-{{ i }}"
+                  name="{{ field.name }}-{{ i }}"
                   type="number"
                   [formControlName]="field.name"
                   [placeholder]="field.placeholder"
@@ -75,6 +79,7 @@
                 >
                   <select
                     id="{{ field.name }}-{{ i }}"
+                    name="{{ field.name }}-{{ i }}"
                     [formControlName]="field.name"
                     class="pr-8 appearance-none form-select text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow"
                     [ngClass]="field.bgClass"

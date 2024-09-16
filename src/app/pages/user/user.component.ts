@@ -306,6 +306,13 @@ export class UserComponent {
   }
 
   closeModalEdit() {
+    this.userForm.reset({
+      formUsername: '',
+      formFullName: '',
+      formEmail: '',
+      formContact: '',
+      formRole: null,
+    });
     this.showModalEdit = false;
     this.disableFormControls(false);
   }

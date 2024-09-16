@@ -35,6 +35,7 @@ export class DynamicTableComponent {
   isLoading = false;
   @Input() totalPages: number = 0;
   @Output() buttonPagination = new EventEmitter<number>();
+  @Input() hasFooter: boolean = true;
 
   get pageNumbers() {
     const pages = [];

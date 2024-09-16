@@ -68,7 +68,7 @@
       </tbody>
     </table>
   </div>
-  <div class="mt-4 flex items-center justify-center gap-2">
+  <div *ngIf="hasFooter" class="mt-4 flex items-center justify-center gap-2">
     <button
       (click)="goToFirstPage()"
       [disabled]="currentPage === 1"

@@ -1,9 +1,11 @@
 <div class="flex flex-col">
-  <label *ngIf="label" [ngClass]="labelClass">{{ label }}</label>
+  <label *ngIf="label" [ngClass]="labelClass" [for]="label">{{ label }}</label>
   <ng-container [ngSwitch]="type">
     <input
       *ngSwitchCase="'text'"
       type="text"
+      [id]="label"
+      [name]="label"
       [value]="value"
       [placeholder]="placeholder"
       [disabled]="disabled"
@@ -15,6 +17,8 @@
     <input
       *ngSwitchCase="'number'"
       type="text"
+      [id]="label"
+      [name]="label"
       [value]="value | rupiahMask"
       [placeholder]="placeholder"
       [disabled]="disabled"
@@ -25,6 +29,8 @@
     <div class="relative inline-block w-full" *ngSwitchCase="'dropdown'">
       <select
         class="pr-8 appearance-none"
+        [id]="label"
+        [name]="label"
         [value]="value"
         [disabled]="disabled"
         (change)="handleSelect($event)"
@@ -58,6 +64,8 @@
     <textarea
       *ngSwitchCase="'textarea'"
       [value]="value"
+      [id]="label"
+      [name]="label"
       [placeholder]="placeholder"
       [disabled]="disabled"
       (input)="handleInput($event)"
@@ -67,6 +75,8 @@
     <input
       *ngSwitchCase="'datepicker'"
       type="date"
+      [id]="label"
+      [name]="label"
       [value]="value"
       [disabled]="disabled"
       (change)="handleDateChange($event)"
@@ -77,6 +87,8 @@
       <input
         type="text"
         [value]="value"
+        [id]="label"
+        [name]="label"
         placeholder="{{ placeholder }}"
         (input)="filterOptions($event)"
         (focus)="showDropdown = true"

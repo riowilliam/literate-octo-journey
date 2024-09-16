@@ -6,6 +6,7 @@ import {
   EventEmitter,
   OnChanges,
   SimpleChanges,
+  HostListener,
 } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
@@ -27,9 +28,32 @@ export class DynamicFormOnPopUpComponent implements OnChanges {
   showDropdown: { [key: string]: boolean } = {};
   filteredOptions: { [key: string]: any[] } = {};
 
+  selectedOptions: { [key: string]: any[] } = {};
+  selectedOptionsText: { [key: string]: string } = {};
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as Node;
+
+    if (target instanceof Node) {
+      const dropdowns = Object.keys(this.showDropdown).filter(
+        (key) => this.showDropdown[key]
+      );
+      const clickedInsideDropdown = dropdowns.some((key) => {
+        const dropdownElement = document.getElementById(key);
+        return dropdownElement && dropdownElement.contains(target);
+      });
+
+      if (!clickedInsideDropdown) {
+        this.resetDropdowns();
+      }
+    }
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['formValue'] && this.formValue) {
       this.dynamicForm.patchValue(this.formValue);
+      this.updateSelectedOptions();
     }
   }
 
@@ -41,9 +65,16 @@ export class DynamicFormOnPopUpComponent implements OnChanges {
     }
   }
 
+  resetDropdowns(): void {
+    Object.keys(this.showDropdown).forEach((key) => {
+      this.showDropdown[key] = false;
+    });
+  }
+
   closeModal(): void {
     this.dynamicForm.reset({});
     this.formCancel.emit();
+    this.resetDropdowns();
   }
 
   getErrorMessage(fieldKey: string): string {
@@ -97,6 +128,63 @@ export class DynamicFormOnPopUpComponent implements OnChanges {
     setTimeout(() => {
       this.showDropdown[key] = false;
     }, 200);
+  }
+
+  toggleDropdown(key: string): void {
+    this.showDropdown[key] = !this.showDropdown[key];
+    if (this.showDropdown[key]) {
+      this.setInitialOptions(key);
+    }
+  }
+
+  toggleOption(option: any, key: string): void {
+    const currentValue =
+      this.dynamicForm
+        .get(key)
+        ?.value?.split(',')
+        .map((value: any) => value?.trim()) || [];
+    const optionValue = String(option.value);
+
+    const newValue = !currentValue.includes(optionValue)
+      ? [...currentValue, optionValue]
+      : currentValue.filter((value: any) => value !== optionValue);
+
+    this.dynamicForm.get(key)?.setValue(newValue.join(','));
+    this.updateSelectedOptionsText(key);
+  }
+
+  isSelected(option: any, key: string): boolean {
+    const currentValue = this.dynamicForm
+      .get(key)
+      ?.value?.split(',')
+      ?.map(Number);
+    return currentValue?.includes(option.value);
+  }
+
+  updateSelectedOptions(): void {
+    this.formConfig.forEach((field) => {
+      if (field.type === 'multicheckbox-dropdown') {
+        const selectedValues = this.dynamicForm
+          .get(field.key)
+          ?.value?.split(',')
+          .map(Number);
+        this.selectedOptions[field.key] = field.options
+          .filter((option: any) => selectedValues?.includes(option.value))
+          .map((option: any) => option.label);
+        this.updateSelectedOptionsText(field.key);
+      }
+    });
+  }
+
+  updateSelectedOptionsText(key: string): void {
+    const selected = this.dynamicForm.get(key)?.value?.split(',').map(Number);
+    const field = this.formConfig.find((f) => f.key === key);
+    if (field && field.options) {
+      this.selectedOptionsText[key] = field.options
+        .filter((option: any) => selected?.includes(option.value))
+        .map((option: any) => option.label)
+        .join(', ');
+    }
   }
 
   private getPatternErrorMessage(fieldKey: string): string {

@@ -315,6 +315,14 @@ export class VendorComponent {
   }
 
   closeModalEdit() {
+    this.vendorForm.reset({
+      formVendorName: '',
+      formBankAccount: '',
+      formBankAccountName: '',
+      formBankName: null,
+      vendorId: '',
+      bankCode: '',
+    });
     this.showModalEdit = false;
   }
 

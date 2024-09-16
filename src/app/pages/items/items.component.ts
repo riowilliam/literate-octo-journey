@@ -194,6 +194,10 @@ export class ItemsComponent {
   }
 
   closeModalEdit() {
+    this.itemForm.reset({
+      formItemName: '',
+      id: '',
+    });
     this.showModalEdit = false;
   }
 

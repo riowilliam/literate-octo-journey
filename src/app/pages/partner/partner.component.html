@@ -3,6 +3,13 @@
   [showModal]="showModalAdd"
   (closeModal)="closeModalAdd()"
 >
+  <app-dynamic-form-on-pop-up
+    [dynamicForm]="partnerForm"
+    [formConfig]="formConfig"
+    (formSubmit)="handleFormSubmit($event, 'add')"
+    (formCancel)="handleFormCancel()"
+  >
+  </app-dynamic-form-on-pop-up>
 </app-dynamic-modal>
 
 <app-dynamic-modal
@@ -10,13 +17,48 @@
   [showModal]="showModalEdit"
   (closeModal)="closeModalEdit()"
 >
+  <app-dynamic-form-on-pop-up
+    [formValue]="{
+      formPartnerName: partnerForm.get('formPartnerName')?.value,
+      formValidContractDate: partnerForm.get('formValidContractDate')?.value,
+      formInvalidContractDate: partnerForm.get('formInvalidContractDate')?.value,
+      formPPNWapu: partnerForm.get('formPPNWapu')?.value,
+      formDocumentTracking: partnerForm.get('formDocumentTracking')?.value,
+      formActiveProject: partnerForm.get('formActiveProject')?.value,
+    }"
+    [dynamicForm]="partnerForm"
+    [formConfig]="formConfig"
+    (formSubmit)="handleFormSubmit($event, 'edit')"
+    (formCancel)="handleFormCancel()"
+  >
+  </app-dynamic-form-on-pop-up>
 </app-dynamic-modal>
 
 <app-dynamic-modal
-  [title]="'Detail Partner'"
+  [title]="'Detail Active Project'"
   [showModal]="showModalDetail"
   (closeModal)="closeModalDetail()"
 >
+  <div class="w-full flex flex-col items-center justify-center">
+    <div class="w-full flex flex-col items-center justify-center p-5">
+      <app-dynamic-table
+        [headers]="headersDetailActiveProject"
+        [rows]="dataDetailActiveProject"
+        [hasFooter]="false"
+      >
+      </app-dynamic-table>
+    </div>
+
+    <div class="w-full flex gap-4 items-center justify-center p-5">
+      <button
+        type="button"
+        class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-red text-xs font-semibold rounded-lg hover:bg-custom-red focus:outline-none focus:ring-2 focus:ring-custom-light-red focus:ring-opacity-50"
+        (click)="closeModalDetail()"
+      >
+        Close
+      </button>
+    </div>
+  </div>
 </app-dynamic-modal>
 
 <app-content-filter
@@ -26,69 +68,69 @@
 >
   <app-dynamic-input
     type="text"
-    [value]="textValue"
+    [value]="filterForm.get('partnerName')?.value"
     placeholder="Enter text"
-    [disabled]="isDisabled"
     label="Partner Name"
+    formControlName="partnerName"
     [inputClass]="
       'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'partnerName')"
   ></app-dynamic-input>
 
   <app-dynamic-input
     type="dropdown"
-    [value]="selectedOption"
+    [value]="filterForm.get('documentTracking')?.value"
     placeholder="Select an option"
-    [options]="dropdownOptions"
-    [disabled]="isDisabled"
+    [options]="dropdownOptionsDocumentTracking"
     label="Document Tracking"
+    formControlName="documentTracking"
     [inputClass]="
       'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'documentTracking')"
   ></app-dynamic-input>
 
   <app-dynamic-input
     type="dropdown"
-    [value]="selectedOption"
+    [value]="filterForm.get('ppnWapu')?.value"
     placeholder="Select an option"
-    [options]="dropdownOptions"
-    [disabled]="isDisabled"
+    [options]="dropdownOptionsPPNWapu"
     label="PPN WAPU"
+    formControlName="ppnWapu"
     [inputClass]="
       'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'ppnWapu')"
   ></app-dynamic-input>
 
   <div class="flex flex-wrap items-end content-center gap-4">
     <app-dynamic-input
       type="datepicker"
-      [value]="dateValue"
-      [disabled]="isDisabled"
-      label="Created Date"
+      [value]="filterForm.get('startDate')?.value"
+      label="Start Date"
+      formControlName="startDate"
       [inputClass]="
         'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
       "
       [labelClass]="'font-medium text-sm mb-1'"
-      (valueChange)="handleValueChange($event)"
+      (valueChange)="handleValueChange($event, 'startDate')"
     ></app-dynamic-input>
 
     <span class="mb-2 font-medium text-sm">Until</span>
 
     <app-dynamic-input
       type="datepicker"
-      [value]="dateValue"
-      [disabled]="isDisabled"
+      [value]="filterForm.get('endDate')?.value"
+      formControlName="endDate"
       [inputClass]="
         'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
       "
       [labelClass]="'font-medium text-sm mb-1'"
-      (valueChange)="handleValueChange($event)"
+      (valueChange)="handleValueChange($event, 'endDate')"
     ></app-dynamic-input>
   </div>
 </app-content-filter>
@@ -102,6 +144,10 @@
   <app-dynamic-table
     [headers]="headers"
     [rows]="data"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [currentPage]="pageNo + 1"
+    (buttonPagination)="onPageChange($event)"
     (buttonClick)="handleButtonClick($event)"
   >
   </app-dynamic-table>

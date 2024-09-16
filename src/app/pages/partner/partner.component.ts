@@ -7,6 +7,24 @@ import { DynamicModalComponent } from '../../components/dynamic-modal/dynamic-mo
 import { ContentCardComponent } from '../../components/content-card/content-card.component';
 import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormPartnerRequest,
+  FormPartnerResponse,
+  Partner,
+  PartnerList,
+  PartnerResponse,
+  Project,
+  ProjectList,
+  ProjectListOfValueResponse,
+} from './dto/partner.dto';
+import { HttpService } from '../../services/http.service';
+import { AuthService } from '../../services/auth.service';
+import { LoaderService } from '../../services/loader.service';
+import { NotificationService } from '../../services/notification.service';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { DynamicFormOnPopUpComponent } from '../../components/dynamic-form-on-pop-up/dynamic-form-on-pop-up.component';
 
 @Component({
   selector: 'app-partner',
@@ -20,15 +38,45 @@ import { CommonModule } from '@angular/common';
     ContentCardComponent,
     DynamicCardComponent,
     CommonModule,
+    DynamicFormOnPopUpComponent,
   ],
   templateUrl: './partner.component.html',
   styleUrl: './partner.component.scss',
 })
 export class PartnerComponent {
+  partnerForm!: FormGroup;
   showModalAdd = false;
   showModalEdit = false;
   showModalDetail = false;
-
+  filterForm: FormGroup;
+  dataDetailActiveProject: Project[] = [];
+  data: Partner[] = [];
+  totalPages!: number;
+  pageNo: number = 0;
+  pageSize: number = 10;
+  sortBy: string = '';
+  sortOrder: string = '';
+  headersDetailActiveProject: {
+    key: string;
+    label: string;
+    class?: string;
+    renderType?: (
+      value: any,
+      row?: any
+    ) =>
+      | 'number'
+      | 'text'
+      | 'currency'
+      | 'date'
+      | 'integer'
+      | 'button'
+      | 'icon'
+      | 'empty';
+  }[] = [
+    { key: 'no', renderType: () => 'number', label: 'No' },
+    { key: 'project_id', renderType: () => 'text', label: 'Project ID' },
+    { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
+  ];
   headers: {
     key: string;
     label: string;
@@ -81,276 +129,393 @@ export class PartnerComponent {
       class: 'bg-custom-light-yellow px-4 py-2 rounded hover:bg-custom-yellow',
     },
   ];
-
-  data = [
-    {
-      no: 1,
-      partner_name: 'Sample Text 466',
-      valid_contract_date: '2024-07-14',
-      invalid_contract_date: '2023-10-05',
-      created_date: '2024-03-24',
-      created_by: 'Sample Text 618',
-      modified_date: '2024-06-28',
-      modified_by: 'Sample Text 728',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 2,
-      partner_name: 'Sample Text 238',
-      valid_contract_date: '2024-06-01',
-      invalid_contract_date: '2024-06-04',
-      created_date: '2024-02-23',
-      created_by: 'Sample Text 157',
-      modified_date: '2024-02-12',
-      modified_by: 'Sample Text 538',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 3,
-      partner_name: 'Sample Text 639',
-      valid_contract_date: '2023-12-09',
-      invalid_contract_date: '2024-05-28',
-      created_date: '2024-06-22',
-      created_by: 'Sample Text 802',
-      modified_date: '2024-05-27',
-      modified_by: 'Sample Text 164',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 4,
-      partner_name: 'Sample Text 206',
-      valid_contract_date: '2023-11-01',
-      invalid_contract_date: '2023-09-26',
-      created_date: '2024-07-30',
-      created_by: 'Sample Text 276',
-      modified_date: '2023-10-08',
-      modified_by: 'Sample Text 726',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 5,
-      partner_name: 'Sample Text 355',
-      valid_contract_date: '2024-06-07',
-      invalid_contract_date: '2024-01-03',
-      created_date: '2024-02-18',
-      created_by: 'Sample Text 173',
-      modified_date: '2023-09-12',
-      modified_by: 'Sample Text 623',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 6,
-      partner_name: 'Sample Text 597',
-      valid_contract_date: '2024-04-19',
-      invalid_contract_date: '2024-06-04',
-      created_date: '2024-03-11',
-      created_by: 'Sample Text 585',
-      modified_date: '2023-12-06',
-      modified_by: 'Sample Text 209',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 7,
-      partner_name: 'Sample Text 826',
-      valid_contract_date: '2024-02-10',
-      invalid_contract_date: '2024-07-31',
-      created_date: '2024-05-04',
-      created_by: 'Sample Text 183',
-      modified_date: '2024-05-23',
-      modified_by: 'Sample Text 985',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 8,
-      partner_name: 'Sample Text 276',
-      valid_contract_date: '2023-09-01',
-      invalid_contract_date: '2024-05-17',
-      created_date: '2024-06-07',
-      created_by: 'Sample Text 646',
-      modified_date: '2023-10-30',
-      modified_by: 'Sample Text 714',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 9,
-      partner_name: 'Sample Text 422',
-      valid_contract_date: '2024-07-26',
-      invalid_contract_date: '2023-12-12',
-      created_date: '2023-12-25',
-      created_by: 'Sample Text 983',
-      modified_date: '2024-07-13',
-      modified_by: 'Sample Text 567',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 10,
-      partner_name: 'Sample Text 650',
-      valid_contract_date: '2024-08-24',
-      invalid_contract_date: '2023-12-05',
-      created_date: '2023-12-26',
-      created_by: 'Sample Text 286',
-      modified_date: '2024-04-01',
-      modified_by: 'Sample Text 847',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 11,
-      partner_name: 'Sample Text 446',
-      valid_contract_date: '2023-11-24',
-      invalid_contract_date: '2023-09-30',
-      created_date: '2024-03-13',
-      created_by: 'Sample Text 515',
-      modified_date: '2023-10-08',
-      modified_by: 'Sample Text 254',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 12,
-      partner_name: 'Sample Text 298',
-      valid_contract_date: '2024-06-15',
-      invalid_contract_date: '2024-07-29',
-      created_date: '2024-04-16',
-      created_by: 'Sample Text 386',
-      modified_date: '2023-12-07',
-      modified_by: 'Sample Text 850',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 13,
-      partner_name: 'Sample Text 138',
-      valid_contract_date: '2023-11-16',
-      invalid_contract_date: '2024-07-23',
-      created_date: '2024-02-23',
-      created_by: 'Sample Text 123',
-      modified_date: '2023-12-02',
-      modified_by: 'Sample Text 870',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 14,
-      partner_name: 'Sample Text 380',
-      valid_contract_date: '2024-02-14',
-      invalid_contract_date: '2024-06-22',
-      created_date: '2024-03-11',
-      created_by: 'Sample Text 892',
-      modified_date: '2024-04-08',
-      modified_by: 'Sample Text 851',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 15,
-      partner_name: 'Sample Text 846',
-      valid_contract_date: '2024-01-19',
-      invalid_contract_date: '2024-07-16',
-      created_date: '2024-05-12',
-      created_by: 'Sample Text 898',
-      modified_date: '2024-08-19',
-      modified_by: 'Sample Text 522',
-      document_tracking: 'Yes',
-      ppn_wapu: 'Yes',
-      active_project: 'Detail',
-      action: 'Edit',
-    },
+  dropdownOptionsDocumentTracking: Array<{ value: string; label: string }> = [
+    { value: 'YES', label: 'Yes' },
+    { value: 'NO', label: 'No' },
   ];
-
-  textValue: string = '';
-  numberValue: number | null = null;
-  selectedOption: string = '';
-  dropdownOptions: Array<{ value: string; label: string }> = [
-    { value: 'Test', label: 'Test' },
+  dropdownOptionsPPNWapu: Array<{ value: string; label: string }> = [
+    { value: 'YES', label: 'Yes' },
+    { value: 'NO', label: 'No' },
   ];
-  textareaValue: string = '';
-  dateValue: Date | null = null;
-  isDisabled: boolean = false;
-  contractCode!: string;
+  dropdownOptionsActiveProject: Array<{ value: any; label: any }> = [];
+  formConfig!: any;
 
-  handleValueChange(event: any) {
-    console.log('Value changed:', event);
-    if (event.type === 'text') {
-      this.textValue = event.value;
-    } else if (event.type === 'number') {
-      this.numberValue = event.value;
-    } else if (event.type === 'dropdown') {
-      this.selectedOption = event.value;
-    } else if (event.type === 'textarea') {
-      this.textareaValue = event.value;
-    } else if (event.type === 'datepicker') {
-      this.dateValue = event.value;
+  constructor(
+    private fb: FormBuilder,
+    private httpService: HttpService,
+    private authService: AuthService,
+    private loaderService: LoaderService,
+    private notificationService: NotificationService
+  ) {
+    this.filterForm = this.fb.group({
+      partnerName: [''],
+      documentTracking: [''],
+      ppnWapu: [''],
+      startDate: [''],
+      endDate: [''],
+    });
+  }
+
+  ngOnInit() {
+    this.fetchPartner();
+    const storedActiveProject = sessionStorage.getItem('active_project_list');
+    if (storedActiveProject) {
+      try {
+        this.dropdownOptionsActiveProject = JSON.parse(storedActiveProject);
+      } catch (error) {
+        this.fetchActiveProject();
+      }
+    } else {
+      this.fetchActiveProject();
+    }
+    this.partnerForm = this.fb.group({
+      formPartnerName: ['', Validators.required],
+      formValidContractDate: ['', Validators.required],
+      formInvalidContractDate: ['', Validators.required],
+      formPPNWapu: [null, Validators.required],
+      formDocumentTracking: [null, Validators.required],
+      formActiveProject: [null, Validators.required],
+    });
+    this.formConfig = [
+      { key: 'formPartnerName', label: 'Partner Name', type: 'text' },
+      {
+        key: 'formValidContractDate',
+        label: 'Valid Contract Date',
+        type: 'date',
+      },
+      {
+        key: 'formInvalidContractDate',
+        label: 'Invalid Contract Date',
+        type: 'date',
+      },
+      {
+        key: 'formPPNWapu',
+        label: 'PPN WAPU',
+        type: 'select',
+        options: this.dropdownOptionsDocumentTracking,
+      },
+      {
+        key: 'formDocumentTracking',
+        label: 'Document Tracking',
+        type: 'select',
+        options: this.dropdownOptionsPPNWapu,
+      },
+      {
+        key: 'formActiveProject',
+        label: 'Active Project',
+        type: 'multicheckbox-dropdown',
+        options: this.dropdownOptionsActiveProject,
+      },
+    ];
+  }
+
+  fetchPartner() {
+    const params = new HttpParams()
+      .set('pageNo', this.pageNo)
+      .set('pageSize', this.pageSize)
+      .set('sortBy', this.sortBy)
+      .set('sortOrder', this.sortOrder)
+      .set('partnerName', this.filterForm.get('partnerName')?.value || '')
+      .set(
+        'ppnWapu',
+        this.filterForm.get('ppnWapu')?.value === 'YES'
+          ? '1'
+          : this.filterForm.get('ppnWapu')?.value === 'NO'
+          ? '0'
+          : '' || ''
+      )
+      .set(
+        'documentTracking',
+        this.filterForm.get('documentTracking')?.value === 'YES'
+          ? '1'
+          : this.filterForm.get('documentTracking')?.value === 'NO'
+          ? '0'
+          : '' || ''
+      )
+      .set('startDate', this.filterForm.get('startDate')?.value || '')
+      .set('endDate', this.filterForm.get('endDate')?.value || '');
+    this.loaderService.show();
+    this.httpService
+      .get<PartnerResponse>(
+        environment.API_URL,
+        'api/partner/getPartnerListPaging?',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (
+            response.status === 200 &&
+            response.info.toLowerCase() === 'success'
+          ) {
+            this.data = [
+              ...PartnerList.fromApiResponse(response?.data?.content),
+            ];
+            this.totalPages = response?.data?.totalPages;
+          } else {
+            this.notificationService.show(response.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch partner', error);
+        },
+      });
+  }
+
+  onPageChange(event: any) {
+    this.pageNo = event - 1;
+    this.fetchPartner();
+  }
+
+  fetchActiveProject() {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('projectName', '');
+    this.loaderService.show();
+    this.httpService
+      .get<ProjectListOfValueResponse>(
+        environment.API_URL,
+        'api/project/getProjectList',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (
+            response.status === 200 &&
+            response.info.toLowerCase() === 'success'
+          ) {
+            this.dropdownOptionsActiveProject = response.data.map(
+              (project) => ({
+                value: project.projectId,
+                label: project.projectName,
+              })
+            );
+            this.formConfig = this.formConfig.map((config: any) => {
+              if (config.key === 'formActiveProject') {
+                return {
+                  ...config,
+                  options: this.dropdownOptionsActiveProject,
+                };
+              }
+              return config;
+            });
+            sessionStorage.setItem(
+              'active_project_list',
+              JSON.stringify(this.dropdownOptionsActiveProject)
+            );
+          } else {
+            this.notificationService.show(response.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch active project', error);
+        },
+      });
+  }
+
+  handleValueChange(value: any, key: string) {
+    const control = this.filterForm.get(key);
+    if (control) {
+      control.setValue(value);
     }
   }
 
   handleButtonClick(row: any) {
-    console.log(row?.key);
     switch (row?.key) {
       case 'add':
         this.showModalAdd = true;
         break;
       case 'action':
+        this.partnerForm.patchValue({
+          formPartnerName: row?.row?.partner_name,
+          formValidContractDate: row?.row?.valid_contract_date,
+          formInvalidContractDate: row?.row?.invalid_contract_date,
+          formPPNWapu: row?.row?.ppn_wapu === 'Yes' ? 'YES' : 'NO',
+          formDocumentTracking:
+            row?.row?.document_tracking === 'Yes' ? 'YES' : 'NO',
+          formActiveProject: row?.row?.active_project?.toString(),
+        });
         this.showModalEdit = true;
         break;
       case 'active_project':
         this.showModalDetail = true;
+        const activeProjectIds = row?.row?.active_project.map(Number);
+        const filteredDropdownOptions =
+          this.dropdownOptionsActiveProject.filter((option) =>
+            activeProjectIds.includes(option.value)
+          );
+        this.dataDetailActiveProject = [
+          ...ProjectList.fromApiResponse(filteredDropdownOptions),
+        ];
         break;
       case 'apply':
-        console.log('Do request to apply filter');
+        this.pageNo = 0;
+        this.pageSize = 10;
+        this.sortBy = '';
+        this.sortOrder = '';
+        this.fetchPartner();
         break;
       case 'clear':
-        console.log('Do request to clear filter');
+        this.filterForm.reset({
+          partnerName: '',
+          documentTracking: '',
+          ppnWapu: '',
+          startDate: '',
+          endDate: '',
+        });
+        this.fetchPartner();
         break;
     }
   }
 
   closeModalAdd() {
+    this.partnerForm.reset({
+      formPartnerName: '',
+      formValidContractDate: '',
+      formInvalidContractDate: '',
+      formPPNWapu: null,
+      formDocumentTracking: null,
+      formActiveProject: null,
+    });
     this.showModalAdd = false;
   }
 
   closeModalEdit() {
+    this.partnerForm.reset({
+      formPartnerName: '',
+      formValidContractDate: '',
+      formInvalidContractDate: '',
+      formPPNWapu: null,
+      formDocumentTracking: null,
+      formActiveProject: null,
+    });
     this.showModalEdit = false;
   }
 
   closeModalDetail() {
     this.showModalDetail = false;
+  }
+
+  handleFormSubmit(formValue: any, type: string): void {
+    if (type === 'add') {
+      this.createPartner(formValue);
+    } else {
+      this.editPartner({
+        formPartnerName: this.partnerForm.get('formPartnerName')?.value,
+        formValidContractDate: this.partnerForm.get('formValidContractDate')
+          ?.value,
+        formInvalidContractDate: this.partnerForm.get('formInvalidContractDate')
+          ?.value,
+        formPPNWapu: this.partnerForm.get('formPPNWapu')?.value,
+        formDocumentTracking: this.partnerForm.get('formDocumentTracking')
+          ?.value,
+        formActiveProject: this.partnerForm.get('formActiveProject')?.value,
+      });
+    }
+  }
+
+  createPartner(formValue: any) {
+    this.httpService
+      .post<FormPartnerResponse>(
+        environment.API_URL,
+        `api/partner/createPartner?username=${this.authService.getUsername()}`,
+        new FormPartnerRequest(
+          formValue.formPartnerName,
+          formValue.formValidContractDate,
+          formValue.formInvalidContractDate,
+          formValue.formPPNWapu,
+          formValue.formDocumentTracking,
+          formValue.formActiveProject
+        ),
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalAdd();
+          if (
+            response.status === 200 &&
+            response.info.toLowerCase() === 'data has been saved.'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.fetchPartner();
+            this.notificationService.show(response.info, 'success');
+          } else {
+            this.notificationService.show(response.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.notificationService.show('Error creating partner.', 'error');
+          console.error('Error creating partner', error);
+        },
+      });
+  }
+
+  editPartner(formValue: any) {
+    this.httpService
+      .post<FormPartnerResponse>(
+        environment.API_URL,
+        `api/partner/editPartner?username=${this.authService.getUsername()}`,
+        new FormPartnerRequest(
+          formValue.formPartnerName,
+          formValue.formValidContractDate,
+          formValue.formInvalidContractDate,
+          formValue.formPPNWapu,
+          formValue.formDocumentTracking,
+          formValue.formActiveProject
+        ),
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalEdit();
+          if (
+            response.status === 200 &&
+            response.info.toLowerCase() === 'data has been saved.'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.fetchPartner();
+            this.notificationService.show(response.info, 'success');
+          } else {
+            this.notificationService.show(response.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.notificationService.show('Error updating partner.', 'error');
+          console.error('Error updating partner', error);
+        },
+      });
+  }
+
+  handleFormCancel(): void {
+    this.showModalAdd = false;
+    this.showModalEdit = false;
+  }
+
+  getActiveProjectValue(activeProject: string): string | undefined {
+    const activeProjectOption = this.dropdownOptionsActiveProject.find(
+      (option) => option.label === activeProject
+    );
+    return activeProjectOption ? activeProjectOption.value : undefined;
   }
 }

@@ -181,6 +181,7 @@ export class ProjectComponent {
       control.setValue(value);
     }
   }
+
   handleButtonClick(row: any) {
     switch (row?.key) {
       case 'add':
@@ -224,6 +225,12 @@ export class ProjectComponent {
   }
 
   closeModalEdit() {
+    this.projectForm.reset({
+      projectName: '',
+      status: null,
+      startDate: '',
+      endDate: '',
+    });
     this.showModalEdit = false;
   }
 
