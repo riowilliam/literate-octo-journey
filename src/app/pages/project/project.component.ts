@@ -134,7 +134,14 @@ export class ProjectComponent {
       .set('sortBy', this.sortBy)
       .set('sortOrder', this.sortOrder)
       .set('projectName', this.filterForm.get('projectName')?.value || '')
-      .set('status', this.filterForm.get('status')?.value || '')
+      .set(
+        'status',
+        this.filterForm.get('status')?.value === 'ACTIVE'
+          ? '1'
+          : this.filterForm.get('status')?.value === 'INACTIVE'
+          ? '0'
+          : '' || ''
+      )
       .set('startDate', this.filterForm.get('startDate')?.value || '')
       .set('endDate', this.filterForm.get('endDate')?.value || '');
     this.loaderService.show();
