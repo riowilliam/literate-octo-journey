@@ -66,10 +66,10 @@ export class ForgotPasswordComponent {
               response?.info?.toLowerCase() ===
                 'email sent, please check your email.'
             ) {
-              this.notificationService.show(response.info, 'success');
+              this.notificationService.show(response?.info, 'success');
               this.router.navigate(['/login']);
             } else {
-              this.notificationService.show(response.info, 'info');
+              this.notificationService.show(response?.info, 'info');
             }
           },
           error: (error) => {

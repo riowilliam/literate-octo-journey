@@ -76,7 +76,7 @@ export class ChangeUsernameComponent {
             this.loaderService.hide();
             if (
               response?.status === 200 &&
-              response?.info.toLowerCase() ===
+              response?.info?.toLowerCase() ===
                 'username has changed. please re login using your new username.'
             ) {
               this.notificationService.show(response?.info, 'success');

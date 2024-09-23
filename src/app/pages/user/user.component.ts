@@ -184,13 +184,13 @@ export class UserComponent {
         next: (response) => {
           this.loaderService.hide();
           if (
-            response.status === 200 &&
-            response.info.toLowerCase() === 'success'
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
           ) {
             this.data = [...UserList.fromApiResponse(response?.data?.content)];
             this.totalPages = response?.data?.totalPages;
           } else {
-            this.notificationService.show(response.info, 'info');
+            this.notificationService.show(response?.info, 'info');
           }
         },
         error: (error: any) => {
@@ -221,10 +221,10 @@ export class UserComponent {
         next: (response) => {
           this.loaderService.hide();
           if (
-            response.status === 200 &&
-            response.info.toLowerCase() === 'success'
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
           ) {
-            this.dropdownOptions = response.data.map((role) => ({
+            this.dropdownOptions = response?.data.map((role) => ({
               value: role.roleCode,
               label: role.roleName,
             }));
@@ -239,7 +239,7 @@ export class UserComponent {
               JSON.stringify(this.dropdownOptions)
             );
           } else {
-            this.notificationService.show(response.info, 'info');
+            this.notificationService.show(response?.info, 'info');
           }
         },
         error: (error: any) => {
@@ -351,8 +351,8 @@ export class UserComponent {
         next: (response) => {
           this.closeModalAdd();
           if (
-            response.status === 200 &&
-            response.info.toLowerCase() ===
+            response?.status === 200 &&
+            response?.info?.toLowerCase() ===
               'user has been created. please contact the user to check email for the password.'
           ) {
             this.pageNo = 0;
@@ -360,9 +360,9 @@ export class UserComponent {
             this.sortBy = '';
             this.sortOrder = '';
             this.fetchUsers();
-            this.notificationService.show(response.info, 'success');
+            this.notificationService.show(response?.info, 'success');
           } else {
-            this.notificationService.show(response.info, 'info');
+            this.notificationService.show(response?.info, 'info');
           }
         },
         error: (error) => {
@@ -392,17 +392,17 @@ export class UserComponent {
         next: (response) => {
           this.closeModalEdit();
           if (
-            response.status === 200 &&
-            response.info.toLowerCase() === 'user has been updated.'
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'user has been updated.'
           ) {
             this.pageNo = 0;
             this.pageSize = 10;
             this.sortBy = '';
             this.sortOrder = '';
             this.fetchUsers();
-            this.notificationService.show(response.info, 'success');
+            this.notificationService.show(response?.info, 'success');
           } else {
-            this.notificationService.show(response.info, 'info');
+            this.notificationService.show(response?.info, 'info');
           }
         },
         error: (error) => {

@@ -3,27 +3,95 @@
   [showModal]="showModalAdd"
   (closeModal)="closeModalAdd()"
 >
+  <app-dynamic-form-array
+    [dynamicForm]="contractForm"
+    [formConfig]="formConfig"
+    [formArray]="formItemDetailList"
+    [formArrayName]="'formItemDetailList'"
+    [itemConfig]="formArrayConfig"
+    [labelFormArray]="'Item Details'"
+    (itemAdded)="addItemDetail()"
+    (itemRemoved)="removeItemDetail($event)"
+    (formSubmit)="handleFormSubmit($event, 'add')"
+    (formCancel)="handleFormCancel()"
+  ></app-dynamic-form-array>
 </app-dynamic-modal>
 
 <app-dynamic-modal
-  [title]="'Edit Contract ' + itemDetail"
+  [title]="'Edit Contract ' + contractCode"
   [showModal]="showModalEdit"
   (closeModal)="closeModalEdit()"
 >
+  <app-dynamic-form-array
+    [formValue]="{
+      formContractName: contractForm.get('formContractName')?.value,
+      contractCode: contractForm.get('contractCode')?.value,
+    }"
+    [dynamicForm]="contractForm"
+    [formConfig]="formConfig"
+    [formArray]="formItemDetailList"
+    [formArrayName]="'formItemDetailList'"
+    [itemConfig]="formArrayConfig"
+    [labelFormArray]="'Item Details'"
+    (itemAdded)="editItemDetail()"
+    (itemRemoved)="removeItemDetail($event)"
+    (formSubmit)="handleFormSubmit($event, 'action')"
+    (formCancel)="handleFormCancel()"
+  ></app-dynamic-form-array>
 </app-dynamic-modal>
 
 <app-dynamic-modal
-  [title]="'Revision'"
-  [showModal]="showModalRevision"
-  (closeModal)="closeModalRevision()"
->
-</app-dynamic-modal>
-
-<app-dynamic-modal
-  [title]="itemDetail"
+  [title]="'Contract ' + contractCode"
   [showModal]="showModalItemDetails"
   (closeModal)="closeModalItemDetails()"
 >
+  <div class="w-full flex flex-col items-center justify-center">
+    <div class="w-full flex flex-col items-center justify-center p-5">
+      <app-dynamic-table
+        [headers]="headersItemDetails"
+        [rows]="dataItemDetails"
+        [hasFooter]="false"
+      >
+      </app-dynamic-table>
+    </div>
+
+    <div class="w-full flex gap-4 items-center justify-center p-5">
+      <button
+        type="button"
+        class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-red text-xs font-semibold rounded-lg hover:bg-custom-red focus:outline-none focus:ring-2 focus:ring-custom-light-red focus:ring-opacity-50"
+        (click)="closeModalItemDetails()"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</app-dynamic-modal>
+
+<app-dynamic-modal
+  [title]="'Contract ' + contractCode"
+  [showModal]="showModalRevision"
+  (closeModal)="closeModalRevision()"
+>
+  <div class="w-full flex flex-col items-center justify-center">
+    <div class="w-full flex flex-col items-center justify-center p-5">
+      <app-dynamic-table
+        [headers]="headersDetailRevision"
+        [rows]="dataDetailRevision"
+        [hasFooter]="false"
+      >
+      </app-dynamic-table>
+    </div>
+
+    <div class="w-full flex gap-4 items-center justify-center p-5">
+      <button
+        type="button"
+        class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-red text-xs font-semibold rounded-lg hover:bg-custom-red focus:outline-none focus:ring-2 focus:ring-custom-light-red focus:ring-opacity-50"
+        (click)="closeModalRevision()"
+      >
+        Close
+      </button>
+    </div>
+  </div>
 </app-dynamic-modal>
 
 <app-content-filter
@@ -33,40 +101,43 @@
 >
   <app-dynamic-input
     type="text"
-    [value]="textValue"
+    [value]="filterForm.get('contractName')?.value"
     placeholder="Enter text"
-    [disabled]="isDisabled"
-    label="Contract Code"
+    label="Contract Name"
+    formControlName="contractName"
     [inputClass]="
       'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'contractName')"
   ></app-dynamic-input>
 
-  <app-dynamic-input
-    type="datepicker"
-    [value]="dateValue"
-    [disabled]="isDisabled"
-    label="Valid Contract Date"
-    [inputClass]="
-      'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
-    "
-    [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
-  ></app-dynamic-input>
+  <div class="flex flex-wrap items-end content-center gap-4">
+    <app-dynamic-input
+      type="datepicker"
+      [value]="filterForm.get('startDate')?.value"
+      label="Created Date"
+      formControlName="startDate"
+      [inputClass]="
+        'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+      "
+      [labelClass]="'font-medium text-sm mb-1'"
+      (valueChange)="handleValueChange($event, 'startDate')"
+    ></app-dynamic-input>
 
-  <app-dynamic-input
-    type="datepicker"
-    [value]="dateValue"
-    [disabled]="isDisabled"
-    label="Invalid Contract Date"
-    [inputClass]="
-      'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
-    "
-    [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
-  ></app-dynamic-input>
+    <span class="mb-2 font-medium text-sm">Until</span>
+
+    <app-dynamic-input
+      type="datepicker"
+      [value]="filterForm.get('endDate')?.value"
+      formControlName="endDate"
+      [inputClass]="
+        'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+      "
+      [labelClass]="'font-medium text-sm mb-1'"
+      (valueChange)="handleValueChange($event, 'endDate')"
+    ></app-dynamic-input>
+  </div>
 </app-content-filter>
 
 <app-content-table
@@ -78,6 +149,10 @@
   <app-dynamic-table
     [headers]="headers"
     [rows]="data"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [currentPage]="pageNo + 1"
+    (buttonPagination)="onPageChange($event)"
     (buttonClick)="handleButtonClick($event)"
   >
   </app-dynamic-table>

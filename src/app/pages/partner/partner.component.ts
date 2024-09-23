@@ -248,15 +248,15 @@ export class PartnerComponent {
         next: (response) => {
           this.loaderService.hide();
           if (
-            response.status === 200 &&
-            response.info.toLowerCase() === 'success'
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
           ) {
             this.data = [
               ...PartnerList.fromApiResponse(response?.data?.content),
             ];
             this.totalPages = response?.data?.totalPages;
           } else {
-            this.notificationService.show(response.info, 'info');
+            this.notificationService.show(response?.info, 'info');
           }
         },
         error: (error: any) => {
@@ -290,10 +290,10 @@ export class PartnerComponent {
         next: (response) => {
           this.loaderService.hide();
           if (
-            response.status === 200 &&
-            response.info.toLowerCase() === 'success'
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
           ) {
-            this.dropdownOptionsActiveProject = response.data.map(
+            this.dropdownOptionsActiveProject = response?.data.map(
               (project) => ({
                 value: project.projectId,
                 label: project.projectName,
@@ -313,7 +313,7 @@ export class PartnerComponent {
               JSON.stringify(this.dropdownOptionsActiveProject)
             );
           } else {
-            this.notificationService.show(response.info, 'info');
+            this.notificationService.show(response?.info, 'info');
           }
         },
         error: (error: any) => {
@@ -446,17 +446,17 @@ export class PartnerComponent {
         next: (response) => {
           this.closeModalAdd();
           if (
-            response.status === 200 &&
-            response.info.toLowerCase() === 'data has been saved.'
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'data has been saved.'
           ) {
             this.pageNo = 0;
             this.pageSize = 10;
             this.sortBy = '';
             this.sortOrder = '';
             this.fetchPartner();
-            this.notificationService.show(response.info, 'success');
+            this.notificationService.show(response?.info, 'success');
           } else {
-            this.notificationService.show(response.info, 'info');
+            this.notificationService.show(response?.info, 'info');
           }
         },
         error: (error) => {
@@ -487,17 +487,17 @@ export class PartnerComponent {
         next: (response) => {
           this.closeModalEdit();
           if (
-            response.status === 200 &&
-            response.info.toLowerCase() === 'data has been saved.'
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'data has been saved.'
           ) {
             this.pageNo = 0;
             this.pageSize = 10;
             this.sortBy = '';
             this.sortOrder = '';
             this.fetchPartner();
-            this.notificationService.show(response.info, 'success');
+            this.notificationService.show(response?.info, 'success');
           } else {
-            this.notificationService.show(response.info, 'info');
+            this.notificationService.show(response?.info, 'info');
           }
         },
         error: (error) => {

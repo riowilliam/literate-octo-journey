@@ -7,6 +7,29 @@ import { ContentFilterComponent } from '../../components/content-filter/content-
 import { ContentCardComponent } from '../../components/content-card/content-card.component';
 import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
 import { CommonModule } from '@angular/common';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpService } from '../../services/http.service';
+import { AuthService } from '../../services/auth.service';
+import { LoaderService } from '../../services/loader.service';
+import { NotificationService } from '../../services/notification.service';
+import {
+  Contract,
+  ContractDetailResponse,
+  ContractList,
+  ContractResponse,
+  FormContractRequest,
+  FormContractResponse,
+  ItemDetail,
+  ItemDetailList,
+  Revision,
+  RevisionDetail,
+  RevisionListResponse,
+} from './dto/contract.dto';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { DynamicFormArrayComponent } from '../../components/dynamic-form-array/dynamic-form-array.component';
+import { ItemListOfValueResponse } from './dto/item.dto';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-contract',
@@ -20,16 +43,79 @@ import { CommonModule } from '@angular/common';
     ContentCardComponent,
     DynamicCardComponent,
     CommonModule,
+    DynamicFormArrayComponent,
   ],
   templateUrl: './contract.component.html',
   styleUrl: './contract.component.scss',
 })
 export class ContractComponent {
+  contractForm!: FormGroup;
   showModalAdd = false;
   showModalEdit = false;
   showModalRevision = false;
   showModalItemDetails = false;
-
+  filterForm: FormGroup;
+  dataItemDetails: ItemDetail[] = [];
+  dataDetailRevision: RevisionDetail[] = [];
+  data: Contract[] = [];
+  totalPages!: number;
+  pageNo: number = 0;
+  pageSize: number = 10;
+  sortBy: string = '';
+  sortOrder: string = '';
+  headersItemDetails: {
+    key: string;
+    label: string;
+    class?: string;
+    renderType?: (
+      value: any,
+      row?: any
+    ) =>
+      | 'number'
+      | 'text'
+      | 'currency'
+      | 'date'
+      | 'integer'
+      | 'button'
+      | 'icon'
+      | 'empty';
+  }[] = [
+    { key: 'no', renderType: () => 'number', label: 'No' },
+    { key: 'item_name', renderType: () => 'text', label: 'Item Name' },
+    { key: 'paid_quantity', renderType: () => 'text', label: 'Paid Quantity' },
+    {
+      key: 'remaining_quantity',
+      renderType: () => 'text',
+      label: 'Remaining Quantity',
+    },
+    {
+      key: 'total_quantity',
+      renderType: () => 'text',
+      label: 'Total Quantity',
+    },
+  ];
+  headersDetailRevision: {
+    key: string;
+    label: string;
+    class?: string;
+    renderType?: (
+      value: any,
+      row?: any
+    ) =>
+      | 'number'
+      | 'text'
+      | 'currency'
+      | 'date'
+      | 'integer'
+      | 'button'
+      | 'icon'
+      | 'empty';
+  }[] = [
+    { key: 'no', renderType: () => 'number', label: 'No' },
+    { key: 'revision', renderType: () => 'text', label: 'Revision' },
+    { key: 'created_date', renderType: () => 'text', label: 'Created Date' },
+    { key: 'created_by', renderType: () => 'text', label: 'Created By' },
+  ];
   headers: {
     key: string;
     label: string;
@@ -49,16 +135,7 @@ export class ContractComponent {
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
     { key: 'contract_code', renderType: () => 'text', label: 'Contract Code' },
-    {
-      key: 'valid_contract_date',
-      renderType: () => 'date',
-      label: 'Valid Contract Date',
-    },
-    {
-      key: 'invalid_contract_date',
-      renderType: () => 'date',
-      label: 'Invalid Contract Date',
-    },
+    { key: 'contract_name', renderType: () => 'text', label: 'Contract Name' },
     { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
     { key: 'modified_date', renderType: () => 'date', label: 'Modified Date' },
@@ -82,263 +159,417 @@ export class ContractComponent {
       class: 'bg-custom-light-yellow px-4 py-2 rounded hover:bg-custom-yellow',
     },
   ];
+  contractCode!: string;
+  dropdownOptions: Array<{ value: any; label: any }> = [];
+  formConfig!: any;
+  formArrayConfig!: any;
 
-  data = [
-    {
-      no: 1,
-      contract_code: 'Sample Text 466',
-      valid_contract_date: '2024-07-14',
-      invalid_contract_date: '2023-10-05',
-      created_date: '2024-03-24',
-      created_by: 'Sample Text 618',
-      modified_date: '2024-06-28',
-      modified_by: 'Sample Text 728',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 2,
-      contract_code: 'Sample Text 238',
-      valid_contract_date: '2024-06-01',
-      invalid_contract_date: '2024-06-04',
-      created_date: '2024-02-23',
-      created_by: 'Sample Text 157',
-      modified_date: '2024-02-12',
-      modified_by: 'Sample Text 538',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 3,
-      contract_code: 'Sample Text 639',
-      valid_contract_date: '2023-12-09',
-      invalid_contract_date: '2024-05-28',
-      created_date: '2024-06-22',
-      created_by: 'Sample Text 802',
-      modified_date: '2024-05-27',
-      modified_by: 'Sample Text 164',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 4,
-      contract_code: 'Sample Text 206',
-      valid_contract_date: '2023-11-01',
-      invalid_contract_date: '2023-09-26',
-      created_date: '2024-07-30',
-      created_by: 'Sample Text 276',
-      modified_date: '2023-10-08',
-      modified_by: 'Sample Text 726',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 5,
-      contract_code: 'Sample Text 355',
-      valid_contract_date: '2024-06-07',
-      invalid_contract_date: '2024-01-03',
-      created_date: '2024-02-18',
-      created_by: 'Sample Text 173',
-      modified_date: '2023-09-12',
-      modified_by: 'Sample Text 623',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 6,
-      contract_code: 'Sample Text 597',
-      valid_contract_date: '2024-04-19',
-      invalid_contract_date: '2024-06-04',
-      created_date: '2024-03-11',
-      created_by: 'Sample Text 585',
-      modified_date: '2023-12-06',
-      modified_by: 'Sample Text 209',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 7,
-      contract_code: 'Sample Text 826',
-      valid_contract_date: '2024-02-10',
-      invalid_contract_date: '2024-07-31',
-      created_date: '2024-05-04',
-      created_by: 'Sample Text 183',
-      modified_date: '2024-05-23',
-      modified_by: 'Sample Text 985',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 8,
-      contract_code: 'Sample Text 276',
-      valid_contract_date: '2023-09-01',
-      invalid_contract_date: '2024-05-17',
-      created_date: '2024-06-07',
-      created_by: 'Sample Text 646',
-      modified_date: '2023-10-30',
-      modified_by: 'Sample Text 714',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 9,
-      contract_code: 'Sample Text 422',
-      valid_contract_date: '2024-07-26',
-      invalid_contract_date: '2023-12-12',
-      created_date: '2023-12-25',
-      created_by: 'Sample Text 983',
-      modified_date: '2024-07-13',
-      modified_by: 'Sample Text 567',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 10,
-      contract_code: 'Sample Text 650',
-      valid_contract_date: '2024-08-24',
-      invalid_contract_date: '2023-12-05',
-      created_date: '2023-12-26',
-      created_by: 'Sample Text 286',
-      modified_date: '2024-04-01',
-      modified_by: 'Sample Text 847',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 11,
-      contract_code: 'Sample Text 446',
-      valid_contract_date: '2023-11-24',
-      invalid_contract_date: '2023-09-30',
-      created_date: '2024-03-13',
-      created_by: 'Sample Text 515',
-      modified_date: '2023-10-08',
-      modified_by: 'Sample Text 254',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 12,
-      contract_code: 'Sample Text 298',
-      valid_contract_date: '2024-06-15',
-      invalid_contract_date: '2024-07-29',
-      created_date: '2024-04-16',
-      created_by: 'Sample Text 386',
-      modified_date: '2023-12-07',
-      modified_by: 'Sample Text 850',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 13,
-      contract_code: 'Sample Text 138',
-      valid_contract_date: '2023-11-16',
-      invalid_contract_date: '2024-07-23',
-      created_date: '2024-02-23',
-      created_by: 'Sample Text 123',
-      modified_date: '2023-12-02',
-      modified_by: 'Sample Text 870',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 14,
-      contract_code: 'Sample Text 380',
-      valid_contract_date: '2024-02-14',
-      invalid_contract_date: '2024-06-22',
-      created_date: '2024-03-11',
-      created_by: 'Sample Text 892',
-      modified_date: '2024-04-08',
-      modified_by: 'Sample Text 851',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-    {
-      no: 15,
-      contract_code: 'Sample Text 846',
-      valid_contract_date: '2024-01-19',
-      invalid_contract_date: '2024-07-16',
-      created_date: '2024-05-12',
-      created_by: 'Sample Text 898',
-      modified_date: '2024-08-19',
-      modified_by: 'Sample Text 522',
-      revision: 'Detail',
-      item_details: 'Detail',
-      action: 'Edit',
-    },
-  ];
+  constructor(
+    private fb: FormBuilder,
+    private httpService: HttpService,
+    private authService: AuthService,
+    private loaderService: LoaderService,
+    private notificationService: NotificationService
+  ) {
+    this.filterForm = this.fb.group({
+      contractName: [''],
+      startDate: [''],
+      endDate: [''],
+    });
+  }
 
-  textValue: string = '';
-  numberValue: number | null = null;
-  selectedOption: string = '';
-  dropdownOptions: Array<{ value: string; label: string }> = [
-    { value: 'Test', label: 'Test' },
-  ];
-  textareaValue: string = '';
-  dateValue: Date | null = null;
-  isDisabled: boolean = false;
-  itemDetail!: string;
+  ngOnInit() {
+    this.fetchContract();
+    const storedItemList = sessionStorage.getItem('item_list');
+    if (storedItemList) {
+      try {
+        this.dropdownOptions = JSON.parse(storedItemList);
+      } catch (error) {
+        this.fetchItemList();
+      }
+    } else {
+      this.fetchItemList();
+    }
+    this.contractForm = this.fb.group({
+      formContractName: ['', Validators.required],
+      formRevision: [''],
+      formItemDetailList: this.fb.array([]),
+      contractCode: [''],
+    });
+    this.formConfig = [
+      {
+        key: 'contractCode',
+        label: 'Contract Code',
+        type: 'text',
+        hidden: true,
+      },
+      {
+        key: 'formContractName',
+        label: 'Contract Name',
+        type: 'text',
+      },
+      {
+        key: 'formRevision',
+        label: 'Revision',
+        type: 'number',
+        width: 'w-[30%]',
+      },
+    ];
+  }
 
-  handleValueChange(event: any) {
-    console.log('Value changed:', event);
-    if (event.type === 'text') {
-      this.textValue = event.value;
-    } else if (event.type === 'number') {
-      this.numberValue = event.value;
-    } else if (event.type === 'dropdown') {
-      this.selectedOption = event.value;
-    } else if (event.type === 'textarea') {
-      this.textareaValue = event.value;
-    } else if (event.type === 'datepicker') {
-      this.dateValue = event.value;
+  get formItemDetailList(): FormArray {
+    return this.contractForm.get('formItemDetailList') as FormArray;
+  }
+
+  addItemDetail() {
+    this.formItemDetailList.push(
+      this.fb.group({
+        formItemName: [null, Validators.required],
+        formTotalQuantity: ['', [Validators.required, Validators.min(1)]],
+      })
+    );
+  }
+
+  editItemDetail() {
+    this.formItemDetailList.push(
+      this.fb.group({
+        formItemName: [null, Validators.required],
+        formTotalQuantity: ['', [Validators.required, Validators.min(1)]],
+        formPaidQuantity: [''],
+      })
+    );
+  }
+
+  removeItemDetail(index: number) {
+    this.formItemDetailList.removeAt(index);
+  }
+
+  resetItemDetailList() {
+    this.formItemDetailList.clear();
+  }
+
+  fetchContract() {
+    const params = new HttpParams()
+      .set('pageNo', this.pageNo)
+      .set('pageSize', this.pageSize)
+      .set('sortBy', this.sortBy)
+      .set('sortOrder', this.sortOrder)
+      .set('contractName', this.filterForm.get('contractName')?.value || '')
+      .set('startDate', this.filterForm.get('startDate')?.value || '')
+      .set('endDate', this.filterForm.get('endDate')?.value || '');
+    this.loaderService.show();
+    this.httpService
+      .get<ContractResponse>(
+        environment.API_URL,
+        'api/contract/getContractListPaging?',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.data = [
+              ...ContractList.fromApiResponse(response?.data?.content),
+            ];
+            this.totalPages = response?.data?.totalPages;
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch contract', error);
+        },
+      });
+  }
+
+  onPageChange(event: any) {
+    this.pageNo = event - 1;
+    this.fetchContract();
+  }
+
+  fetchItemList() {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('itemName', '');
+    this.loaderService.show();
+    this.httpService
+      .get<ItemListOfValueResponse>(
+        environment.API_URL,
+        'api/item/getItemList',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.dropdownOptions = response?.data.map((item) => ({
+              value: item.itemId,
+              label: item.itemName,
+            }));
+            this.formArrayConfig = this.formArrayConfig?.map((config: any) => {
+              if (config.key === 'formItemName') {
+                return {
+                  ...config,
+                  options: this.dropdownOptions,
+                };
+              }
+              return config;
+            });
+            sessionStorage.setItem(
+              'item_list',
+              JSON.stringify(this.dropdownOptions)
+            );
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch item', error);
+        },
+      });
+  }
+
+  async fetchContractDetail(contractCode: string, contractName: string) {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('contractName', contractName)
+      .set('contractCode', contractCode);
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<ContractDetailResponse>(
+          environment.API_URL,
+          'api/contract/getContractList',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        this.resetItemDetailList();
+        if (response?.data?.length > 0) {
+          this.dataItemDetails = [
+            ...ItemDetailList.fromApiResponse(response?.data[0]?.itemList),
+          ];
+          response?.data[0]?.itemList?.forEach((item) => {
+            const formGroup = this.fb.group({
+              formItemName: [
+                this.getItemValue(item.itemName),
+                Validators.required,
+              ],
+              formTotalQuantity: [
+                item.totalQuantity,
+                [Validators.required, Validators.min(1)],
+              ],
+              formRemainingQuantity: [item.remainingQuantity],
+              formPaidQuantity: [item.paidQuantity],
+            });
+            this.formItemDetailList.push(formGroup);
+          });
+        } else {
+          this.editItemDetail();
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch contract detail', error);
+      this.notificationService.show(error, 'error');
+    }
+  }
+
+  async fetchRevisionList(contractCode: string) {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('contractCode', contractCode);
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<RevisionListResponse>(
+          environment.API_URL,
+          'api/contract/getContractRevisionList',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        this.dataDetailRevision = [...Revision.fromApiResponse(response?.data)];
+        const { revision } = response?.data?.reduce((latest, current) => {
+          return current?.revision > latest?.revision ? current : latest;
+        }, response?.data[0]);
+        this.contractForm.get('formRevision')?.setValue(revision + 1);
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch contract detail', error);
+      this.notificationService.show(error, 'error');
+    }
+  }
+
+  async fetchDataDetail(contractCode: string, contractName: string) {
+    this.loaderService.show();
+
+    try {
+      await Promise.all([
+        this.fetchContractDetail(contractCode, contractName),
+        this.fetchRevisionList(contractCode),
+      ]);
+      this.showModalEdit = true;
+    } catch (error) {
+      console.error('Error fetching data', error);
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  async fetchItemDetails(contractCode: string, contractName: string) {
+    this.loaderService.show();
+
+    try {
+      await Promise.all([this.fetchContractDetail(contractCode, contractName)]);
+      this.showModalItemDetails = true;
+    } catch (error) {
+      console.error('Error fetching data', error);
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  async fetchRevision(contractCode: string) {
+    this.loaderService.show();
+
+    try {
+      await Promise.all([this.fetchRevisionList(contractCode)]);
+      this.showModalRevision = true;
+    } catch (error) {
+      console.error('Error fetching data', error);
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  handleValueChange(value: any, key: string) {
+    const control = this.filterForm.get(key);
+    if (control) {
+      control.setValue(value);
     }
   }
 
   handleButtonClick(row: any) {
-    console.log(row?.key);
     switch (row?.key) {
       case 'add':
+        this.formArrayConfig = [
+          {
+            key: 'formItemName',
+            label: 'Item Name',
+            type: 'select',
+            options: this.dropdownOptions,
+          },
+          {
+            key: 'formTotalQuantity',
+            label: 'Total Value',
+            type: 'number',
+            width: 'w-[40px]',
+          },
+        ];
+        this.addItemDetail();
+        this.contractForm.get('formRevision')?.setValue('1');
+        this.contractForm.get('formRevision')?.disable();
         this.showModalAdd = true;
         break;
       case 'action':
-        this.itemDetail = row?.row?.contract_code;
-        this.showModalEdit = true;
+        this.fetchDataDetail(row?.row?.contract_code, row?.row?.contract_name);
+        this.contractForm.get('formRevision')?.disable();
+        this.contractForm.patchValue({
+          formContractName: row?.row?.contract_name,
+          contractCode: row?.row?.contract_code,
+        });
+        this.contractCode = row?.row?.contract_code;
+        this.formArrayConfig = [
+          {
+            key: 'formItemName',
+            label: 'Item Name',
+            type: 'select',
+            options: this.dropdownOptions,
+          },
+          {
+            key: 'formTotalQuantity',
+            label: 'Total Value',
+            type: 'number',
+            width: 'w-[40px]',
+          },
+          {
+            key: 'formPaidQuantity',
+            label: 'Paid Value',
+            type: 'number',
+            width: 'w-[40px]',
+          },
+        ];
         break;
       case 'item_details':
-        this.itemDetail = row?.row?.contract_code;
-        this.showModalItemDetails = true;
+        this.fetchItemDetails(row?.row?.contract_code, row?.row?.contract_name);
+        this.contractCode = row?.row?.contract_code;
         break;
       case 'revision':
-        this.showModalRevision = true;
+        this.fetchRevision(row?.row?.contract_code);
+        this.contractCode = row?.row?.contract_code;
         break;
       case 'apply':
-        console.log('Do request to apply filter');
+        this.pageNo = 0;
+        this.pageSize = 10;
+        this.sortBy = '';
+        this.sortOrder = '';
+        this.fetchContract();
         break;
       case 'clear':
-        console.log('Do request to clear filter');
+        this.filterForm.reset({
+          contractName: '',
+          startDate: '',
+          endDate: '',
+        });
+        this.fetchContract();
         break;
     }
   }
 
   closeModalAdd() {
+    this.contractForm.reset();
     this.showModalAdd = false;
+    this.resetItemDetailList();
   }
 
   closeModalEdit() {
+    this.contractForm.reset();
     this.showModalEdit = false;
+    this.resetItemDetailList();
   }
 
   closeModalRevision() {
@@ -347,5 +578,120 @@ export class ContractComponent {
 
   closeModalItemDetails() {
     this.showModalItemDetails = false;
+  }
+
+  handleFormSubmit(formValue: any, type: string): void {
+    if (type === 'add') {
+      this.createContract(formValue);
+    } else {
+      this.editContract({
+        formContractName: formValue.formContractName,
+        formItemDetailList: formValue.formItemDetailList,
+        contractCode: formValue.contractCode,
+      });
+    }
+  }
+
+  createContract(formValue: any) {
+    this.httpService
+      .post<FormContractResponse>(
+        environment.API_URL,
+        `api/contract/createContract?username=${this.authService.getUsername()}`,
+        new FormContractRequest(
+          formValue.formContractName,
+          this.contractForm.getRawValue()?.formRevision,
+          formValue.formItemDetailList.map(
+            (item: any) =>
+              new ItemDetailList(item.formItemName, item.formTotalQuantity)
+          )
+        ),
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalAdd();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.fetchContract();
+            this.notificationService.show(response?.info, 'success');
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.notificationService.show('Error creating contract.', 'error');
+          console.error('Error creating contract', error);
+        },
+      });
+  }
+
+  editContract(formValue: any) {
+    this.httpService
+      .post<FormContractResponse>(
+        environment.API_URL,
+        `api/contract/editContract?username=${this.authService.getUsername()}`,
+        new FormContractRequest(
+          formValue.formContractName,
+          this.contractForm.getRawValue()?.formRevision,
+          formValue.formItemDetailList.map(
+            (item: any) =>
+              new ItemDetailList(item.formItemName, item.formTotalQuantity)
+          ),
+          formValue.contractCode
+        ),
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalEdit();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'data has been saved.'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.fetchContract();
+            this.notificationService.show(response?.info, 'success');
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.notificationService.show('Error updating contract.', 'error');
+          console.error('Error updating contract', error);
+        },
+      });
+  }
+
+  handleFormCancel(): void {
+    this.showModalAdd = false;
+    this.showModalEdit = false;
+    this.resetItemDetailList();
+  }
+
+  getItemLabel(item: string): string | undefined {
+    const itemOption = this.dropdownOptions.find(
+      (option) => option.value === +item
+    );
+    return itemOption ? itemOption.label : undefined;
+  }
+
+  getItemValue(item: string): number | undefined {
+    const itemOption = this.dropdownOptions.find(
+      (option) => option.label === item
+    );
+    return itemOption ? itemOption.value : undefined;
   }
 }
