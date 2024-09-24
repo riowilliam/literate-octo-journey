@@ -1,11 +1,11 @@
 import { Component, Input, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RupiahMaskPipe } from '../../masks/rupiah.mask';
+import { RupiahMask } from '../../masks/rupiah.mask';
 
 @Component({
   selector: 'app-dynamic-input',
   standalone: true,
-  imports: [CommonModule, RupiahMaskPipe],
+  imports: [CommonModule, RupiahMask],
   templateUrl: './dynamic-input.component.html',
   styleUrls: ['./dynamic-input.component.scss'],
 })
@@ -22,7 +22,6 @@ export class DynamicInputComponent {
     [];
   @Input() placeholder: string = '';
   @Input() disabled: boolean = false;
-  @Input() dateFormat: string = 'yyyy-MM-dd';
   @Input() label: string = '';
   @Input() inputClass: any = '';
   @Input() labelClass: any = '';

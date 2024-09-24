@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { RupiahPipe } from '../../pipes/rupiah.pipe';
 
 @Component({
   selector: 'app-dynamic-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RupiahPipe],
   templateUrl: './dynamic-table.component.html',
   styleUrls: ['./dynamic-table.component.scss'],
 })

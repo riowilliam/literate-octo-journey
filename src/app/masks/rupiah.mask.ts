@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'rupiahMask',
   standalone: true,
 })
-export class RupiahMaskPipe implements PipeTransform {
+export class RupiahMask implements PipeTransform {
   transform(value: number | string): string {
     if (value == null || value === '') return '';
 

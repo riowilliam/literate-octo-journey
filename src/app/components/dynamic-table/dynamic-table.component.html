@@ -37,7 +37,7 @@
                 <span *ngSwitchCase="'number'">{{ row[header.key] }}</span>
                 <span *ngSwitchCase="'text'">{{ row[header.key] }}</span>
                 <span *ngSwitchCase="'currency'">
-                  {{ row[header.key] | currency : "IDR" }}
+                  {{ row[header.key] | rupiahPipe }}
                 </span>
                 <span *ngSwitchCase="'date'">{{
                   row[header.key] | date : "yyyy-MM-dd"
