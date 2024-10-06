@@ -12,8 +12,6 @@ export class CashOutDetailList {
   totalAmount!: number;
   createdDate!: string;
   createdBy!: string;
-  approvalDate!: string;
-  approvedBy!: string;
 
   static fromApiResponse(data: RegularMutationList[]): CashOutDetail[] {
     return data.flatMap((mutationList) =>
@@ -32,8 +30,6 @@ export class CashOutDetailList {
         total_amount: cashOutDetailData.totalAmount,
         created_date: cashOutDetailData.createdDate,
         created_by: cashOutDetailData.createdBy,
-        approval_date: cashOutDetailData.approvalDate,
-        approved_by: cashOutDetailData.approvedBy,
       }))
     );
   }
@@ -54,8 +50,6 @@ export class CashOutDetail {
   total_amount!: number;
   created_date!: string;
   created_by!: string;
-  approval_date!: string;
-  approved_by!: string;
 }
 
 export class RegularMutationList {

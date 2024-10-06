@@ -18,8 +18,7 @@ export class DynamicInputComponent {
     | 'datepicker'
     | 'searchable-dropdown' = 'text';
   @Input() value: any = '';
-  @Input() options: { value: string; label: string; shortLabel?: string }[] =
-    [];
+  @Input() options: { value: any; label: string; shortLabel?: string }[] = [];
   @Input() placeholder: string = '';
   @Input() disabled: boolean = false;
   @Input() label: string = '';

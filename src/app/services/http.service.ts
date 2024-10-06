@@ -32,10 +32,11 @@ export class HttpService {
     baseUrl: string,
     endpoint: string,
     body: any,
-    headers?: HttpHeaders
+    headers?: HttpHeaders,
+    params?: HttpParams
   ): Observable<T> {
     return this.http
-      .post<T>(`${baseUrl}/${endpoint}`, body, { headers })
+      .post<T>(`${baseUrl}/${endpoint}`, body, { headers, params })
       .pipe(catchError(this.handleError.bind(this)));
   }
 

@@ -115,12 +115,12 @@ export class RegularCashOutComponent {
       label: 'Total',
     },
     {
-      key: 'approval_date',
+      key: 'created_date',
       renderType: () => 'date',
       label: 'Approval Date',
     },
     {
-      key: 'approved_by',
+      key: 'created_by',
       renderType: () => 'text',
       label: 'Approved By',
     },
@@ -191,7 +191,7 @@ export class RegularCashOutComponent {
         error: (error: any) => {
           this.loaderService.hide();
           this.notificationService.show(error, 'error');
-          console.error('Failed to fetch partner', error);
+          console.error('Failed to fetch regular cash out', error);
         },
       });
   }

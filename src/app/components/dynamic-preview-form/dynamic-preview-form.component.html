@@ -1,0 +1,167 @@
+<form [formGroup]="formGroup">
+  <div formArrayName="rows" class="overflow-x-auto">
+    <div
+      *ngFor="let row of rows.controls; let i = index"
+      [formGroupName]="i"
+      class="flex flex-col"
+    >
+      <div class="w-max flex">
+        <ng-container *ngIf="i === 0">
+          <div class="flex flex-col">
+            <label
+              for="no-{{ i }}"
+              class="font-medium bg-gray-100 text-center mb-2"
+              >No</label
+            >
+            <input
+              id="no-{{ i }}"
+              name="no-{{ i }}"
+              type="text"
+              formControlName="no"
+              class="h-full form-input w-16 text-center mb-2 cursor-not-allowed"
+              readonly
+            />
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="i !== 0">
+          <div class="flex flex-col">
+            <input
+              id="no-{{ i }}"
+              name="no-{{ i }}"
+              type="text"
+              formControlName="no"
+              class="h-full form-input w-16 text-center mb-2 cursor-not-allowed"
+              readonly
+            />
+          </div>
+        </ng-container>
+
+        <ng-container *ngFor="let field of fields">
+          <div class="flex flex-col">
+            <ng-container *ngIf="i === 0">
+              <label
+                for="{{ field.name }}-{{ i }}"
+                class="font-medium bg-gray-100 text-center mb-2"
+              >
+                {{ field.label }}
+              </label>
+            </ng-container>
+            <ng-container [ngSwitch]="field.type">
+              <div class="mx-2.5">
+                <input
+                  *ngSwitchCase="'text'"
+                  id="{{ field.name }}-{{ i }}"
+                  name="{{ field.name }}-{{ i }}"
+                  type="text"
+                  [formControlName]="field.name"
+                  [placeholder]="field.placeholder"
+                  class="form-input text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none cursor-not-allowed"
+                  [ngClass]="field.bgClass"
+                  readonly
+                />
+              </div>
+              <div class="mx-2.5">
+                <input
+                  *ngSwitchCase="'currency'"
+                  id="{{ field.name }}-{{ i }}"
+                  name="{{ field.name }}-{{ i }}"
+                  type="text"
+                  [value]="row.get(field.name)?.value | rupiahPipe"
+                  class="form-input text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none cursor-not-allowed"
+                  [ngClass]="field.bgClass"
+                  readonly
+                />
+              </div>
+              <div class="mx-2.5">
+                <input
+                  *ngSwitchCase="'number'"
+                  id="{{ field.name }}-{{ i }}"
+                  name="{{ field.name }}-{{ i }}"
+                  type="number"
+                  [formControlName]="field.name"
+                  [placeholder]="field.placeholder"
+                  class="form-input text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none cursor-not-allowed"
+                  [ngClass]="field.bgClass"
+                  readonly
+                />
+              </div>
+              <div class="mx-2.5">
+                <div
+                  class="relative inline-block w-full"
+                  *ngSwitchCase="'select'"
+                >
+                  <select
+                    id="{{ field.name }}-{{ i }}"
+                    name="{{ field.name }}-{{ i }}"
+                    [formControlName]="field.name"
+                    class="pr-8 appearance-none form-select text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none cursor-not-allowed"
+                    [ngClass]="field.bgClass"
+                    readonly
+                  >
+                    <option value="" disabled selected hidden>
+                      {{ field.placeholder }}
+                    </option>
+                    <option
+                      *ngFor="let option of field.options"
+                      [value]="option"
+                    >
+                      {{ option }}
+                    </option>
+                  </select>
+                  <div
+                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700 mb-2"
+                  >
+                    <svg
+                      width="16"
+                      height="8"
+                      viewBox="0 0 16 8"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M0.988143 0.507823L8.5 7.50022L15.9881 0.492631L0.988143 0.507823Z"
+                        fill="black"
+                        fill-opacity="0.5"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 flex items-center justify-center">
+    <div
+      class="w-full flex flex-col sm:flex-row gap-4 items-center justify-center p-5"
+    >
+      <ng-container *ngIf="hasAction">
+        <button
+          type="submit"
+          class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-yellow text-xs font-semibold rounded-lg hover:bg-custom-yellow focus:outline-none focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+          (click)="onApprove()"
+        >
+          Approve
+        </button>
+        <button
+          type="submit"
+          class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-yellow text-xs font-semibold rounded-lg hover:bg-custom-yellow focus:outline-none focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+          (click)="onReject()"
+        >
+          Reject
+        </button>
+      </ng-container>
+      <button
+        type="button"
+        class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-red text-xs font-semibold rounded-lg hover:bg-custom-red focus:outline-none focus:ring-2 focus:ring-custom-light-red focus:ring-opacity-50"
+        (click)="closeModal()"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</form>

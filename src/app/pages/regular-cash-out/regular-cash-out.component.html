@@ -20,11 +20,10 @@
     type="text"
     [value]="filterForm.get('documentCashOutName')?.value"
     placeholder="Enter text"
-    [options]="dropdownOptions"
     label="Document Name"
     formControlName="documentCashOutName"
     [inputClass]="
-      'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+      'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
     (valueChange)="handleValueChange($event, 'documentCashOutName')"
@@ -63,5 +62,13 @@
   [value]="'Total : ' + (subTotal | rupiahPipe)"
   [hasValue]="true"
 >
-  <app-dynamic-table [headers]="headers" [rows]="data"> </app-dynamic-table>
+  <app-dynamic-table
+    [headers]="headers"
+    [rows]="data"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [currentPage]="pageNo + 1"
+    (buttonPagination)="onPageChange($event)"
+  >
+  </app-dynamic-table>
 </app-content-table>

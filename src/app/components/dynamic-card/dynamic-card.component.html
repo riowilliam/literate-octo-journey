@@ -19,7 +19,12 @@
       class="flex flex-col items-center justify-center"
     >
       <span class="text-sm font-medium">{{ item.label }}</span>
-      <span class="text-xl font-semibold">{{ item.value }}</span>
+      <ng-container *ngIf="item.type === 'currency'">
+        <span class="text-xl font-semibold">{{ item.value | rupiahPipe }}</span>
+      </ng-container>
+      <ng-container *ngIf="!item.type">
+        <span class="text-xl font-semibold">{{ item.value }}</span>
+      </ng-container>
     </div>
   </div>
 </div>

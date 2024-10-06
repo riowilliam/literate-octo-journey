@@ -16,7 +16,8 @@ export class DynamicTableComponent {
     class?: string;
     renderType?: (
       value: any,
-      row?: any
+      row?: any,
+      transform?: any
     ) =>
       | 'number'
       | 'text'
@@ -26,6 +27,7 @@ export class DynamicTableComponent {
       | 'button'
       | 'icon'
       | 'empty';
+    transform?: (value: any, row?: any) => any;
   }[] = [];
   @Input() rows: any[] = [];
   @Output() buttonClick = new EventEmitter<{ row: any; key: string }>();

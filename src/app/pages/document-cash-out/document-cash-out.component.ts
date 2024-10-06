@@ -8,6 +8,26 @@ import { ContentCardComponent } from '../../components/content-card/content-card
 import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import {
+  CashOutDetail,
+  CashOutDetailList,
+  DocumentCashOutDetail,
+  DocumentCashOutList,
+  DocumentDetailResponse,
+  DocumentResponse,
+} from './dto/document-cash-out.dto';
+import { HttpService } from '../../services/http.service';
+import { AuthService } from '../../services/auth.service';
+import { LoaderService } from '../../services/loader.service';
+import { NotificationService } from '../../services/notification.service';
+import { environment } from '../../../environments/environment';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
+import {
+  DynamicPreviewFormComponent,
+  FieldConfig,
+} from '../../components/dynamic-preview-form/dynamic-preview-form.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-document-cash-out',
@@ -21,15 +41,21 @@ import { Router } from '@angular/router';
     ContentCardComponent,
     DynamicCardComponent,
     CommonModule,
+    DynamicPreviewFormComponent,
   ],
   templateUrl: './document-cash-out.component.html',
   styleUrl: './document-cash-out.component.scss',
 })
 export class DocumentCashOutComponent {
-  showModalForm = false;
   showModalDetail = false;
-  showModalApprove = false;
-
+  showModalAction = false;
+  filterForm: FormGroup;
+  data: DocumentCashOutDetail[] = [];
+  totalPages!: number;
+  pageNo: number = 0;
+  pageSize: number = 10;
+  sortBy: string = '';
+  sortOrder: string = '';
   headers: {
     key: string;
     label: string;
@@ -46,25 +72,43 @@ export class DocumentCashOutComponent {
       | 'button'
       | 'icon'
       | 'empty';
+    transform?: (value: any, row?: any) => any;
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
-    { key: 'name', renderType: () => 'text', label: 'Name' },
-    { key: 'total_amount', renderType: () => 'text', label: 'Total Amount' },
-    { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
+    { key: 'document_name', renderType: () => 'text', label: 'Name' },
+    {
+      key: 'total_amount',
+      renderType: () => 'currency',
+      label: 'Total Amount',
+    },
+    { key: 'created_tm', renderType: () => 'date', label: 'Created Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
-    { key: 'modified_date', renderType: () => 'date', label: 'Modified Date' },
+    { key: 'modified_tm', renderType: () => 'date', label: 'Modified Date' },
     { key: 'modified_by', renderType: () => 'text', label: 'Modified By' },
     {
       key: 'status',
       renderType: (value: any) => {
-        switch (value?.toLowerCase()) {
-          case 'approved':
-          case 'rejected':
+        switch (value) {
+          case 1:
             return 'text';
-          case 'approve':
+          case 2:
+            return 'text';
+          case 0:
             return 'button';
           default:
             return 'empty';
+        }
+      },
+      transform: (value: any) => {
+        switch (value) {
+          case 0:
+            return 'Approve';
+          case 1:
+            return 'Approved';
+          case 2:
+            return 'Rejected';
+          default:
+            return '-';
         }
       },
       label: 'Status',
@@ -73,199 +117,35 @@ export class DocumentCashOutComponent {
     {
       key: 'action',
       renderType: (value: any, row: any) => {
-        if (row?.status?.toLowerCase() === 'rejected') {
-          return 'empty';
-        } else {
-          if (value?.toLowerCase() === 'edit') {
-            return 'button';
-          } else if (value?.toLowerCase() === 'approved') {
-            return 'icon';
-          } else {
-            return 'empty';
-          }
+        if (row?.status === 0) {
+          return 'button';
+        } else if (row?.status === 1) {
+          return 'icon';
+        }
+        return 'empty';
+      },
+      transform: (value: any, row: any) => {
+        switch (row?.status) {
+          case 0:
+            return 'Edit';
+          case 1:
+            return 'Detail';
+          default:
+            return;
         }
       },
       label: 'Action',
       class: 'bg-custom-light-yellow px-4 py-2 rounded hover:bg-custom-yellow',
     },
   ];
-
-  data = [
-    {
-      no: 1,
-      name: 'Item A',
-      total_amount: '1,500,000',
-      created_date: '2023-08-01',
-      created_by: 'User 1',
-      modified_date: '2023-08-05',
-      modified_by: 'User 2',
-      status: 'Approved',
-      action: 'Approved',
-    },
-    {
-      no: 2,
-      name: 'Item B',
-      total_amount: '2,000,000',
-      created_date: '2023-08-02',
-      created_by: 'User 3',
-      modified_date: '2023-08-06',
-      modified_by: 'User 4',
-      status: 'Approve',
-      action: 'Edit',
-    },
-    {
-      no: 3,
-      name: 'Item C',
-      total_amount: '1,750,000',
-      created_date: '2023-08-03',
-      created_by: 'User 1',
-      modified_date: '2023-08-07',
-      modified_by: 'User 2',
-      status: 'Approved',
-      action: 'Approved',
-    },
-    {
-      no: 4,
-      name: 'Item D',
-      total_amount: '2,500,000',
-      created_date: '2023-08-04',
-      created_by: 'User 3',
-      modified_date: '2023-08-08',
-      modified_by: 'User 4',
-      status: 'Rejected',
-      action: 'Rejected',
-    },
-    {
-      no: 5,
-      name: 'Item E',
-      total_amount: '1,000,000',
-      created_date: '2023-08-05',
-      created_by: 'User 1',
-      modified_date: '2023-08-09',
-      modified_by: 'User 2',
-      status: 'Approve',
-      action: 'Edit',
-    },
-    {
-      no: 6,
-      name: 'Item F',
-      total_amount: '3,000,000',
-      created_date: '2023-08-06',
-      created_by: 'User 3',
-      modified_date: '2023-08-10',
-      modified_by: 'User 4',
-      status: 'Approved',
-      action: 'Approved',
-    },
-    {
-      no: 7,
-      name: 'Item G',
-      total_amount: '2,250,000',
-      created_date: '2023-08-07',
-      created_by: 'User 1',
-      modified_date: '2023-08-11',
-      modified_by: 'User 2',
-      status: 'Approve',
-      action: 'Edit',
-    },
-    {
-      no: 8,
-      name: 'Item H',
-      total_amount: '2,750,000',
-      created_date: '2023-08-08',
-      created_by: 'User 3',
-      modified_date: '2023-08-12',
-      modified_by: 'User 4',
-      status: 'Approved',
-      action: 'Approved',
-    },
-    {
-      no: 9,
-      name: 'Item I',
-      total_amount: '1,250,000',
-      created_date: '2023-08-09',
-      created_by: 'User 1',
-      modified_date: '2023-08-13',
-      modified_by: 'User 2',
-      status: 'Rejected',
-      action: 'Rejected',
-    },
-    {
-      no: 10,
-      name: 'Item J',
-      total_amount: '3,500,000',
-      created_date: '2023-08-10',
-      created_by: 'User 3',
-      modified_date: '2023-08-14',
-      modified_by: 'User 4',
-      status: 'Approve',
-      action: 'Edit',
-    },
-    {
-      no: 11,
-      name: 'Item K',
-      total_amount: '4,000,000',
-      created_date: '2023-08-11',
-      created_by: 'User 1',
-      modified_date: '2023-08-15',
-      modified_by: 'User 2',
-      status: 'Approved',
-      action: 'Approved',
-    },
-    {
-      no: 12,
-      name: 'Item L',
-      total_amount: '2,250,000',
-      created_date: '2023-08-12',
-      created_by: 'User 3',
-      modified_date: '2023-08-16',
-      modified_by: 'User 4',
-      status: 'Approve',
-      action: 'Edit',
-    },
-    {
-      no: 13,
-      name: 'Item M',
-      total_amount: '2,750,000',
-      created_date: '2023-08-13',
-      created_by: 'User 1',
-      modified_date: '2023-08-17',
-      modified_by: 'User 2',
-      status: 'Approved',
-      action: 'Approved',
-    },
-    {
-      no: 14,
-      name: 'Item N',
-      total_amount: '1,500,000',
-      created_date: '2023-08-14',
-      created_by: 'User 3',
-      modified_date: '2023-08-18',
-      modified_by: 'User 4',
-      status: 'Rejected',
-      action: 'Rejected',
-    },
-    {
-      no: 15,
-      name: 'Item O',
-      total_amount: '1,250,000',
-      created_date: '2023-08-15',
-      created_by: 'User 1',
-      modified_date: '2023-08-19',
-      modified_by: 'User 2',
-      status: 'Approve',
-      action: 'Edit',
-    },
-  ];
-
   cards = [
     {
       headerText: 'Total Cash Out',
       sections: [
         [
-          { label: 'Approved', value: 'Rp. 94.500.000' },
-          { label: 'Not Approve', value: 'Rp. 42.000.000' },
-          { label: 'Rejected', value: 'Rp. 56.250.000' },
+          { label: 'Approved', value: 0, type: 'currency' },
+          { label: 'Not Approve', value: 0, type: 'currency' },
+          { label: 'Rejected', value: 0, type: 'currency' },
         ],
       ],
     },
@@ -273,79 +153,399 @@ export class DocumentCashOutComponent {
       headerText: 'Total Documents',
       sections: [
         [
-          { label: 'Approved', value: '5' },
-          { label: 'Not Approve', value: '1' },
-          { label: 'Rejected', value: '4' },
+          { label: 'Approved', value: 0 },
+          { label: 'Not Approve', value: 0 },
+          { label: 'Rejected', value: 0 },
         ],
       ],
     },
   ];
-
-  textValue: string = '';
-  numberValue: number | null = null;
-  selectedOption: string = '';
-  dropdownOptions: Array<{ value: string; label: string }> = [
-    { value: 'Test', label: 'Test' },
+  dropdownOptions: Array<{ value: number; label: string }> = [
+    { value: 0, label: 'Approve' },
+    { value: 1, label: 'Approved' },
+    { value: 2, label: 'Rejected' },
   ];
-  textareaValue: string = '';
-  dateValue: Date | null = null;
-  isDisabled: boolean = false;
   name!: string;
+  formGroup!: FormGroup;
+  fields: FieldConfig[] = [
+    {
+      type: 'text',
+      name: 'vendor',
+      placeholder: 'Enter Text',
+      label: 'Vendor',
+    },
+    {
+      type: 'text',
+      name: 'invoice',
+      placeholder: 'Enter Text',
+      label: 'Invoice',
+    },
+    {
+      type: 'text',
+      name: 'unit',
+      placeholder: 'Enter Text',
+      label: 'Unit',
+    },
+    {
+      type: 'text',
+      name: 'bank_account',
+      placeholder: 'Enter Text',
+      label: 'Bank Account',
+    },
+    {
+      type: 'text',
+      name: 'bank_account_name',
+      placeholder: 'Enter Text',
+      label: 'Bank Account Name',
+    },
+    {
+      type: 'text',
+      name: 'bank_name',
+      placeholder: 'Enter Text',
+      label: 'Bank Name',
+    },
+    {
+      type: 'currency',
+      name: 'amount',
+      placeholder: 'Enter Text',
+      label: 'Amount',
+    },
+    {
+      type: 'currency',
+      name: 'transfer_fee',
+      placeholder: 'Enter Text',
+      label: 'Transfer Fees',
+    },
+    {
+      type: 'currency',
+      name: 'total',
+      placeholder: 'Enter Text',
+      label: 'Total',
+    },
+  ];
+  hasAction: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private fb: FormBuilder,
+    private httpService: HttpService,
+    private authService: AuthService,
+    private loaderService: LoaderService,
+    private notificationService: NotificationService,
+    private router: Router
+  ) {
+    this.filterForm = this.fb.group({
+      documentName: [''],
+      status: [''],
+      startDate: [''],
+      endDate: [''],
+    });
+  }
 
-  handleValueChange(event: any) {
-    if (event.type === 'text') {
-      this.textValue = event.value;
-    } else if (event.type === 'number') {
-      this.numberValue = event.value;
-    } else if (event.type === 'dropdown') {
-      this.selectedOption = event.value;
-    } else if (event.type === 'textarea') {
-      this.textareaValue = event.value;
-    } else if (event.type === 'datepicker') {
-      this.dateValue = event.value;
+  ngOnInit() {
+    this.fetchDocumentCashOut();
+
+    this.formGroup = this.fb.group({
+      rows: this.fb.array([]),
+    });
+
+    this.addInitialRow();
+  }
+
+  private addInitialRow() {
+    const dynamicFormComponent = new DynamicPreviewFormComponent(this.fb);
+    dynamicFormComponent.formGroup = this.formGroup;
+    dynamicFormComponent.fields = this.fields;
+    dynamicFormComponent.addRow();
+  }
+
+  get rows(): FormArray {
+    return this.formGroup.get('rows') as FormArray;
+  }
+
+  fetchDocumentCashOut() {
+    const params = new HttpParams()
+      .set('pageNo', this.pageNo)
+      .set('pageSize', this.pageSize)
+      .set('sortBy', this.sortBy)
+      .set('sortOrder', this.sortOrder)
+      .set('documentName', this.filterForm.get('documentName')?.value || '')
+      .set('status', this.filterForm.get('status')?.value || '')
+      .set('startDate', this.filterForm.get('startDate')?.value || '')
+      .set('endDate', this.filterForm.get('endDate')?.value || '');
+    this.loaderService.show();
+    this.httpService
+      .get<DocumentResponse>(
+        environment.API_URL,
+        'api/cashOut/getCashOutDocPaging?',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.data = [
+              ...DocumentCashOutList.fromApiResponse(response?.data?.content),
+            ];
+            if (response?.data?.content?.length > 0) {
+              this.cards = [
+                {
+                  headerText: 'Total Cash Out',
+                  sections: [
+                    [
+                      {
+                        label: 'Approved',
+                        value:
+                          response?.data?.content[0]?.cashOutDocSummary
+                            ?.totalAmountApprove,
+                        type: 'currency',
+                      },
+                      {
+                        label: 'Not Approve',
+                        value:
+                          response?.data?.content[0]?.cashOutDocSummary
+                            ?.totalAmountNotApprove,
+                        type: 'currency',
+                      },
+                      {
+                        label: 'Rejected',
+                        value:
+                          response?.data?.content[0]?.cashOutDocSummary
+                            ?.totalAmountRejected,
+                        type: 'currency',
+                      },
+                    ],
+                  ],
+                },
+                {
+                  headerText: 'Total Documents',
+                  sections: [
+                    [
+                      {
+                        label: 'Approved',
+                        value:
+                          response?.data?.content[0]?.cashOutDocSummary
+                            ?.totalCountApprove,
+                      },
+                      {
+                        label: 'Not Approve',
+                        value:
+                          response?.data?.content[0]?.cashOutDocSummary
+                            ?.totalCountNotApprove,
+                      },
+                      {
+                        label: 'Rejected',
+                        value:
+                          response?.data?.content[0]?.cashOutDocSummary
+                            ?.totalCountRejected,
+                      },
+                    ],
+                  ],
+                },
+              ];
+            }
+            this.totalPages = response?.data?.totalPages;
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch document cash out', error);
+        },
+      });
+  }
+
+  onPageChange(event: any) {
+    this.pageNo = event - 1;
+    this.fetchDocumentCashOut();
+  }
+
+  private createCashOutDetailFormGroup(detail: CashOutDetail): FormGroup {
+    return this.fb.group({
+      no: [detail.no],
+      vendor: [detail.vendor],
+      invoice: [detail.invoice],
+      bank_account: [detail.bank_account],
+      bank_account_name: [detail.bank_account_name],
+      bank_name: [detail.bank_name],
+      amount: [detail.amount],
+      transfer_fee: [detail.transfer_fee],
+      total: [detail.total],
+      unit: [detail.unit],
+    });
+  }
+
+  async fetchDocumentCashOutDetail(docName: string) {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('docName', docName);
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<DocumentDetailResponse>(
+          environment.API_URL,
+          'api/cashOut/getCashOutDocByName',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        if (response?.data) {
+          const { cashOutDetailList, documentName, subTotal } = response?.data;
+          const dataCashOutDetail =
+            CashOutDetailList.fromApiResponse(cashOutDetailList);
+          this.rows?.clear();
+          dataCashOutDetail?.forEach((detail) => {
+            const formGroup = this.createCashOutDetailFormGroup(detail);
+            this.rows?.push(formGroup);
+          });
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch document detail', error);
+      this.notificationService.show(error, 'error');
+    }
+  }
+
+  async fetchDocumenDetail(docName: string) {
+    this.loaderService.show();
+
+    try {
+      await Promise.all([this.fetchDocumentCashOutDetail(docName)]);
+      if (this.hasAction) {
+        this.showModalAction = true;
+      } else {
+        this.showModalDetail = true;
+      }
+    } catch (error) {
+      console.error('Error fetching data', error);
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  handleValueChange(value: any, key: string) {
+    const control = this.filterForm.get(key);
+    if (control) {
+      control.setValue(value);
     }
   }
 
   handleButtonClick(row: any) {
     switch (row?.key) {
       case 'action':
-        if (row?.row?.status?.toLowerCase() === 'approve') {
-          this.router.navigate(['/action-cash-out', 'edit', row?.row?.name]);
-        } else {
-          this.name = row?.row?.name;
-          this.showModalDetail = true;
+        if (row?.row?.status === 0) {
+          this.router.navigate([
+            '/action-cash-out',
+            'edit',
+            row?.row?.document_name,
+          ]);
+        } else if (row?.row?.status === 1) {
+          this.fetchDocumenDetail(row?.row?.document_name);
+          this.name = row?.row?.document_name;
         }
         break;
       case 'add':
         this.router.navigate(['/action-cash-out', 'add']);
         break;
       case 'apply':
-        console.log('Do request to apply filter');
+        this.pageNo = 0;
+        this.pageSize = 10;
+        this.sortBy = '';
+        this.sortOrder = '';
+        this.fetchDocumentCashOut();
         break;
       case 'clear':
-        console.log('Do request to clear filter');
+        this.filterForm.reset({
+          documentName: '',
+          status: '',
+          startDate: '',
+          endDate: '',
+        });
+        this.fetchDocumentCashOut();
         break;
       case 'status':
-        this.name = row?.row?.name;
-        this.showModalApprove = true;
-        break;
-      default:
-        this.showModalForm = true;
+        this.hasAction = true;
+        this.fetchDocumenDetail(row?.row?.document_name);
+        this.name = row?.row?.document_name;
         break;
     }
   }
 
-  closeModalForm() {
-    this.showModalForm = false;
+  updateDocument(status: any) {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('status', status)
+      .set('docName', this.name);
+    this.httpService
+      .post<any>(
+        environment.API_URL,
+        'api/cashOut/approvalCashOutDoc?',
+        null,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        }),
+        params
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalAction();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.fetchDocumentCashOut();
+            this.notificationService.show(response?.info, 'success');
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.notificationService.show(
+            `Error ${status === 1 ? 'approve' : 'reject'} document.`,
+            'error'
+          );
+          console.error(
+            `Error ${status === 1 ? 'approve' : 'reject'} document`,
+            error
+          );
+        },
+      });
+  }
+
+  onApprove() {
+    this.updateDocument(1);
+  }
+
+  onReject() {
+    this.updateDocument(2);
   }
 
   closeModalDetail() {
     this.showModalDetail = false;
   }
 
-  closeModalApprove() {
-    this.showModalApprove = false;
+  closeModalAction() {
+    this.showModalAction = false;
+    this.hasAction = false;
   }
 }
