@@ -404,13 +404,31 @@ export class DocumentCashOutComponent {
         response?.info?.toLowerCase() === 'success'
       ) {
         if (response?.data) {
-          const { cashOutDetailList, documentName, subTotal } = response?.data;
+          const { cashOutDetailList } = response?.data;
           const dataCashOutDetail =
             CashOutDetailList.fromApiResponse(cashOutDetailList);
           this.rows?.clear();
-          dataCashOutDetail?.forEach((detail) => {
+          dataCashOutDetail?.forEach((detail, index) => {
             const formGroup = this.createCashOutDetailFormGroup(detail);
             this.rows?.push(formGroup);
+            this.rows?.controls[index].get('amount')?.setValue(
+              this.rows?.controls[index]
+                .get('amount')
+                ?.value?.toString()
+                ?.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+            );
+            this.rows?.controls[index].get('transferFee')?.setValue(
+              this.rows?.controls[index]
+                .get('transferFee')
+                ?.value?.toString()
+                ?.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+            );
+            this.rows?.controls[index].get('total')?.setValue(
+              this.rows?.controls[index]
+                .get('total')
+                ?.value?.toString()
+                ?.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+            );
           });
         }
       } else {

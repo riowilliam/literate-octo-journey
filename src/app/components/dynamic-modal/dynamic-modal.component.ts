@@ -19,6 +19,7 @@ import {
 export class DynamicModalComponent implements OnChanges, OnDestroy {
   @Input() title: string = '';
   @Input() showModal: boolean = false;
+  @Input() mWClass: string = 'max-w-xl';
   @Output() closeModal = new EventEmitter<void>();
 
   close() {

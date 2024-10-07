@@ -4,8 +4,9 @@
   (click)="onBackdropClick($event)"
 >
   <div
-    class="modal-content rounded-lg shadow-lg max-w-[80%] w-full flex flex-col items-center justify-center overflow-clip"
+    class="modal-content rounded-lg shadow-lg w-full flex flex-col items-center justify-center overflow-clip"
     (click)="$event.stopPropagation()"
+    [ngClass]="mWClass"
   >
     <div
       class="bg-custom-light-gray w-full flex items-center justify-center p-2"

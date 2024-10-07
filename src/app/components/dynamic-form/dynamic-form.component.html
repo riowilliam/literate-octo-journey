@@ -18,7 +18,7 @@
               name="no-{{ i }}"
               type="text"
               formControlName="no"
-              class="h-full form-input w-16 text-center mb-2"
+              class="form-input w-16 text-center mb-2 mt-2"
               readonly
             />
           </div>
@@ -31,7 +31,7 @@
               name="no-{{ i }}"
               type="text"
               formControlName="no"
-              class="h-full form-input w-16 text-center mb-2"
+              class="form-input w-16 text-center mb-2 mt-2"
               readonly
             />
           </div>
@@ -73,6 +73,28 @@
                 />
               </div>
               <div class="mx-2.5">
+                <input
+                  *ngSwitchCase="'currency'"
+                  id="{{ field.name }}-{{ i }}"
+                  name="{{ field.name }}-{{ i }}"
+                  type="text"
+                  [formControlName]="field.name"
+                  [placeholder]="field.placeholder"
+                  class="form-input text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none"
+                  [ngClass]="field.bgClass"
+                  [readonly]="field.name === 'totalAmount' ? true : false"
+                  [ngClass]="
+                    field.name === 'totalAmount'
+                      ? 'cursor-not-allowed'
+                      : field.bgClass
+                      ? field.bgClass +
+                        ' focus:ring-2 focus:ring-custom-light-yellow'
+                      : 'focus:ring-2 focus:ring-custom-light-yellow'
+                  "
+                  (input)="onInputChange($event, field.name, i)"
+                />
+              </div>
+              <div class="mx-2.5">
                 <div
                   class="relative inline-block w-full"
                   *ngSwitchCase="'select'"
@@ -109,6 +131,61 @@
                         fill="black"
                         fill-opacity="0.5"
                       />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div class="mx-2.5">
+                <div
+                  class="relative inline-block w-full"
+                  *ngSwitchCase="'searchable-dropdown'"
+                >
+                  <input
+                    type="text"
+                    id="{{ field.name }}-{{ i }}"
+                    name="{{ field.name }}"
+                    [formControlName]="field.name"
+                    placeholder="{{ field.placeholder }}"
+                    (input)="filterOptions($event, field.name + '-' + i)"
+                    (focus)="setInitialOptions(field.name + '-' + i)"
+                    class="w-full pr-8 appearance-none form-input text-center border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow"
+                    autocomplete="off"
+                    [ngClass]="field.bgClass"
+                  />
+
+                  <div
+                    *ngIf="showDropdown[field.name + '-' + i]"
+                    class="bg-white border border-gray-300 rounded-md max-h-80 overflow-auto mt-1"
+                  >
+                    <ul>
+                      <li
+                        *ngFor="
+                          let option of filteredOptions[field.name + '-' + i]
+                        "
+                        (click)="selectOption(option, field.name, i)"
+                        class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                      >
+                        {{ option.label }}
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div
+                    class="pointer-events-none absolute top-2.5 right-0 flex items-center pr-3 text-gray-700"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 9l-7 7-7-7"
+                      ></path>
                     </svg>
                   </div>
                 </div>

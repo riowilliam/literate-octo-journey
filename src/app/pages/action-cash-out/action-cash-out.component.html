@@ -1,9 +1,11 @@
 <app-content-form
   [title]="'Cash Out Mutation'"
   [hasValue]="true"
-  [value]="'Total : Rp. 150.346.871'"
+  [value]="totalAmount"
   [hasId]="name ? true : false"
   [id]="name"
+  [isRequestInvalid]="isRequestInvalid"
+  (submitForm)="onSubmit()"
 >
   <app-dynamic-form
     [formGroup]="formGroup"

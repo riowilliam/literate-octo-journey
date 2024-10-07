@@ -63,18 +63,6 @@
               </div>
               <div class="mx-2.5">
                 <input
-                  *ngSwitchCase="'currency'"
-                  id="{{ field.name }}-{{ i }}"
-                  name="{{ field.name }}-{{ i }}"
-                  type="text"
-                  [value]="row.get(field.name)?.value | rupiahPipe"
-                  class="form-input text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none cursor-not-allowed"
-                  [ngClass]="field.bgClass"
-                  readonly
-                />
-              </div>
-              <div class="mx-2.5">
-                <input
                   *ngSwitchCase="'number'"
                   id="{{ field.name }}-{{ i }}"
                   name="{{ field.name }}-{{ i }}"
@@ -84,6 +72,20 @@
                   class="form-input text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none cursor-not-allowed"
                   [ngClass]="field.bgClass"
                   readonly
+                />
+              </div>
+              <div class="mx-2.5">
+                <input
+                  *ngSwitchCase="'currency'"
+                  id="{{ field.name }}-{{ i }}"
+                  name="{{ field.name }}-{{ i }}"
+                  type="text"
+                  [formControlName]="field.name"
+                  [placeholder]="field.placeholder"
+                  class="form-input text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none cursor-not-allowed"
+                  [ngClass]="field.bgClass"
+                  readonly
+                  appDotAfterThreeChars
                 />
               </div>
               <div class="mx-2.5">

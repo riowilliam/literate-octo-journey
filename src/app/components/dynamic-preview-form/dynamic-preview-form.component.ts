@@ -6,7 +6,7 @@ import {
   FormBuilder,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RupiahPipe } from '../../pipes/rupiah.pipe';
+import { DotAfterThreeCharsDirective } from '../../directives/dot-after-three-chars.directive';
 
 export interface FieldConfig {
   type: string;
@@ -20,7 +20,7 @@ export interface FieldConfig {
 @Component({
   selector: 'app-dynamic-preview-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RupiahPipe],
+  imports: [CommonModule, ReactiveFormsModule, DotAfterThreeCharsDirective],
   templateUrl: './dynamic-preview-form.component.html',
   styleUrl: './dynamic-preview-form.component.scss',
 })
