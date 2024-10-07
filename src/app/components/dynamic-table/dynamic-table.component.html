@@ -32,6 +32,20 @@
                     [ngSwitch]="header?.transform(row[header.key], row)"
                   >
                     <button
+                      *ngSwitchCase="'Create'"
+                      (click)="onButtonClick(row, header.key)"
+                      [ngClass]="header.class"
+                    >
+                      {{ header?.transform(row[header.key], row) }}
+                    </button>
+                    <button
+                      *ngSwitchCase="'Action'"
+                      (click)="onButtonClick(row, header.key)"
+                      [ngClass]="header.class"
+                    >
+                      {{ header?.transform(row[header.key], row) }}
+                    </button>
+                    <button
                       *ngSwitchCase="'Approve'"
                       (click)="onButtonClick(row, header.key)"
                       [ngClass]="header.class"

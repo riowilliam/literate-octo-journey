@@ -3,7 +3,7 @@
   [showModal]="showModalForm"
   (closeModal)="closeModalForm()"
 >
-  <app-dynamic-input
+  <!-- <app-dynamic-input
     type="text"
     [value]="textValue"
     placeholder="Enter text"
@@ -55,7 +55,7 @@
     [inputClass]="'px-3 py-2 border rounded'"
     [labelClass]="'text-gray-700'"
     (valueChange)="handleValueChange($event)"
-  ></app-dynamic-input>
+  ></app-dynamic-input> -->
 </app-dynamic-modal>
 
 <app-dynamic-modal
@@ -100,68 +100,68 @@
 >
   <app-dynamic-input
     type="text"
-    [value]="textValue"
+    [value]="filterForm.get('partnerName')?.value"
     placeholder="Enter text"
-    [disabled]="isDisabled"
     label="Partner"
+    formControlName="partnerName"
     [inputClass]="
       'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'partnerName')"
   ></app-dynamic-input>
 
   <app-dynamic-input
     type="text"
-    [value]="textValue"
+    [value]="filterForm.get('projectName')?.value"
     placeholder="Enter text"
-    [disabled]="isDisabled"
     label="Project"
+    formControlName="projectName"
     [inputClass]="
       'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'projectName')"
   ></app-dynamic-input>
 
   <app-dynamic-input
     type="dropdown"
-    [value]="selectedOption"
+    [value]="filterForm.get('invoiceStatus')?.value"
     placeholder="Select an option"
     [options]="dropdownOptions"
-    [disabled]="isDisabled"
     label="Invoice Status"
+    formControlName="invoiceStatus"
     [inputClass]="
       'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'invoiceStatus')"
   ></app-dynamic-input>
 
   <div class="flex flex-wrap items-end content-center gap-4">
     <app-dynamic-input
       type="datepicker"
-      [value]="dateValue"
-      [disabled]="isDisabled"
-      label="Date"
+      [value]="filterForm.get('startDate')?.value"
+      label="Created Date"
+      formControlName="startDate"
       [inputClass]="
         'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
       "
       [labelClass]="'font-medium text-sm mb-1'"
-      (valueChange)="handleValueChange($event)"
+      (valueChange)="handleValueChange($event, 'startDate')"
     ></app-dynamic-input>
 
     <span class="mb-2 font-medium text-sm">Until</span>
 
     <app-dynamic-input
       type="datepicker"
-      [value]="dateValue"
-      [disabled]="isDisabled"
+      [value]="filterForm.get('endDate')?.value"
+      formControlName="endDate"
       [inputClass]="
         'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
       "
       [labelClass]="'font-medium text-sm mb-1'"
-      (valueChange)="handleValueChange($event)"
+      (valueChange)="handleValueChange($event, 'endDate')"
     ></app-dynamic-input>
   </div>
 </app-content-filter>
@@ -175,6 +175,10 @@
   <app-dynamic-table
     [headers]="headers"
     [rows]="data"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [currentPage]="pageNo + 1"
+    (buttonPagination)="onPageChange($event)"
     (buttonClick)="handleButtonClick($event)"
   >
   </app-dynamic-table>

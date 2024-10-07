@@ -90,7 +90,6 @@ export class DocumentCashOutComponent {
       renderType: (value: any) => {
         switch (value) {
           case 1:
-            return 'text';
           case 2:
             return 'text';
           case 0:
