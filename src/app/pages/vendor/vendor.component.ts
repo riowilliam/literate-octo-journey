@@ -348,7 +348,7 @@ export class VendorComponent {
         `api/vendor/createVendor?username=${this.authService.getUsername()}`,
         new FormVendorRequest(
           formValue.formVendorName,
-          formValue.formBankName,
+          this.getBank(formValue.formBankName, 'short_label') || '',
           formValue.formBankAccount,
           formValue.formBankAccountName,
           this.getBank(formValue.formBankName, 'code') || ''
@@ -388,7 +388,7 @@ export class VendorComponent {
         `api/vendor/editVendor?username=${this.authService.getUsername()}`,
         new FormVendorRequest(
           formValue.formVendorName,
-          formValue.formBankName,
+          this.getBank(formValue.formBankName, 'short_label') || '',
           formValue.formBankAccount,
           formValue.formBankAccountName,
           this.getBank(formValue.formBankName, 'code') || '',
