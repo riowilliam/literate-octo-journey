@@ -855,7 +855,9 @@ export class ArMonitoringComponent {
   }
 
   closeModalAdd() {
+    this.arMonitoringForm.reset();
     this.showModalAdd = false;
+    this.resetItemDetailList();
   }
 
   closeModalInvoiceStatus() {
