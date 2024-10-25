@@ -70,6 +70,23 @@
   [showModal]="showModalAdd"
   (closeModal)="closeModalAdd()"
 >
+  <app-dynamic-form-array-v2
+    [formValue]="{}"
+    [dynamicForm]="arMonitoringForm"
+    [formConfig]="formConfig"
+    [formSimpleConfig]="formSimpleConfig"
+    [formLastConfig]="formLastConfig"
+    [formArray]="formItemDetailList"
+    [formSimpleArray]="formPPH"
+    [formArrayName]="'formItemDetailList'"
+    [formSimpleArrayName]="'formPPH'"
+    [itemConfig]="formArrayConfig"
+    [itemSimpleConfig]="formSimpleConfig"
+    [labelFormArray]="'Item Details'"
+    [labelFormSimpleArray]="'PPH'"
+    (formSubmit)="handleFormSubmit($event, 'add')"
+    (formCancel)="handleFormCancel()"
+  ></app-dynamic-form-array-v2>
 </app-dynamic-modal>
 
 <app-dynamic-modal

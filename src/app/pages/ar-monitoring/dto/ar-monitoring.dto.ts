@@ -15,6 +15,7 @@ export class ArInvoiceDetailList {
   createdBy!: string;
   modifiedDate!: string;
   modifiedBy!: string;
+  deduction!: number;
 
   static fromApiResponse(data: ArInvoiceList[]): ArInvoiceDetail[] {
     return data.flatMap((mutationList) =>
@@ -36,6 +37,7 @@ export class ArInvoiceDetailList {
         created_by: arInvoiceDetailData.createdBy || 'Unknown',
         modified_date: arInvoiceDetailData.modifiedDate || 'N/A',
         modified_by: arInvoiceDetailData.modifiedBy || 'Unknown',
+        deduction: arInvoiceDetailData.deduction || 0,
       }))
     );
   }
@@ -81,6 +83,7 @@ export class ArInvoiceDetail {
   created_by!: string;
   modified_date!: string;
   modified_by!: string;
+  deduction!: number;
 }
 
 export class ArInvoiceList {
@@ -122,5 +125,68 @@ export class Data {
 export class ArInvoiceResponse {
   info!: string;
   data!: Data;
+  status!: number;
+}
+
+export class FormARInvoiceRequest {
+  invoiceNo: string;
+  partnerName: string;
+  contractName: string;
+  projectName: string;
+  bappNo: string;
+  amount: number;
+  ppn: number;
+  ppnWapu: number;
+  pph: number;
+  totalAmount: number;
+  note: string;
+  itemDetails: { itemName: string; paymentQuantity: number }[];
+
+  constructor(data: any) {
+    this.invoiceNo = data.formInvoiceNo;
+    this.partnerName = data.formPartner;
+    this.contractName = data.formContract;
+    this.projectName = data.formProject;
+    this.bappNo = data.formBAPPNo;
+    this.amount = this.parseCurrency(data.formAmount);
+    this.ppn = this.parseCurrency(data.formPPN);
+    this.ppnWapu = this.parseCurrency(data.formPPNWAPU);
+    this.pph = this.calculatePPH(data.formPPH);
+    this.totalAmount = this.calculateTotalAmount(
+      this.amount,
+      this.ppn,
+      this.pph
+    );
+    this.note = data.formNote;
+
+    this.itemDetails = data.formItemDetailList.map((item: any) => ({
+      itemName: item.formItemName,
+      paymentQuantity: Number(item.formPaidQuantity),
+    }));
+  }
+
+  private parseCurrency(value: string): number {
+    return Number(value.replace(/\./g, '').replace(',', '.'));
+  }
+
+  private calculatePPH(pphArray: any[]): number {
+    return pphArray.reduce(
+      (total, pph) => total + this.parseCurrency(pph.formPPHAmount),
+      0
+    );
+  }
+
+  private calculateTotalAmount(
+    amount: number,
+    ppn: number,
+    pph: number
+  ): number {
+    return amount + ppn - pph;
+  }
+}
+
+export class FormARInvoiceResponse {
+  info!: string;
+  data!: any;
   status!: number;
 }
