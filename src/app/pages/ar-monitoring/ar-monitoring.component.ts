@@ -810,7 +810,7 @@ export class ArMonitoringComponent {
     this.httpService
       .post<FormARInvoiceResponse>(
         environment.API_URL,
-        `api/contract/createContract?username=${this.authService.getUsername()}`,
+        `api/arInvoice/createARInvoice?username=${this.authService.getUsername()}`,
         new FormARInvoiceRequest(formValue),
         new HttpHeaders({
           Authorization: `Bearer ${this.authService.getToken()}`,
