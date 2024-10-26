@@ -1,11 +1,19 @@
-import { Component } from '@angular/core';
-import { ContentCardComponent } from '../../components/content-card/content-card.component';
-import { DynamicBarChartComponent } from '../../components/dynamic-bar-chart/dynamic-bar-chart.component';
-import { ChartConfiguration } from 'chart.js';
-import { ContentChartComponent } from '../../components/content-chart/content-chart.component';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpHeaders } from '@angular/common/http';
+
+import { HttpService } from '../../services/http.service';
+import { AuthService } from '../../services/auth.service';
+import { LoaderService } from '../../services/loader.service';
+import { NotificationService } from '../../services/notification.service';
+import { ProjectMonitoringResponse } from './dto/project.monitoring';
+import { environment } from '../../../environments/environment';
+import { ContentCardComponent } from '../../components/content-card/content-card.component';
+import { ContentChartComponent } from '../../components/content-chart/content-chart.component';
+import { DynamicBarChartComponent } from '../../components/dynamic-bar-chart/dynamic-bar-chart.component';
 import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
-import { GenerateUtilService } from '../../utils/generate.util';
+
+import * as echarts from 'echarts';
 
 @Component({
   selector: 'app-project-monitoring',
@@ -21,69 +29,159 @@ import { GenerateUtilService } from '../../utils/generate.util';
   styleUrls: ['./project-monitoring.component.scss'],
 })
 export class ProjectMonitoringComponent {
-  barChartLegend = true;
-  barChartPlugins = [];
-  barChartData: ChartConfiguration<'bar'>['data'];
-  barChartOptions: ChartConfiguration<'bar'>['options'];
+  @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
+  chartInstance!: echarts.ECharts;
+  public chartOptions: any;
 
-  cards = [
-    {
-      headerText: 'Most Valuable Project',
-      sections: [[{ label: '', value: 'Project A' }]],
-    },
-    {
-      headerText: 'Most Cash In Project',
-      sections: [[{ label: '', value: 'Project B' }]],
-    },
-    {
-      headerText: 'Most Cash Out Project',
-      sections: [[{ label: '', value: 'Project C' }]],
-    },
-  ];
+  public cards: any;
 
-  constructor(private generateUtilService: GenerateUtilService) {
-    this.barChartData = {
-      labels: this.generateUtilService.generateProjectLabels('A', 'Z'),
-      datasets: [
-        {
-          data: this.generateUtilService.generateRandomData(2006, 2050),
-          label: 'Cash In',
-          backgroundColor: '#6BA46D',
-          borderColor: '#6BA46D',
-          borderWidth: 1,
+  constructor(
+    private httpService: HttpService,
+    private authService: AuthService,
+    private loaderService: LoaderService,
+    private notificationService: NotificationService
+  ) {}
+
+  ngOnInit() {
+    const isMobile = window.innerWidth <= 600;
+    this.chartOptions = {
+      tooltip: {
+        trigger: 'axis',
+        formatter: (params: any) => {
+          let tooltipContent =
+            '<strong>Project: ' + params[0].name + '</strong><br/>';
+          params.forEach((param: any) => {
+            tooltipContent += `${param.seriesName}: ${param.data}<br/>`;
+          });
+          return tooltipContent;
         },
-        {
-          data: this.generateUtilService.generateRandomData(2006, 2050),
-          label: 'Cash Out',
-          backgroundColor: '#9D3E3E',
-          borderColor: '#9D3E3E',
-          borderWidth: 1,
+        axisPointer: {
+          type: 'shadow',
         },
+      },
+      xAxis: {
+        type: 'category',
+        data: [],
+        axisLabel: {
+          rotate: 0,
+          interval: isMobile ? 20 : 10,
+          fontSize: isMobile ? 10 : 12,
+        },
+        axisTick: {
+          alignWithLabel: true,
+        },
+        boundaryGap: true,
+        splitLine: {
+          show: true,
+          lineStyle: {
+            type: 'solid',
+          },
+        },
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          fontSize: isMobile ? 10 : 12,
+        },
+      },
+      dataZoom: [{ type: 'slider', show: true, xAxisIndex: 0 }],
+      series: [
+        { name: 'Cash In', type: 'bar', data: [] },
+        { name: 'Cash Out', type: 'bar', data: [] },
       ],
+      color: ['#6BA46D', '#9D3E3E'],
+      grid: {
+        top: isMobile ? 50 : 50,
+        right: isMobile ? 20 : 50,
+        bottom: isMobile ? 70 : 70,
+        left: isMobile ? 60 : 90,
+      },
+      legend: {
+        data: ['Cash In', 'Cash Out'],
+        orient: 'horizontal',
+        left: 'left',
+        top: 'top',
+        padding: 0,
+      },
     };
 
-    this.barChartOptions = {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'left',
-          align: 'start',
+    this.fetchProjectMonitoring();
+  }
+
+  ngAfterViewInit() {
+    this.chartInstance = echarts.init(this.chartContainer.nativeElement);
+    this.chartInstance.setOption(this.chartOptions);
+    window.addEventListener('resize', () => {
+      this.chartInstance.resize();
+    });
+  }
+
+  fetchProjectMonitoring() {
+    this.loaderService.show();
+    this.httpService
+      .get<ProjectMonitoringResponse>(
+        environment.API_URL,
+        'api/projectMonitoring/getProjectMonitoring?',
+        undefined,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.updateChartAndCardData(response);
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
         },
-      },
-      scales: {
-        x: {
-          ticks: {
-            maxRotation: 0,
-            minRotation: 0,
-          },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(
+            'Failed to fetch project monitoring data',
+            'error'
+          );
+          console.error('Error:', error);
         },
-        y: {
-          ticks: {
-            maxRotation: 0,
-            minRotation: 0,
-          },
-        },
-      },
+      });
+  }
+
+  updateChartAndCardData(response: ProjectMonitoringResponse) {
+    const details = response.data?.projectMonitoringDetailDtoList || [];
+    const summary = response.data?.projectMonitoringSummaryDto || {
+      mvpProject: '',
+      mostCashInProject: '',
+      mostCashOutProject: '',
     };
+
+    this.chartOptions.xAxis.data = details.map((detail) => detail.projectName);
+    this.chartOptions.series[0].data = details.map(
+      (detail) => detail.cashInValue
+    );
+    this.chartOptions.series[1].data = details.map(
+      (detail) => detail.cashOutValue
+    );
+
+    this.chartInstance.setOption(this.chartOptions);
+
+    this.cards = [
+      {
+        headerText: 'Most Valuable Project',
+        sections: [[{ label: '', value: summary.mvpProject }]],
+      },
+      {
+        headerText: 'Most Cash In Project',
+        sections: [[{ label: '', value: summary.mostCashInProject }]],
+      },
+      {
+        headerText: 'Most Cash Out Project',
+        sections: [[{ label: '', value: summary.mostCashOutProject }]],
+      },
+    ];
   }
 }
