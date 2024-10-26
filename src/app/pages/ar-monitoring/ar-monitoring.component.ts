@@ -203,7 +203,8 @@ export class ArMonitoringComponent {
   dropdownOptionsContract: Array<{ value: any; label: any; listDetail: any }> =
     [];
 
-  dropdownOptionsPartner: Array<{ value: any; label: any }> = [];
+  dropdownOptionsPartner: Array<{ value: any; label: any; listDetail: any }> =
+    [];
 
   dropdownOptionsProject: Array<{ value: any; label: any }> = [];
 
@@ -220,6 +221,8 @@ export class ArMonitoringComponent {
   formArrayConfig!: any;
   formSimpleConfig!: any;
   formLastConfig!: any;
+
+  isCalculating: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -248,10 +251,10 @@ export class ArMonitoringComponent {
       formBAPPNo: ['', Validators.required],
       formAmount: ['', Validators.required],
       formPPN: ['', Validators.required],
-      formPPNWAPU: ['', Validators.required],
+      formPPNWAPU: [''],
       formPPH: this.fb.array([]),
       formNetAmount: ['', Validators.required],
-      formNote: ['', Validators.required],
+      formNote: [''],
       formItemDetailList: this.fb.array([], quantityValidator()),
     });
 
@@ -361,14 +364,35 @@ export class ArMonitoringComponent {
       .get('formContract')
       ?.valueChanges.subscribe((contractValue) => {
         const selectedContract = this.dropdownOptionsContract.find(
-          (option) => option.value === contractValue
+          (option) => option?.value === contractValue
         );
-        if (selectedContract && selectedContract.listDetail) {
-          this.updateItemDetails(selectedContract.listDetail);
+        if (selectedContract && selectedContract?.listDetail) {
+          this.updateItemDetails(selectedContract?.listDetail);
+        }
+      });
+
+    this.arMonitoringForm
+      .get('formPartner')
+      ?.valueChanges.subscribe((partnerValue) => {
+        if (partnerValue) {
+          this.arMonitoringForm.get('formPPN')?.setValue(0);
+          const amount = this.parseCurrency(
+            this.arMonitoringForm.get('formAmount')?.value || 0
+          );
+          let totalPpnValue = 0;
+          totalPpnValue = Math.ceil(amount * 0.11);
+          this.arMonitoringForm
+            .get('formPPN')
+            ?.setValue(this.formatWithMask(totalPpnValue));
         }
       });
 
     const calculateNetAmount = () => {
+      if (this.isCalculating) {
+        return;
+      }
+      this.isCalculating = true;
+
       const amount = this.parseCurrency(
         this.arMonitoringForm.get('formAmount')?.value || 0
       );
@@ -377,6 +401,10 @@ export class ArMonitoringComponent {
       );
       const ppnWapu = this.parseCurrency(
         this.arMonitoringForm.get('formPPNWAPU')?.value || 0
+      );
+      const partner = this.arMonitoringForm.get('formPartner')?.value || '';
+      const selectedPartner = this.dropdownOptionsPartner.find(
+        (option) => option?.value === partner
       );
 
       let totalPphValue = 0;
@@ -392,19 +420,46 @@ export class ArMonitoringComponent {
           ?.setValue(this.formatWithMask(totalPphValue), { emitEvent: false });
       });
 
+      if (selectedPartner && selectedPartner?.listDetail) {
+        let totalPpnValue = 0;
+        totalPpnValue = Math.ceil(amount * 0.11);
+        this.arMonitoringForm
+          .get('formPPN')
+          ?.setValue(this.formatWithMask(totalPpnValue), {
+            emitEvent: false,
+          });
+        if (selectedPartner?.listDetail?.ppnWapu) {
+          this.arMonitoringForm
+            .get('formPPNWAPU')
+            ?.setValue(this.formatWithMask(totalPpnValue), {
+              emitEvent: false,
+            });
+        } else {
+          this.arMonitoringForm
+            .get('formPPNWAPU')
+            ?.setValue(this.formatWithMask(0), {
+              emitEvent: false,
+            });
+        }
+      }
+
       const netAmount = amount + ppn - ppnWapu - totalPphValue;
       const maskedNetAmount = this.formatWithMask(netAmount);
       this.arMonitoringForm
         .get('formNetAmount')
         ?.setValue(maskedNetAmount, { emitEvent: false });
+
+      this.isCalculating = false;
     };
 
     this.arMonitoringForm
       .get('formAmount')
       ?.valueChanges.subscribe(calculateNetAmount);
+
     this.arMonitoringForm
       .get('formPPN')
       ?.valueChanges.subscribe(calculateNetAmount);
+
     this.arMonitoringForm
       .get('formPPNWAPU')
       ?.valueChanges.subscribe(calculateNetAmount);
@@ -870,9 +925,9 @@ export class ArMonitoringComponent {
 
   getItemValue(item: any): any {
     const itemOption = this.dropdownOptionsItem.find(
-      (option) => option.label === item
+      (option) => option?.label === item
     );
-    return itemOption ? itemOption.label : undefined;
+    return itemOption ? itemOption?.label : undefined;
   }
 
   private createFormGroupItemDetail(item?: any, type?: string) {
@@ -908,6 +963,10 @@ export class ArMonitoringComponent {
     return response.data.map((data) => ({
       value: data.partnerName,
       label: data.partnerName,
+      listDetail: {
+        documentTracking: data.documentTracking,
+        ppnWapu: data.ppnWapu,
+      },
     }));
   }
 
