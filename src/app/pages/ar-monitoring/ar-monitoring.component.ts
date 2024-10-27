@@ -29,6 +29,11 @@ import { ProjectListResponse } from './dto/project.dto';
 import { ItemListResponse } from './dto/item.dto';
 import { quantityValidator } from '../../validators/quantity.validator';
 import { DynamicFormArrayPreviewV2Component } from '../../components/dynamic-form-array-preview-v2/dynamic-form-array-preview-v2.component';
+import {
+  DetailArInvoice,
+  DetailArInvoiceList,
+  DetailArInvoiceResponse,
+} from './dto/detail-ar-invoice.dto';
 
 @Component({
   selector: 'app-ar-monitoring',
@@ -56,12 +61,44 @@ export class ArMonitoringComponent {
   showModalInvoiceStatus = false;
   showModalPayment = false;
   filterForm: FormGroup;
+  dataDetailARInvoice: DetailArInvoice[] = [];
   data: ArInvoiceDetail[] = [];
   totalPages!: number;
   pageNo: number = 0;
   pageSize: number = 10;
   sortBy: string = '';
   sortOrder: string = '';
+  headersDetailARInvoice: {
+    key: string;
+    label: string;
+    class?: string;
+    renderType?: (
+      value: any,
+      row?: any
+    ) =>
+      | 'number'
+      | 'text'
+      | 'currency'
+      | 'date'
+      | 'integer'
+      | 'button'
+      | 'icon'
+      | 'empty';
+  }[] = [
+    { key: 'no', renderType: () => 'number', label: 'No' },
+    { key: 'partner_name', renderType: () => 'text', label: 'Partner Name' },
+    { key: 'invoice_no', renderType: () => 'text', label: 'Invoice No' },
+    { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
+    { key: 'contract', renderType: () => 'text', label: 'Contract' },
+    { key: 'amount', renderType: () => 'text', label: 'Amount' },
+    { key: 'payment_date', renderType: () => 'text', label: 'Payment Date' },
+    { key: 'payment_type', renderType: () => 'text', label: 'Payment Type' },
+    {
+      key: 'cash_in_status',
+      renderType: () => 'text',
+      label: 'Cash In Status',
+    },
+  ];
   headers: {
     key: string;
     label: string;
@@ -349,16 +386,16 @@ export class ArMonitoringComponent {
         label: 'Amount',
         type: 'currency',
       },
-      {
-        key: 'formPPN',
-        label: 'PPN',
-        type: 'currency',
-      },
-      {
-        key: 'formPPNWAPU',
-        label: 'PPN WAPU',
-        type: 'currency',
-      },
+      // {
+      //   key: 'formPPN',
+      //   label: 'PPN',
+      //   type: 'currency',
+      // },
+      // {
+      //   key: 'formPPNWAPU',
+      //   label: 'PPN WAPU',
+      //   type: 'currency',
+      // },
       {
         key: 'formNetAmount',
         label: 'Net Amount',
@@ -724,7 +761,12 @@ export class ArMonitoringComponent {
             }
             return config;
           });
-          this.formPreviewConfig = [...this.formConfig];
+          this.formPreviewConfig = this.formPreviewConfig.map((config: any) => {
+            if (config.key === 'formContract') {
+              return { ...config, options: this.dropdownOptionsContract };
+            }
+            return config;
+          });
           sessionStorage.setItem(
             'contract_list',
             JSON.stringify(this.dropdownOptionsContract)
@@ -770,6 +812,14 @@ export class ArMonitoringComponent {
             }
             return config;
           });
+
+          this.formPreviewConfig = this.formPreviewConfig.map((config: any) => {
+            if (config.key === 'formPartner') {
+              return { ...config, options: this.dropdownOptionsPartner };
+            }
+            return config;
+          });
+
           sessionStorage.setItem(
             'partner_list',
             JSON.stringify(this.dropdownOptionsPartner)
@@ -830,7 +880,12 @@ export class ArMonitoringComponent {
             return config;
           });
 
-          this.formPreviewConfig = [...this.formConfig];
+          this.formPreviewConfig = this.formPreviewConfig.map((config: any) => {
+            if (config.key === 'formProject') {
+              return { ...config, options: this.dropdownOptionsProject };
+            }
+            return config;
+          });
           sessionStorage.setItem(
             'project_list',
             JSON.stringify(this.dropdownOptionsProject)
@@ -876,7 +931,7 @@ export class ArMonitoringComponent {
             return config;
           });
 
-          this.formPreviewArrayConfig = this.formArrayConfig.map(
+          this.formPreviewArrayConfig = this.formPreviewArrayConfig.map(
             (config: any) => {
               if (config.key === 'formItemName') {
                 return { ...config, options: this.dropdownOptionsItem };
@@ -925,6 +980,7 @@ export class ArMonitoringComponent {
       formPPN: data.ppn_amount,
       formNetAmount: this.formatWithMask(data.total_amount),
     });
+    console.log(this.arMonitoringForm.value);
   }
 
   async fetchPreviewDataDetail(type: string, contractName: string, data: any) {
@@ -944,6 +1000,41 @@ export class ArMonitoringComponent {
     }
   }
 
+  fetchDetailArInvoice(invoiceNo: string) {
+    const params = new HttpParams().set('invoiceNo', invoiceNo);
+    this.loaderService.show();
+    this.httpService
+      .get<DetailArInvoiceResponse>(
+        environment.API_URL,
+        `api/cashIn/getArInvoiceList?username=${this.authService.getUsername()}`,
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.dataDetailARInvoice = [
+              ...DetailArInvoiceList.fromApiResponse(response?.data),
+            ];
+            this.showModalDetail = true;
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch ar monitoring', error);
+        },
+      });
+  }
+
   onPageChange(event: any) {
     this.pageNo = event - 1;
     this.fetchArMonitoring();
@@ -960,7 +1051,7 @@ export class ArMonitoringComponent {
     switch (row?.key) {
       case 'detail':
         this.invoiceNo = row?.row?.invoice_no;
-        this.showModalDetail = true;
+        this.fetchDetailArInvoice(row?.row?.invoice_no);
         break;
       case 'add':
         this.fetchDataDetail(row?.key);
@@ -1136,7 +1227,7 @@ export class ArMonitoringComponent {
         Validators.required,
       ],
       formPaidQuantity: [
-        type !== 'add' ? item?.paidQuantity : '',
+        type !== 'add' ? item?.totalQuantity : '',
         [Validators.required, Validators.min(1)],
       ],
       formRemainingQuantity: [type !== 'add' ? item?.remainingQuantity : ''],
