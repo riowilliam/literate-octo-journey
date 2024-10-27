@@ -18,7 +18,6 @@
   (closeModal)="closeModalAdd()"
 >
   <app-dynamic-form-array-v2
-    [formValue]="{}"
     [dynamicForm]="arMonitoringForm"
     [formConfig]="formConfig"
     [formSimpleConfig]="formSimpleConfig"
@@ -41,6 +40,16 @@
   [showModal]="showModalInvoiceStatus"
   (closeModal)="closeModalInvoiceStatus()"
 >
+  <app-dynamic-form-array-preview-v2
+    [dynamicForm]="arMonitoringForm"
+    [formPreviewConfig]="formPreviewConfig"
+    [formPreviewArray]="formItemDetailList"
+    [formPreviewArrayName]="'formItemDetailList'"
+    [itemPreviewConfig]="formPreviewArrayConfig"
+    [labelFormPreviewArray]="'Item Details'"
+    (formSubmit)="handleFormPreviewSubmit($event)"
+    (formCancel)="handleFormCancel()"
+  ></app-dynamic-form-array-preview-v2>
 </app-dynamic-modal>
 
 <app-dynamic-modal

@@ -213,6 +213,7 @@ export class ItemsComponent {
   }
 
   createItem(formValue: any) {
+    this.loaderService.show();
     this.httpService
       .post<FormItemResponse>(
         environment.API_URL,
@@ -225,6 +226,7 @@ export class ItemsComponent {
       .subscribe({
         next: (response) => {
           this.closeModalAdd();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'data has been saved.'
@@ -240,6 +242,7 @@ export class ItemsComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show('Error creating item.', 'error');
           console.error('Error creating item', error);
         },
@@ -247,6 +250,7 @@ export class ItemsComponent {
   }
 
   editItem(formValue: any) {
+    this.loaderService.show();
     this.httpService
       .post<FormItemResponse>(
         environment.API_URL,
@@ -259,6 +263,7 @@ export class ItemsComponent {
       .subscribe({
         next: (response) => {
           this.closeModalEdit();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'data has been updated.'
@@ -274,6 +279,7 @@ export class ItemsComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show('Error updating item.', 'error');
           console.error('Error updating item', error);
         },

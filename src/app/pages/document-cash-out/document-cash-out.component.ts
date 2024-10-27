@@ -509,6 +509,7 @@ export class DocumentCashOutComponent {
       .set('username', this.authService.getUsername())
       .set('status', status)
       .set('docName', this.name);
+    this.loaderService.show();
     this.httpService
       .post<any>(
         environment.API_URL,
@@ -522,6 +523,7 @@ export class DocumentCashOutComponent {
       .subscribe({
         next: (response) => {
           this.closeModalAction();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'success'
@@ -537,6 +539,7 @@ export class DocumentCashOutComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show(
             `Error ${status === 1 ? 'approve' : 'reject'} document.`,
             'error'

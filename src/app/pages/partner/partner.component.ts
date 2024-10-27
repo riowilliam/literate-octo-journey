@@ -222,7 +222,7 @@ export class PartnerComponent {
           ? '1'
           : this.filterForm.get('ppnWapu')?.value === 'NO'
           ? '0'
-          : '' || ''
+          : ''
       )
       .set(
         'documentTracking',
@@ -230,7 +230,7 @@ export class PartnerComponent {
           ? '1'
           : this.filterForm.get('documentTracking')?.value === 'NO'
           ? '0'
-          : '' || ''
+          : ''
       )
       .set('startDate', this.filterForm.get('startDate')?.value || '')
       .set('endDate', this.filterForm.get('endDate')?.value || '');
@@ -426,6 +426,7 @@ export class PartnerComponent {
   }
 
   createPartner(formValue: any) {
+    this.loaderService.show();
     this.httpService
       .post<FormPartnerResponse>(
         environment.API_URL,
@@ -445,6 +446,7 @@ export class PartnerComponent {
       .subscribe({
         next: (response) => {
           this.closeModalAdd();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'data has been saved.'
@@ -460,6 +462,7 @@ export class PartnerComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show('Error creating partner.', 'error');
           console.error('Error creating partner', error);
         },
@@ -467,6 +470,7 @@ export class PartnerComponent {
   }
 
   editPartner(formValue: any) {
+    this.loaderService.show();
     this.httpService
       .post<FormPartnerResponse>(
         environment.API_URL,
@@ -486,6 +490,7 @@ export class PartnerComponent {
       .subscribe({
         next: (response) => {
           this.closeModalEdit();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'data has been saved.'
@@ -501,6 +506,7 @@ export class PartnerComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show('Error updating partner.', 'error');
           console.error('Error updating partner', error);
         },

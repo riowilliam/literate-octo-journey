@@ -1,0 +1,255 @@
+<form [formGroup]="dynamicForm">
+  <div class="w-full flex flex-col items-center justify-center">
+    <div
+      class="w-full flex flex-col items-center p-5 sm:min-w-[400px] sm:max-w-[400px] max-h-[400px] overflow-y-auto"
+    >
+      <ng-container *ngFor="let field of formPreviewConfig">
+        <div class="w-full flex flex-col" [ngClass]="{ hidden: field.hidden }">
+          <label [for]="field.key" class="text-sm mb-1">{{
+            field.label
+          }}</label>
+
+          <ng-container
+            *ngIf="
+              ['text', 'email', 'tel', 'date', 'number'].includes(field.type)
+            "
+          >
+            <input
+              [id]="field.key"
+              [name]="field.key"
+              [type]="field.type"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || 'Enter text'"
+              [pattern]="field.pattern"
+              [inputMode]="field.inputmode"
+              [readonly]="true"
+              [class]="
+                field.width
+                  ? field.width +
+                    ' form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed'
+                  : 'w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed'
+              "
+            />
+          </ng-container>
+
+          <ng-container *ngIf="['currency'].includes(field.type)">
+            <input
+              [id]="field.key"
+              [name]="field.key"
+              [type]="field.type"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || ''"
+              [pattern]="field.pattern"
+              [inputMode]="field.inputmode"
+              [readonly]="true"
+              [class]="
+                field.width
+                  ? field.width +
+                    ' form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed'
+                  : 'w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed'
+              "
+              (input)="onInputChange($event, field.key)"
+            />
+          </ng-container>
+
+          <ng-container *ngIf="field.type === 'select'">
+            <div class="relative inline-block w-full">
+              <select
+                [id]="field.key"
+                [name]="field.key"
+                [formControlName]="field.key"
+                class="pointer-events-none w-full pr-8 appearance-none form-select text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed"
+              >
+                <option [value]="null" disabled hidden>Select an option</option>
+                <option
+                  *ngFor="let option of field.options"
+                  [value]="option.value"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+              <div
+                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+              >
+                <svg
+                  width="16"
+                  height="8"
+                  viewBox="0 0 16 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M0.988143 0.507823L8.5 7.50022L15.9881 0.492631L0.988143 0.507823Z"
+                    fill="black"
+                    fill-opacity="0.5"
+                  />
+                </svg>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="field.type === 'searchable-dropdown'">
+            <div class="relative w-full">
+              <input
+                type="text"
+                [id]="field.key"
+                [name]="field.key"
+                [formControlName]="field.key"
+                placeholder="{{ field.placeholder }}"
+                (input)="filterOptions($event, field.key)"
+                (focus)="
+                  showDropdown[field.key] = true; setInitialOptions(field.key)
+                "
+                (blur)="hideDropdown(field.key)"
+                [readonly]="true"
+                class="w-full pr-8 appearance-none form-select text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed"
+                autocomplete="off"
+              />
+              <div
+                *ngIf="showDropdown[field.key]"
+                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md h-[80px] overflow-auto mt-2"
+              >
+                <ul>
+                  <li
+                    *ngFor="let option of filteredOptions[field.key]"
+                    (click)="selectOption(option, field.key)"
+                    class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  >
+                    {{ option.label }}
+                  </li>
+                </ul>
+              </div>
+              <div
+                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+
+      <div
+        [formArrayName]="formPreviewArrayName"
+        class="w-full flex flex-col gap-1 mb-2"
+      >
+        <span class="text-sm">{{ labelFormPreviewArray }}</span>
+        <div
+          *ngFor="let item of formPreviewArray.controls; let i = index"
+          [formGroupName]="i"
+        >
+          <div class="flex justify-between gap-auto">
+            <ng-container *ngFor="let field of itemPreviewConfig">
+              <div class="flex flex-col w-fit justify-center items-center">
+                <label
+                  [for]="field.key + '-' + i"
+                  class="text-xs font-light mb-1"
+                  [ngClass]="i !== 0 ? 'invisible h-1' : ''"
+                  >{{ field.label }}</label
+                >
+
+                <ng-container *ngIf="field.type === 'select'">
+                  <div class="relative inline-block">
+                    <select
+                      [id]="field.key + '-' + i"
+                      [name]="field.key + '-' + i"
+                      [formControlName]="field.key"
+                      class="pointer-events-none rounded-0 mb-1 pr-8 appearance-none form-select text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed"
+                      (change)="onSelectChange($event)"
+                    >
+                      <option [value]="null" disabled hidden>
+                        Select an option
+                      </option>
+                      <option
+                        *ngFor="let option of field.options"
+                        [value]="option.value"
+                      >
+                        {{ option.label }}
+                      </option>
+                    </select>
+                    <div
+                      class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+                    >
+                      <svg
+                        width="16"
+                        height="8"
+                        viewBox="0 0 16 8"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M0.988143 0.507823L8.5 7.50022L15.9881 0.492631L0.988143 0.507823Z"
+                          fill="black"
+                          fill-opacity="0.5"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <ng-container *ngIf="['currency'].includes(field.type)">
+                  <input
+                    [id]="field.key + '-' + i"
+                    [name]="field.key + '-' + i"
+                    [type]="field.type"
+                    [formControlName]="field.key"
+                    [placeholder]="field.placeholder || ''"
+                    [pattern]="field.pattern"
+                    [inputMode]="field.inputmode"
+                    [readonly]="true"
+                    [class]="
+                      field.width
+                        ? field.width +
+                          ' mb-1 form-input text-left border border-[#A4A4A4] px-1 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed'
+                        : 'mb-1 form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed'
+                    "
+                    (input)="onInputItemDetailListChange($event, field.key, i)"
+                  />
+                </ng-container>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="w-full flex flex-col sm:flex-row gap-4 items-center justify-between p-5"
+    >
+      <button
+        type="submit"
+        class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-yellow text-xs font-semibold rounded-lg hover:bg-custom-yellow focus:outline-none focus:ring-2 focus:ring-custom-light-yellow focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+        (click)="onSubmit('approve')"
+      >
+        Approve
+      </button>
+      <button
+        type="submit"
+        class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-yellow text-xs font-semibold rounded-lg hover:bg-custom-yellow focus:outline-none focus:ring-2 focus:ring-custom-light-yellow focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+        (click)="onSubmit('reject')"
+      >
+        Reject
+      </button>
+      <button
+        type="button"
+        class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-red text-xs font-semibold rounded-lg hover:bg-custom-red focus:outline-none focus:ring-2 focus:ring-custom-light-red focus:ring-opacity-50"
+        (click)="closeModal()"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</form>

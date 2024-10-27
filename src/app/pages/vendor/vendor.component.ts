@@ -342,6 +342,7 @@ export class VendorComponent {
   }
 
   createVendor(formValue: any) {
+    this.loaderService.show();
     this.httpService
       .post<FormVendorResponse>(
         environment.API_URL,
@@ -360,6 +361,7 @@ export class VendorComponent {
       .subscribe({
         next: (response) => {
           this.closeModalAdd();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'data has been saved.'
@@ -375,6 +377,7 @@ export class VendorComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show('Error creating vendor.', 'error');
           console.error('Error creating vendor', error);
         },
@@ -382,6 +385,7 @@ export class VendorComponent {
   }
 
   editVendor(formValue: any) {
+    this.loaderService.show();
     this.httpService
       .post<FormVendorResponse>(
         environment.API_URL,
@@ -401,6 +405,7 @@ export class VendorComponent {
       .subscribe({
         next: (response) => {
           this.closeModalEdit();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'data has been saved.'
@@ -416,6 +421,7 @@ export class VendorComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show('Error updating vendor.', 'error');
           console.error('Error updating vendor', error);
         },

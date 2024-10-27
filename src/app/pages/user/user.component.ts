@@ -332,6 +332,7 @@ export class UserComponent {
   }
 
   createUser(formValue: any) {
+    this.loaderService.show();
     this.httpService
       .post<FormUserResponse>(
         environment.API_URL,
@@ -350,6 +351,7 @@ export class UserComponent {
       .subscribe({
         next: (response) => {
           this.closeModalAdd();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() ===
@@ -366,6 +368,7 @@ export class UserComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show('Error creating user.', 'error');
           console.error('Error creating user', error);
         },

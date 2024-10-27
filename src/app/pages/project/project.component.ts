@@ -140,7 +140,7 @@ export class ProjectComponent {
           ? '1'
           : this.filterForm.get('status')?.value === 'INACTIVE'
           ? '0'
-          : '' || ''
+          : ''
       )
       .set('startDate', this.filterForm.get('startDate')?.value || '')
       .set('endDate', this.filterForm.get('endDate')?.value || '');
@@ -254,6 +254,7 @@ export class ProjectComponent {
   }
 
   createUser(formValue: any) {
+    this.loaderService.show();
     this.httpService
       .post<FormProjectResponse>(
         environment.API_URL,
@@ -270,6 +271,7 @@ export class ProjectComponent {
       .subscribe({
         next: (response) => {
           this.closeModalAdd();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'data has been saved.'
@@ -285,6 +287,7 @@ export class ProjectComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show('Error creating project.', 'error');
           console.error('Error creating project', error);
         },

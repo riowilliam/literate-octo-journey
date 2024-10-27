@@ -28,6 +28,7 @@ import { PartnerListResponse } from './dto/partner.dto';
 import { ProjectListResponse } from './dto/project.dto';
 import { ItemListResponse } from './dto/item.dto';
 import { quantityValidator } from '../../validators/quantity.validator';
+import { DynamicFormArrayPreviewV2Component } from '../../components/dynamic-form-array-preview-v2/dynamic-form-array-preview-v2.component';
 
 @Component({
   selector: 'app-ar-monitoring',
@@ -42,6 +43,7 @@ import { quantityValidator } from '../../validators/quantity.validator';
     DynamicCardComponent,
     CommonModule,
     DynamicFormArrayV2Component,
+    DynamicFormArrayPreviewV2Component,
   ],
   templateUrl: './ar-monitoring.component.html',
   styleUrl: './ar-monitoring.component.scss',
@@ -215,7 +217,9 @@ export class ArMonitoringComponent {
   invoiceNo!: string;
 
   formConfig!: any;
+  formPreviewConfig!: any;
   formArrayConfig!: any;
+  formPreviewArrayConfig!: any;
   formSimpleConfig!: any;
   formLastConfig!: any;
 
@@ -308,6 +312,60 @@ export class ArMonitoringComponent {
       },
     ];
 
+    this.formPreviewConfig = [
+      {
+        key: 'formInvoiceNo',
+        label: 'Invoice No.',
+        type: 'text',
+      },
+      {
+        key: 'formPartner',
+        label: 'Partner',
+        type: 'select',
+        options: this.dropdownOptionsPartner,
+        placeholder: 'Select an option',
+      },
+      {
+        key: 'formContract',
+        label: 'Contract',
+        type: 'select',
+        options: this.dropdownOptionsContract,
+        placeholder: 'Select an option',
+      },
+      {
+        key: 'formProject',
+        label: 'Project',
+        type: 'select',
+        options: this.dropdownOptionsProject,
+        placeholder: 'Select an option',
+      },
+      {
+        key: 'formBAPPNo',
+        label: 'BAPP No.',
+        type: 'text',
+      },
+      {
+        key: 'formAmount',
+        label: 'Amount',
+        type: 'currency',
+      },
+      {
+        key: 'formPPN',
+        label: 'PPN',
+        type: 'currency',
+      },
+      {
+        key: 'formPPNWAPU',
+        label: 'PPN WAPU',
+        type: 'currency',
+      },
+      {
+        key: 'formNetAmount',
+        label: 'Net Amount',
+        type: 'currency',
+      },
+    ];
+
     this.formSimpleConfig = [
       {
         key: 'formPPHLabel',
@@ -336,6 +394,28 @@ export class ArMonitoringComponent {
     ];
 
     this.formArrayConfig = [
+      {
+        key: 'formItemName',
+        label: 'Item Name',
+        type: 'select',
+        options: this.dropdownOptionsItem,
+        placeholder: 'Select an option',
+      },
+      {
+        key: 'formPaidQuantity',
+        label: 'Paid Value',
+        type: 'currency',
+        width: 'w-[40px]',
+      },
+      {
+        key: 'formRemainingQuantity',
+        label: 'Remaining Value',
+        type: 'currency',
+        width: 'w-[40px]',
+      },
+    ];
+
+    this.formPreviewArrayConfig = [
       {
         key: 'formItemName',
         label: 'Item Name',
@@ -589,11 +669,11 @@ export class ArMonitoringComponent {
       });
   }
 
-  async fetchContractList(type: string) {
+  async fetchContractList(type: string, contractName?: string) {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', '')
-      .set('contractCode', '');
+      .set('contractCode', contractName ? contractName : '');
 
     try {
       const response = await firstValueFrom(
@@ -644,6 +724,7 @@ export class ArMonitoringComponent {
             }
             return config;
           });
+          this.formPreviewConfig = [...this.formConfig];
           sessionStorage.setItem(
             'contract_list',
             JSON.stringify(this.dropdownOptionsContract)
@@ -748,6 +829,8 @@ export class ArMonitoringComponent {
             }
             return config;
           });
+
+          this.formPreviewConfig = [...this.formConfig];
           sessionStorage.setItem(
             'project_list',
             JSON.stringify(this.dropdownOptionsProject)
@@ -792,6 +875,15 @@ export class ArMonitoringComponent {
             }
             return config;
           });
+
+          this.formPreviewArrayConfig = this.formArrayConfig.map(
+            (config: any) => {
+              if (config.key === 'formItemName') {
+                return { ...config, options: this.dropdownOptionsItem };
+              }
+              return config;
+            }
+          );
           sessionStorage.setItem(
             'item_list',
             JSON.stringify(this.dropdownOptionsItem)
@@ -810,11 +902,41 @@ export class ArMonitoringComponent {
     this.loaderService.show();
 
     try {
+      await Promise.all([this.fetchItemList()]);
       await Promise.all([this.fetchContractList(type)]);
       await Promise.all([this.fetchPartnerList()]);
       await Promise.all([this.fetchProjectList()]);
-      await Promise.all([this.fetchItemList()]);
       this.showModalAdd = true;
+    } catch (error) {
+      console.error('Error fetching data', error);
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  async prefillPreviewForm(data: any) {
+    this.arMonitoringForm.patchValue({
+      formInvoiceNo: data.invoice_no,
+      formPartner: data.partner_name,
+      formContract: data.contract_name,
+      formProject: data.project_name,
+      formBAPPNo: data.bapp_no,
+      formAmount: this.formatWithMask(data.amount),
+      formPPN: data.ppn_amount,
+      formNetAmount: this.formatWithMask(data.total_amount),
+    });
+  }
+
+  async fetchPreviewDataDetail(type: string, contractName: string, data: any) {
+    this.loaderService.show();
+
+    try {
+      await Promise.all([this.fetchItemList()]);
+      await Promise.all([this.fetchContractList(type, contractName)]);
+      await Promise.all([this.fetchPartnerList()]);
+      await Promise.all([this.fetchProjectList()]);
+      await Promise.all([this.prefillPreviewForm(data)]);
+      this.showModalInvoiceStatus = true;
     } catch (error) {
       console.error('Error fetching data', error);
     } finally {
@@ -861,7 +983,11 @@ export class ArMonitoringComponent {
         this.fetchArMonitoring();
         break;
       case 'invoice_status':
-        this.showModalInvoiceStatus = true;
+        this.fetchPreviewDataDetail(
+          row?.key,
+          row?.row?.contract_name,
+          row?.row
+        );
         break;
       case 'payment':
         this.showModalPayment = true;
@@ -878,7 +1004,14 @@ export class ArMonitoringComponent {
     }
   }
 
+  handleFormPreviewSubmit(formValue: any): void {
+    const { action, ...formValues } = formValue;
+    const { formInvoiceNo } = formValues;
+    this.updateStatus(action, formInvoiceNo);
+  }
+
   createARInvoice(formValue: any) {
+    this.loaderService.show();
     this.httpService
       .post<FormARInvoiceResponse>(
         environment.API_URL,
@@ -891,6 +1024,7 @@ export class ArMonitoringComponent {
       .subscribe({
         next: (response) => {
           this.closeModalAdd();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'success'
@@ -906,13 +1040,59 @@ export class ArMonitoringComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show('Error creating ar invoice.', 'error');
           console.error('Error creating ar invoice', error);
         },
       });
   }
 
+  updateStatus(moveTo: string, invoiceNo: string) {
+    const params = new HttpParams()
+      .set('status', moveTo === 'approve' ? 1 : 2)
+      .set('invoiceNo', invoiceNo);
+    this.loaderService.show();
+    this.httpService
+      .post<FormARInvoiceResponse>(
+        environment.API_URL,
+        `api/arInvoice/approvalARInvoice?username=${this.authService.getUsername()}`,
+        undefined,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        }),
+        params
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalInvoiceStatus();
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.fetchArMonitoring();
+            this.notificationService.show(response?.info, 'success');
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.loaderService.hide();
+          this.notificationService.show(
+            'Error update status ar invoice',
+            'error'
+          );
+          console.error('Error update status ar invoice', error);
+        },
+      });
+  }
+
   handleFormCancel(): void {
+    this.arMonitoringForm.reset();
     this.showModalAdd = false;
     this.showModalInvoiceStatus = false;
     this.resetItemDetailList();
@@ -933,7 +1113,9 @@ export class ArMonitoringComponent {
   }
 
   closeModalInvoiceStatus() {
+    this.arMonitoringForm.reset();
     this.showModalInvoiceStatus = false;
+    this.resetItemDetailList();
   }
 
   closeModalPayment() {

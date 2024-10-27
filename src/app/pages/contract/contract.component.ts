@@ -593,6 +593,7 @@ export class ContractComponent {
   }
 
   createContract(formValue: any) {
+    this.loaderService.show();
     this.httpService
       .post<FormContractResponse>(
         environment.API_URL,
@@ -612,6 +613,7 @@ export class ContractComponent {
       .subscribe({
         next: (response) => {
           this.closeModalAdd();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'success'
@@ -627,6 +629,7 @@ export class ContractComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show('Error creating contract.', 'error');
           console.error('Error creating contract', error);
         },
@@ -634,6 +637,7 @@ export class ContractComponent {
   }
 
   editContract(formValue: any) {
+    this.loaderService.show();
     this.httpService
       .post<FormContractResponse>(
         environment.API_URL,
@@ -654,6 +658,7 @@ export class ContractComponent {
       .subscribe({
         next: (response) => {
           this.closeModalEdit();
+          this.loaderService.hide();
           if (
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'data has been saved.'
@@ -669,6 +674,7 @@ export class ContractComponent {
           }
         },
         error: (error) => {
+          this.loaderService.hide();
           this.notificationService.show('Error updating contract.', 'error');
           console.error('Error updating contract', error);
         },
