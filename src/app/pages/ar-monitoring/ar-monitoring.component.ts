@@ -210,10 +210,7 @@ export class ArMonitoringComponent {
 
   dropdownOptionsItem: Array<{ value: any; label: any }> = [];
 
-  dropdownOptionsPPH: Array<{ value: any; label: any }> = [
-    { value: 'PPH 23', label: 'PPH 23' },
-    { value: 'PPH Final', label: 'PPH Final' },
-  ];
+  dropdownOptionsPPH: Array<{ value: any; label: any }> = [];
 
   invoiceNo!: string;
 
@@ -410,11 +407,12 @@ export class ArMonitoringComponent {
       let totalPphValue = 0;
       this.formPPH.controls.forEach((data) => {
         const pphLabel = data.get('formPPHLabel')?.value;
-        if (pphLabel === 'PPH Final') {
-          totalPphValue += Math.ceil(amount * 0.0265);
-        } else if (pphLabel === 'PPH 23') {
-          totalPphValue += Math.ceil(amount * 0.02);
-        }
+        const selectedPPH = this.dropdownOptionsPPH.find(
+          (option) => option?.label === pphLabel
+        );
+        totalPphValue += Math.ceil(
+          amount * (selectedPPH?.value ? selectedPPH?.value : 1)
+        );
         data
           ?.get('formPPHAmount')
           ?.setValue(this.formatWithMask(totalPphValue), { emitEvent: false });
@@ -422,7 +420,12 @@ export class ArMonitoringComponent {
 
       if (selectedPartner && selectedPartner?.listDetail) {
         let totalPpnValue = 0;
-        totalPpnValue = Math.ceil(amount * 0.11);
+        totalPpnValue = Math.ceil(
+          amount *
+            (selectedPartner?.listDetail?.ppnValue
+              ? selectedPartner?.listDetail?.ppnValue
+              : 1)
+        );
         this.arMonitoringForm
           .get('formPPN')
           ?.setValue(this.formatWithMask(totalPpnValue), {
@@ -676,7 +679,7 @@ export class ArMonitoringComponent {
         response?.status === 200 &&
         response?.info?.toLowerCase() === 'success'
       ) {
-        if (response?.data?.length > 0) {
+        if (response?.data?.partnerList.length > 0) {
           this.dropdownOptionsPartner =
             this.mapDropdownOptionsPartner(response);
 
@@ -689,6 +692,20 @@ export class ArMonitoringComponent {
           sessionStorage.setItem(
             'partner_list',
             JSON.stringify(this.dropdownOptionsPartner)
+          );
+        }
+        if (response?.data?.pphList.length > 0) {
+          this.dropdownOptionsPPH = this.mapDropdownOptionsPPH(response);
+
+          this.formSimpleConfig = this.formSimpleConfig.map((config: any) => {
+            if (config.key === 'formPPHLabel') {
+              return { ...config, options: this.dropdownOptionsPPH };
+            }
+            return config;
+          });
+          sessionStorage.setItem(
+            'pph_list',
+            JSON.stringify(this.dropdownOptionsPPH)
           );
         }
       } else {
@@ -952,35 +969,43 @@ export class ArMonitoringComponent {
   }
 
   private mapDropdownOptionsContract(response: ContractDetailResponse) {
-    return response.data.map((data) => ({
-      value: data.contractCode,
-      label: data.contractName,
-      listDetail: data.itemList,
+    return response?.data?.map((data) => ({
+      value: data?.contractCode,
+      label: data?.contractName,
+      listDetail: data?.itemList,
     }));
   }
 
   private mapDropdownOptionsPartner(response: PartnerListResponse) {
-    return response.data.map((data) => ({
-      value: data.partnerName,
-      label: data.partnerName,
+    return response?.data?.partnerList?.map((data) => ({
+      value: data?.partnerName,
+      label: data?.partnerName,
       listDetail: {
-        documentTracking: data.documentTracking,
-        ppnWapu: data.ppnWapu,
+        documentTracking: data?.documentTracking,
+        ppnWapu: data?.ppnWapu,
+        ppnValue: data?.ppnValue,
       },
     }));
   }
 
   private mapDropdownOptionsProject(response: ProjectListResponse) {
     return response.data.map((data) => ({
-      value: data.projectName,
-      label: data.projectName,
+      value: data?.projectName,
+      label: data?.projectName,
     }));
   }
 
   private mapDropdownOptionsItem(response: ItemListResponse) {
     return response.data.map((data) => ({
-      value: data.itemName,
-      label: data.itemName,
+      value: data?.itemName,
+      label: data?.itemName,
+    }));
+  }
+
+  private mapDropdownOptionsPPH(response: PartnerListResponse) {
+    return response?.data?.pphList?.map((data) => ({
+      value: Number(data?.value),
+      label: data?.desc,
     }));
   }
 
