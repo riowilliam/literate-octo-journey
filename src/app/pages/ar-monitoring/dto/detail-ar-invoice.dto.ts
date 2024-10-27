@@ -3,7 +3,7 @@ export class DetailArInvoiceList {
   invoiceNo!: string;
   projectName!: string;
   contractName!: string;
-  amount!: string;
+  paymentAmount!: string;
   paymentDate!: string;
   paymentType!: string;
   cashInStatus!: string;
@@ -14,7 +14,7 @@ export class DetailArInvoiceList {
       invoice_no: arInvoiceData?.invoiceNo,
       project_name: arInvoiceData?.projectName,
       contract: arInvoiceData?.contractName,
-      amount: formatWithMask(arInvoiceData?.amount),
+      amount: formatWithMask(arInvoiceData?.paymentAmount),
       payment_date: arInvoiceData?.paymentDate,
       payment_type: arInvoiceData?.paymentType,
       cash_in_status: arInvoiceData?.cashInStatus,

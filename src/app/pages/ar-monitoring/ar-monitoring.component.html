@@ -14,11 +14,18 @@
   <div class="w-full flex flex-col items-center justify-center">
     <div class="w-full p-5">
       <app-dynamic-table
+        *ngIf="dataDetailARInvoice.length > 0"
         [headers]="headersDetailARInvoice"
         [rows]="dataDetailARInvoice"
         [hasFooter]="false"
       >
       </app-dynamic-table>
+      <div
+        *ngIf="dataDetailARInvoice.length === 0"
+        class="text-center text-gray-500"
+      >
+        No data available.
+      </div>
     </div>
 
     <div class="w-full flex gap-4 items-center justify-center p-5">

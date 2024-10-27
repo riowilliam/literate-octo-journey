@@ -1006,7 +1006,7 @@ export class ArMonitoringComponent {
     this.httpService
       .get<DetailArInvoiceResponse>(
         environment.API_URL,
-        `api/cashIn/getArInvoiceList?username=${this.authService.getUsername()}`,
+        `api/cashIn/getCashInListByInvoiceNo?username=${this.authService.getUsername()}`,
         params,
         new HttpHeaders({
           Authorization: `Bearer ${this.authService.getToken()}`,
