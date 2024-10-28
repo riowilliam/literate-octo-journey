@@ -1,35 +1,8 @@
 <form [formGroup]="customForm" (ngSubmit)="onSubmit()">
   <div class="w-full flex flex-col items-center justify-center">
     <div
-      class="w-full flex flex-col items-center p-5 max-h-[400px] overflow-y-auto"
+      class="w-full flex flex-col items-center max-h-[450px] overflow-y-auto"
     >
-      <div
-        class="w-full flex flex-col sm:flex-row gap-2 items-center justify-center px-5"
-      >
-        <button
-          type="button"
-          class="py-2 px-4 bg-custom-yellow text-xs rounded-lg hover:bg-custom-light-yellow focus:outline-none"
-          [ngClass]="{
-            'font-semibold': !isPartiallyPayment,
-            'bg-white': isPartiallyPayment
-          }"
-          (click)="onPaymentTypeChange('fully')"
-        >
-          Fully Payment
-        </button>
-        <button
-          type="button"
-          class="py-2 px-4 bg-custom-yellow text-xs rounded-lg hover:bg-custom-light-yellow focus:outline-none"
-          [ngClass]="{
-            'font-semibold': isPartiallyPayment,
-            'bg-white': !isPartiallyPayment
-          }"
-          (click)="onPaymentTypeChange('partially')"
-        >
-          Partially Payment
-        </button>
-      </div>
-
       <div
         class="w-full flex flex-col justify-between p-5 sm:min-w-[400px] sm:max-w-[400px]"
       >
@@ -53,18 +26,19 @@
           [readonly]="true"
         />
 
-        <ng-container *ngIf="showPaymentAmount">
+        <ng-container *ngIf="paidAmount">
           <label for="paidAmount" class="text-sm mb-1">Paid Amount</label>
           <input
             id="paidAmount"
             type="text"
             formControlName="paidAmount"
-            class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
-            [attr.disabled]="!isPartiallyPayment"
+            class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
+            [attr.disabled]="true"
+            [readonly]="true"
           />
         </ng-container>
 
-        <label for="partnerName" class="text-sm mb-1">Partner</label>
+        <label for="partnerName" class="text-sm mb-1">Partner Name</label>
         <input
           id="partnerName"
           type="text"
@@ -74,7 +48,7 @@
           [readonly]="true"
         />
 
-        <label for="projectName" class="text-sm mb-1">Project</label>
+        <label for="projectName" class="text-sm mb-1">Project Name</label>
         <input
           id="projectName"
           type="text"
@@ -89,7 +63,9 @@
           id="deduction"
           type="text"
           formControlName="deduction"
-          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
+          [attr.disabled]="true"
+          [readonly]="true"
         />
 
         <label for="netAmount" class="text-sm mb-1">Net Amount</label>
@@ -102,27 +78,6 @@
           [readonly]="true"
         />
       </div>
-
-      <div
-        class="flex flex-col sm:flex-row gap-4 items-center justify-center px-5"
-      >
-        <label class="text-sm mb-1">
-          <input
-            type="radio"
-            formControlName="cashInStatus"
-            value="Pending Cash In"
-          />
-          Pending Cash In
-        </label>
-        <label class="text-sm mb-1">
-          <input
-            type="radio"
-            formControlName="cashInStatus"
-            value="Completed Cash In"
-          />
-          Completed Cash In
-        </label>
-      </div>
     </div>
 
     <div
@@ -131,9 +86,8 @@
       <button
         type="submit"
         class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-yellow text-xs font-semibold rounded-lg hover:bg-custom-yellow focus:outline-none focus:ring-2 focus:ring-custom-light-yellow focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
-        [disabled]="customForm.invalid"
       >
-        Submit
+        Complete
       </button>
       <button
         type="button"

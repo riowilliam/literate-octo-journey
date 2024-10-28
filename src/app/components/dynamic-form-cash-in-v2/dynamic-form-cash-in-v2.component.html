@@ -34,14 +34,55 @@
         class="w-full flex flex-col justify-between p-5 sm:min-w-[400px] sm:max-w-[400px]"
       >
         <label for="invoiceNo" class="text-sm mb-1">Invoice No</label>
-        <input
-          id="invoiceNo"
-          type="text"
-          formControlName="invoiceNo"
-          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
-          [attr.disabled]="true"
-          [readonly]="true"
-        />
+        <div class="relative inline-block w-full">
+          <input
+            type="text"
+            id="invoiceNo"
+            name="invoiceNo"
+            formControlName="invoiceNo"
+            (input)="filterOptions($event, 'invoiceNo')"
+            (focus)="setInitialOptions('invoiceNo')"
+            (blur)="hideDropdown('invoiceNo')"
+            class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none"
+            autocomplete="off"
+          />
+
+          <div
+            *ngIf="
+              showDropdown['invoiceNo'] && filteredOptions['invoiceNo']?.length
+            "
+            class="bg-white border border-gray-300 rounded-md max-h-80 overflow-auto mt-1"
+          >
+            <ul>
+              <li
+                *ngFor="let option of filteredOptions['invoiceNo']"
+                (click)="selectOption(option, 'invoiceNo')"
+                class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+              >
+                {{ option.label }}
+              </li>
+            </ul>
+          </div>
+
+          <div
+            class="pointer-events-none absolute top-2.5 right-0 flex items-center pr-3 text-gray-700"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              ></path>
+            </svg>
+          </div>
+        </div>
 
         <label for="amount" class="text-sm mb-1">Amount</label>
         <input

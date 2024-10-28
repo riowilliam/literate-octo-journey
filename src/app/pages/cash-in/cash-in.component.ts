@@ -7,6 +7,25 @@ import { ContentFilterComponent } from '../../components/content-filter/content-
 import { ContentCardComponent } from '../../components/content-card/content-card.component';
 import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import {
+  CashInDetail,
+  CashInDetailList,
+  CashInResponse,
+  FormCashInRequest,
+  FormCashInResponse,
+} from './dto/cash-in.dto';
+import { HttpService } from '../../services/http.service';
+import { AuthService } from '../../services/auth.service';
+import { LoaderService } from '../../services/loader.service';
+import { NotificationService } from '../../services/notification.service';
+import { Router } from '@angular/router';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { DynamicFormCashInV2Component } from '../../components/dynamic-form-cash-in-v2/dynamic-form-cash-in-v2.component';
+import { firstValueFrom } from 'rxjs';
+import { InvoiceListResponse } from './dto/invoice.dto';
+import { DynamicFormCompleteCashInComponent } from '../../components/dynamic-form-complete-cash-in/dynamic-form-complete-cash-in.component';
 
 @Component({
   selector: 'app-cash-in',
@@ -20,15 +39,22 @@ import { CommonModule } from '@angular/common';
     ContentCardComponent,
     DynamicCardComponent,
     CommonModule,
+    DynamicFormCashInV2Component,
+    DynamicFormCompleteCashInComponent,
   ],
   templateUrl: './cash-in.component.html',
   styleUrl: './cash-in.component.scss',
 })
 export class CashInComponent {
-  showModalForm = false;
   showModalCashInStatus = false;
   showModalAdd = false;
-
+  filterForm!: FormGroup;
+  data: CashInDetail[] = [];
+  totalPages!: number;
+  pageNo: number = 0;
+  pageSize: number = 10;
+  sortBy: string = '';
+  sortOrder: string = '';
   headers: {
     key: string;
     label: string;
@@ -45,12 +71,14 @@ export class CashInComponent {
       | 'button'
       | 'icon'
       | 'empty';
+    transform?: (value: any, row?: any) => any;
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
+    { key: 'cash_in_id', renderType: () => 'number', label: 'ID' },
     { key: 'partner_name', renderType: () => 'text', label: 'Partner Name' },
     { key: 'invoice_no', renderType: () => 'text', label: 'Invoice No' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
-    { key: 'contract', renderType: () => 'currency', label: 'Contract' },
+    { key: 'contract_name', renderType: () => 'text', label: 'Contract' },
     {
       key: 'payment_amount',
       renderType: () => 'currency',
@@ -64,252 +92,37 @@ export class CashInComponent {
     { key: 'modified_by', renderType: () => 'text', label: 'Modified By' },
     {
       key: 'cash_in_status',
-      renderType: (value: any) =>
-        value?.toLowerCase() === 'completed'
-          ? 'text'
-          : value
-          ? 'button'
-          : 'empty',
+      renderType: (value: any) => {
+        switch (value?.toLowerCase()) {
+          case 'completed':
+            return 'text';
+          case 'incompleted':
+            return 'button';
+          default:
+            return 'empty';
+        }
+      },
+      transform: (value: any) => {
+        switch (value?.toLowerCase()) {
+          case 'completed':
+            return 'Completed';
+          case 'incompleted':
+            return 'Action';
+          default:
+            return '-';
+        }
+      },
       label: 'Cash In Status',
       class: 'bg-custom-light-yellow px-4 py-2 rounded hover:bg-custom-yellow',
     },
   ];
-
-  data = [
-    {
-      no: 1,
-      partner_name: 'Partner A',
-      invoice_no: 'INV-001',
-      project_name: 'Project Alpha',
-      contract: 1500000,
-      payment_amount: 500000,
-      payment_date: '2023-08-01',
-      payment_type: 'Bank Transfer',
-      created_date: '2023-07-28',
-      created_by: 'User A',
-      modified_date: '2023-07-30',
-      modified_by: 'User B',
-      cash_in_status: 'Completed',
-    },
-    {
-      no: 2,
-      partner_name: 'Partner B',
-      invoice_no: 'INV-002',
-      project_name: 'Project Beta',
-      contract: 2000000,
-      payment_amount: 1000000,
-      payment_date: '2023-08-02',
-      payment_type: 'Cash',
-      created_date: '2023-07-29',
-      created_by: 'User C',
-      modified_date: '2023-07-31',
-      modified_by: 'User D',
-      cash_in_status: 'Action',
-    },
-    {
-      no: 3,
-      partner_name: 'Partner C',
-      invoice_no: 'INV-003',
-      project_name: 'Project Gamma',
-      contract: 1750000,
-      payment_amount: 750000,
-      payment_date: '2023-08-03',
-      payment_type: 'Credit Card',
-      created_date: '2023-07-30',
-      created_by: 'User E',
-      modified_date: '2023-08-01',
-      modified_by: 'User F',
-      cash_in_status: 'Completed',
-    },
-    {
-      no: 4,
-      partner_name: 'Partner D',
-      invoice_no: 'INV-004',
-      project_name: 'Project Delta',
-      contract: 2250000,
-      payment_amount: 1250000,
-      payment_date: '2023-08-04',
-      payment_type: 'Bank Transfer',
-      created_date: '2023-07-31',
-      created_by: 'User G',
-      modified_date: '2023-08-02',
-      modified_by: 'User H',
-      cash_in_status: 'Action',
-    },
-    {
-      no: 5,
-      partner_name: 'Partner E',
-      invoice_no: 'INV-005',
-      project_name: 'Project Epsilon',
-      contract: 1000000,
-      payment_amount: 500000,
-      payment_date: '2023-08-05',
-      payment_type: 'Cash',
-      created_date: '2023-08-01',
-      created_by: 'User I',
-      modified_date: '2023-08-03',
-      modified_by: 'User J',
-      cash_in_status: 'Completed',
-    },
-    {
-      no: 6,
-      partner_name: 'Partner F',
-      invoice_no: 'INV-006',
-      project_name: 'Project Zeta',
-      contract: 3000000,
-      payment_amount: 1500000,
-      payment_date: '2023-08-06',
-      payment_type: 'Credit Card',
-      created_date: '2023-08-02',
-      created_by: 'User K',
-      modified_date: '2023-08-04',
-      modified_by: 'User L',
-      cash_in_status: 'Action',
-    },
-    {
-      no: 7,
-      partner_name: 'Partner G',
-      invoice_no: 'INV-007',
-      project_name: 'Project Eta',
-      contract: 2500000,
-      payment_amount: 1250000,
-      payment_date: '2023-08-07',
-      payment_type: 'Bank Transfer',
-      created_date: '2023-08-03',
-      created_by: 'User M',
-      modified_date: '2023-08-05',
-      modified_by: 'User N',
-      cash_in_status: 'Completed',
-    },
-    {
-      no: 8,
-      partner_name: 'Partner H',
-      invoice_no: 'INV-008',
-      project_name: 'Project Theta',
-      contract: 2750000,
-      payment_amount: 1375000,
-      payment_date: '2023-08-08',
-      payment_type: 'Cash',
-      created_date: '2023-08-04',
-      created_by: 'User O',
-      modified_date: '2023-08-06',
-      modified_by: 'User P',
-      cash_in_status: 'Action',
-    },
-    {
-      no: 9,
-      partner_name: 'Partner I',
-      invoice_no: 'INV-009',
-      project_name: 'Project Iota',
-      contract: 1250000,
-      payment_amount: 625000,
-      payment_date: '2023-08-09',
-      payment_type: 'Credit Card',
-      created_date: '2023-08-05',
-      created_by: 'User Q',
-      modified_date: '2023-08-07',
-      modified_by: 'User R',
-      cash_in_status: 'Completed',
-    },
-    {
-      no: 10,
-      partner_name: 'Partner J',
-      invoice_no: 'INV-010',
-      project_name: 'Project Kappa',
-      contract: 3500000,
-      payment_amount: 1750000,
-      payment_date: '2023-08-10',
-      payment_type: 'Bank Transfer',
-      created_date: '2023-08-06',
-      created_by: 'User S',
-      modified_date: '2023-08-08',
-      modified_by: 'User T',
-      cash_in_status: 'Action',
-    },
-    {
-      no: 11,
-      partner_name: 'Partner K',
-      invoice_no: 'INV-011',
-      project_name: 'Project Lambda',
-      contract: 4000000,
-      payment_amount: 2000000,
-      payment_date: '2023-08-11',
-      payment_type: 'Cash',
-      created_date: '2023-08-07',
-      created_by: 'User U',
-      modified_date: '2023-08-09',
-      modified_by: 'User V',
-      cash_in_status: 'Completed',
-    },
-    {
-      no: 12,
-      partner_name: 'Partner L',
-      invoice_no: 'INV-012',
-      project_name: 'Project Mu',
-      contract: 2250000,
-      payment_amount: 1125000,
-      payment_date: '2023-08-12',
-      payment_type: 'Credit Card',
-      created_date: '2023-08-08',
-      created_by: 'User W',
-      modified_date: '2023-08-10',
-      modified_by: 'User X',
-      cash_in_status: 'Action',
-    },
-    {
-      no: 13,
-      partner_name: 'Partner M',
-      invoice_no: 'INV-013',
-      project_name: 'Project Nu',
-      contract: 2750000,
-      payment_amount: 1375000,
-      payment_date: '2023-08-13',
-      payment_type: 'Bank Transfer',
-      created_date: '2023-08-09',
-      created_by: 'User Y',
-      modified_date: '2023-08-11',
-      modified_by: 'User Z',
-      cash_in_status: 'Completed',
-    },
-    {
-      no: 14,
-      partner_name: 'Partner N',
-      invoice_no: 'INV-014',
-      project_name: 'Project Xi',
-      contract: 1500000,
-      payment_amount: 750000,
-      payment_date: '2023-08-14',
-      payment_type: 'Cash',
-      created_date: '2023-08-10',
-      created_by: 'User AA',
-      modified_date: '2023-08-12',
-      modified_by: 'User BB',
-      cash_in_status: 'Action',
-    },
-    {
-      no: 15,
-      partner_name: 'Partner O',
-      invoice_no: 'INV-015',
-      project_name: 'Project Omicron',
-      contract: 1250000,
-      payment_amount: 625000,
-      payment_date: '2023-08-15',
-      payment_type: 'Credit Card',
-      created_date: '2023-08-11',
-      created_by: 'User CC',
-      modified_date: '2023-08-13',
-      modified_by: 'User DD',
-      cash_in_status: 'Completed',
-    },
-  ];
-
   cards = [
     {
       headerText: 'Total Completed Payment',
       sections: [
         [
-          { label: 'Fully Payment', value: 'Rp. 382.500.000' },
-          { label: 'Partially Payment', value: 'Rp. 105.000.000' },
+          { label: 'Fully Payment', value: 0, type: 'currency' },
+          { label: 'Partially Payment', value: 0, type: 'currency' },
         ],
       ],
     },
@@ -317,59 +130,378 @@ export class CashInComponent {
       headerText: 'Total Cash In Amount',
       sections: [
         [
-          { label: 'Completed', value: 'Rp. 487.500.000' },
-          { label: 'Action', value: 'Rp. 97.500.000' },
+          { label: 'Completed', value: 0, type: 'currency' },
+          { label: 'Action', value: 0, type: 'currency' },
         ],
       ],
     },
   ];
 
-  textValue: string = '';
-  numberValue: number | null = null;
-  selectedOption: string = '';
-  dropdownOptions: Array<{ value: string; label: string }> = [
-    { value: 'Test', label: 'Test' },
-  ];
-  textareaValue: string = '';
-  dateValue: Date | null = null;
-  isDisabled: boolean = false;
+  invoiceNo!: string;
+  amount!: string;
+  paidAmount!: string;
+  partnerName!: string;
+  projectName!: string;
+  deduction!: string;
+  netAmount!: string;
+  cashInStatus!: string;
+  paymentType!: string;
+  contractName!: string;
+  cashInId!: number;
 
-  handleValueChange(event: any) {
-    if (event.type === 'text') {
-      this.textValue = event.value;
-    } else if (event.type === 'number') {
-      this.numberValue = event.value;
-    } else if (event.type === 'dropdown') {
-      this.selectedOption = event.value;
-    } else if (event.type === 'textarea') {
-      this.textareaValue = event.value;
-    } else if (event.type === 'datepicker') {
-      this.dateValue = event.value;
+  dropdownOptionsInvoice: { [key: string]: any[] } = {};
+
+  dropdownOptions: Array<{ value: string; label: string }> = [
+    { value: 'Fully Payment', label: 'Fully Payment' },
+    { value: 'Partially Payment', label: 'Partially Payment' },
+  ];
+
+  constructor(
+    private fb: FormBuilder,
+    private httpService: HttpService,
+    private authService: AuthService,
+    private loaderService: LoaderService,
+    private notificationService: NotificationService,
+    private router: Router
+  ) {
+    this.filterForm = this.fb.group({
+      partnerName: [''],
+      projectName: [''],
+      paymentType: [''],
+      startDate: [''],
+      endDate: [''],
+    });
+  }
+
+  ngOnInit() {
+    this.fetchCashIn();
+  }
+
+  fetchCashIn() {
+    const params = new HttpParams()
+      .set('pageNo', this.pageNo)
+      .set('pageSize', this.pageSize)
+      .set('sortBy', this.sortBy)
+      .set('sortOrder', this.sortOrder)
+      .set('partnerName', this.filterForm.get('partnerName')?.value || '')
+      .set('projectName', this.filterForm.get('projectName')?.value || '')
+      .set(
+        'paymentType',
+        this.filterForm.get('paymentType')?.value === 'Fully Payment'
+          ? '1'
+          : this.filterForm.get('paymentType')?.value === 'Partially Payment'
+          ? '2'
+          : ''
+      )
+      .set('startDate', this.filterForm.get('startDate')?.value || '')
+      .set('endDate', this.filterForm.get('endDate')?.value || '');
+    this.loaderService.show();
+    this.httpService
+      .get<CashInResponse>(
+        environment.API_URL,
+        'api/cashIn/getCashInPaging?',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.data = [
+              ...CashInDetailList.fromApiResponse(response?.data?.content),
+            ];
+            if (response?.data?.content?.length > 0) {
+              this.cards = [
+                {
+                  headerText: 'Total Completed Payment',
+                  sections: [
+                    [
+                      {
+                        label: 'Fully Payment',
+                        value:
+                          response?.data?.content[0]?.cashInSummary
+                            ?.totalFullyPayment,
+                        type: 'currency',
+                      },
+                      {
+                        label: 'Partially Payment',
+                        value:
+                          response?.data?.content[0]?.cashInSummary
+                            ?.totalPartialyPayment,
+                        type: 'currency',
+                      },
+                    ],
+                  ],
+                },
+                {
+                  headerText: 'Total Cash In Amount',
+                  sections: [
+                    [
+                      {
+                        label: 'Completed',
+                        value:
+                          response?.data?.content[0]?.cashInSummary
+                            ?.totalCompleted,
+                        type: 'currency',
+                      },
+                      {
+                        label: 'Action',
+                        value:
+                          response?.data?.content[0]?.cashInSummary
+                            ?.totalPending,
+                        type: 'currency',
+                      },
+                    ],
+                  ],
+                },
+              ];
+            }
+            this.totalPages = response?.data?.totalPages;
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch document cash out', error);
+        },
+      });
+  }
+
+  async fetchInvoiceList() {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('invoiceNo', '');
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<InvoiceListResponse>(
+          environment.API_URL,
+          'api/cashIn/getArInvoiceList',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        if (response?.data?.length > 0) {
+          this.dropdownOptionsInvoice =
+            this.mapDropdownOptionsInvoice(response);
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch invoice list', error);
+      this.notificationService.show(error, 'error');
+    }
+  }
+
+  async fetchCompleteInvoiceList(invoiceNo: string) {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('invoiceNo', invoiceNo);
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<InvoiceListResponse>(
+          environment.API_URL,
+          'api/cashIn/getArInvoiceList',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        if (response?.data?.length > 0) {
+          this.amount = this.formatWithMask(response.data[0]?.amount);
+          this.partnerName = response.data[0]?.partnerName;
+          this.projectName = response.data[0]?.projectName;
+          this.deduction = this.formatWithMask(response.data[0]?.deduction);
+          this.netAmount = this.formatWithMask(response.data[0]?.totalAmount);
+          this.paymentType = response.data[0]?.paymentStatus;
+          this.contractName = response.data[0]?.contractName;
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch invoice list', error);
+      this.notificationService.show(error, 'error');
+    }
+  }
+
+  async fetchUtilCashIn() {
+    this.loaderService.show();
+
+    try {
+      await Promise.all([this.fetchInvoiceList()]);
+      this.showModalAdd = true;
+    } catch (error) {
+      console.error('Error fetching data', error);
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  async fetchUtilCompleteCashIn(invoiceNo: string) {
+    this.loaderService.show();
+
+    try {
+      await Promise.all([this.fetchCompleteInvoiceList(invoiceNo)]);
+      this.showModalCashInStatus = true;
+    } catch (error) {
+      console.error('Error fetching data', error);
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  onPageChange(event: any) {
+    this.pageNo = event - 1;
+    this.fetchCashIn();
+  }
+
+  handleValueChange(value: any, key: string) {
+    const control = this.filterForm.get(key);
+    if (control) {
+      control.setValue(value);
     }
   }
 
   handleButtonClick(row: any) {
     switch (row?.key) {
       case 'cash_in_status':
-        this.showModalCashInStatus = true;
+        this.invoiceNo = row?.row?.invoice_no;
+        this.cashInId = row?.row?.cash_in_id;
+        this.fetchUtilCompleteCashIn(row?.row?.invoice_no);
         break;
       case 'add':
-        this.showModalAdd = true;
+        this.fetchUtilCashIn();
         break;
       case 'apply':
-        console.log('Do request to apply filter');
+        this.pageNo = 0;
+        this.pageSize = 10;
+        this.sortBy = '';
+        this.sortOrder = '';
+        this.fetchCashIn();
         break;
       case 'clear':
-        console.log('Do request to clear filter');
-        break;
-      default:
-        this.showModalForm = true;
+        this.filterForm.reset({
+          partnerName: '',
+          projectName: '',
+          paymentType: '',
+          startDate: '',
+          endDate: '',
+        });
+        this.fetchCashIn();
         break;
     }
   }
 
-  closeModalForm() {
-    this.showModalForm = false;
+  createCashIn(formValue: any) {
+    this.loaderService.show();
+    this.httpService
+      .post<FormCashInResponse>(
+        environment.API_URL,
+        `api/cashIn/createCashIn?username=${this.authService.getUsername()}`,
+        new FormCashInRequest({
+          ...formValue,
+        }),
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalAdd();
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.closeModalAdd();
+            this.notificationService.show(response?.info, 'success');
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.loaderService.hide();
+          this.notificationService.show('Error creating cash in.', 'error');
+          console.error('Error creating cash in', error);
+        },
+      });
+  }
+
+  completeCashIn(cashInId: number) {
+    const params = new HttpParams().set('cashInId', cashInId);
+    this.loaderService.show();
+    this.httpService
+      .post<FormCashInResponse>(
+        environment.API_URL,
+        `api/cashIn/completeCashIn?username=${this.authService.getUsername()}`,
+        undefined,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        }),
+        params
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalCashInStatus();
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.fetchCashIn();
+            this.notificationService.show(response?.info, 'success');
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.loaderService.hide();
+          this.notificationService.show('Error complete cash in', 'error');
+          console.error('Error complete cash in', error);
+        },
+      });
+  }
+
+  handleFormSubmit(formValue: any, type: string): void {
+    switch (type) {
+      case 'add':
+        this.createCashIn(formValue);
+        break;
+      case 'complete':
+        this.completeCashIn(this.cashInId);
+        break;
+    }
   }
 
   closeModalCashInStatus() {
@@ -378,5 +510,38 @@ export class CashInComponent {
 
   closeModalAdd() {
     this.showModalAdd = false;
+  }
+
+  private parseCurrency(value: any): number {
+    if (typeof value === 'string') {
+      return Number(value.replace(/\./g, '').replace(',', '.'));
+    }
+    return value;
+  }
+
+  private formatWithMask(value: any): string {
+    const parsedValue = this.parseCurrency(value);
+    if (!isNaN(parsedValue)) {
+      let formattedValue = parsedValue.toString().replace(/\D/g, '');
+      return formattedValue
+        ? formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+        : '0';
+    }
+    return '0';
+  }
+
+  private mapDropdownOptionsInvoice(response: InvoiceListResponse) {
+    return {
+      invoiceNo: response.data.map((data) => ({
+        value: data.invoiceNo,
+        label: data.invoiceNo,
+        listDetail: {
+          amount: data.amount,
+          partnerName: data.partnerName,
+          projectName: data.projectName,
+          contractName: data.contractName,
+        },
+      })),
+    };
   }
 }

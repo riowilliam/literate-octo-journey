@@ -5,12 +5,14 @@
     >
       <thead class="bg-white">
         <tr>
-          <th
-            *ngFor="let header of headers"
-            class="px-2 py-3 text-center font-semibold text-sm tracking-wider sm:px-6"
-          >
-            {{ header.label }}
-          </th>
+          <ng-container *ngFor="let header of headers">
+            <th
+              class="px-2 py-3 text-center font-semibold text-sm tracking-wider sm:px-6"
+              *ngIf="header.label !== 'ID'"
+            >
+              {{ header.label }}
+            </th>
+          </ng-container>
         </tr>
       </thead>
       <tbody class="bg-white divide-y-2 divide-gray-200">
@@ -19,48 +21,88 @@
           class="hover:bg-gray-100"
           [ngClass]="{ 'border-b-2 border-gray-200': last }"
         >
-          <td
-            *ngFor="let header of headers"
-            class="px-2 py-4 whitespace-nowrap text-xs text-center sm:px-6"
-          >
-            <ng-container
-              *ngIf="header?.renderType(row[header.key], row) as renderType"
+          <ng-container *ngFor="let header of headers">
+            <td
+              class="px-2 py-4 whitespace-nowrap text-xs text-center sm:px-6"
+              *ngIf="header.label !== 'ID'"
             >
-              <ng-container [ngSwitch]="renderType">
-                <ng-container *ngIf="header?.transform">
-                  <ng-container
-                    [ngSwitch]="header?.transform(row[header.key], row)"
-                  >
+              <ng-container
+                *ngIf="header?.renderType(row[header.key], row) as renderType"
+              >
+                <ng-container [ngSwitch]="renderType">
+                  <ng-container *ngIf="header?.transform">
+                    <ng-container
+                      [ngSwitch]="header?.transform(row[header.key], row)"
+                    >
+                      <button
+                        *ngSwitchCase="'Create'"
+                        (click)="onButtonClick(row, header.key)"
+                        [ngClass]="header.class"
+                      >
+                        {{ header?.transform(row[header.key], row) }}
+                      </button>
+                      <button
+                        *ngSwitchCase="'Action'"
+                        (click)="onButtonClick(row, header.key)"
+                        [ngClass]="header.class"
+                      >
+                        {{ header?.transform(row[header.key], row) }}
+                      </button>
+                      <button
+                        *ngSwitchCase="'Approve'"
+                        (click)="onButtonClick(row, header.key)"
+                        [ngClass]="header.class"
+                      >
+                        {{ header?.transform(row[header.key], row) }}
+                      </button>
+                      <button
+                        *ngSwitchCase="'Edit'"
+                        (click)="onButtonClick(row, header.key)"
+                        [ngClass]="header.class"
+                      >
+                        {{ header?.transform(row[header.key], row) }}
+                      </button>
+                      <svg
+                        *ngSwitchCase="'Detail'"
+                        class="block mx-auto cursor-pointer"
+                        (click)="onButtonClick(row, header.key)"
+                        width="18"
+                        height="19"
+                        viewBox="0 0 18 19"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M7.89518 13.9143H9.62503V8.72477H7.89518V13.9143ZM8.76011 6.99491C9.00517 6.99491 9.21073 6.91188 9.3768 6.74582C9.54286 6.57975 9.62561 6.37447 9.62503 6.12999C9.62446 5.8855 9.54142 5.68023 9.37593 5.51416C9.21044 5.3481 9.00517 5.26506 8.76011 5.26506C8.51504 5.26506 8.30977 5.3481 8.14428 5.51416C7.97879 5.68023 7.89576 5.8855 7.89518 6.12999C7.8946 6.37447 7.97764 6.58004 8.14428 6.74668C8.31092 6.91332 8.5162 6.99607 8.76011 6.99491ZM8.76011 18.239C7.56362 18.239 6.43922 18.0118 5.38689 17.5574C4.33457 17.103 3.41918 16.4869 2.64075 15.709C1.86232 14.9312 1.2462 14.0158 0.792403 12.9629C0.338605 11.91 0.111418 10.7856 0.110841 9.58969C0.110264 8.39379 0.337452 7.26939 0.792403 6.21648C1.24735 5.16358 1.86347 4.2482 2.64075 3.47034C3.41803 2.69248 4.33341 2.07637 5.38689 1.62199C6.44037 1.16762 7.56478 0.94043 8.76011 0.94043C9.95543 0.94043 11.0798 1.16762 12.1333 1.62199C13.1868 2.07637 14.1022 2.69248 14.8795 3.47034C15.6567 4.2482 16.2731 5.16358 16.7287 6.21648C17.1842 7.26939 17.4111 8.39379 17.4094 9.58969C17.4076 10.7856 17.1805 11.91 16.7278 12.9629C16.2752 14.0158 15.659 14.9312 14.8795 15.709C14.0999 16.4869 13.1845 17.1033 12.1333 17.5583C11.0821 18.0132 9.95774 18.2401 8.76011 18.239ZM8.76011 16.5091C10.6918 16.5091 12.3279 15.8388 13.6686 14.4982C15.0092 13.1575 15.6795 11.5214 15.6795 9.58969C15.6795 7.65803 15.0092 6.02187 13.6686 4.68124C12.3279 3.3406 10.6918 2.67028 8.76011 2.67028C6.82844 2.67028 5.19228 3.3406 3.85165 4.68124C2.51101 6.02187 1.84069 7.65803 1.84069 9.58969C1.84069 11.5214 2.51101 13.1575 3.85165 14.4982C5.19228 15.8388 6.82844 16.5091 8.76011 16.5091Z"
+                          fill="black"
+                        />
+                      </svg>
+                      <span *ngSwitchDefault>{{
+                        header?.transform(row[header.key], row)
+                      }}</span>
+                    </ng-container>
+                  </ng-container>
+                  <ng-container *ngIf="!header?.transform">
                     <button
-                      *ngSwitchCase="'Create'"
+                      *ngSwitchCase="'button'"
                       (click)="onButtonClick(row, header.key)"
                       [ngClass]="header.class"
                     >
-                      {{ header?.transform(row[header.key], row) }}
+                      {{ row[header.key] }}
                     </button>
-                    <button
-                      *ngSwitchCase="'Action'"
-                      (click)="onButtonClick(row, header.key)"
-                      [ngClass]="header.class"
-                    >
-                      {{ header?.transform(row[header.key], row) }}
-                    </button>
-                    <button
-                      *ngSwitchCase="'Approve'"
-                      (click)="onButtonClick(row, header.key)"
-                      [ngClass]="header.class"
-                    >
-                      {{ header?.transform(row[header.key], row) }}
-                    </button>
-                    <button
-                      *ngSwitchCase="'Edit'"
-                      (click)="onButtonClick(row, header.key)"
-                      [ngClass]="header.class"
-                    >
-                      {{ header?.transform(row[header.key], row) }}
-                    </button>
+                    <span *ngSwitchCase="'number'">{{ row[header.key] }}</span>
+                    <span *ngSwitchCase="'text'">{{ row[header.key] }}</span>
+                    <span *ngSwitchCase="'currency'">
+                      {{ row[header.key] | rupiahPipe }}
+                    </span>
+                    <span *ngSwitchCase="'date'">{{
+                      row[header.key] | date : "yyyy-MM-dd"
+                    }}</span>
+                    <span *ngSwitchCase="'integer'">{{
+                      row[header.key] | number
+                    }}</span>
                     <svg
-                      *ngSwitchCase="'Detail'"
+                      *ngSwitchCase="'icon'"
                       class="block mx-auto cursor-pointer"
                       (click)="onButtonClick(row, header.key)"
                       width="18"
@@ -74,50 +116,12 @@
                         fill="black"
                       />
                     </svg>
-                    <span *ngSwitchDefault>{{
-                      header?.transform(row[header.key], row)
-                    }}</span>
+                    <ng-container *ngSwitchCase="'empty'"></ng-container>
                   </ng-container>
                 </ng-container>
-                <ng-container *ngIf="!header?.transform">
-                  <button
-                    *ngSwitchCase="'button'"
-                    (click)="onButtonClick(row, header.key)"
-                    [ngClass]="header.class"
-                  >
-                    {{ row[header.key] }}
-                  </button>
-                  <span *ngSwitchCase="'number'">{{ row[header.key] }}</span>
-                  <span *ngSwitchCase="'text'">{{ row[header.key] }}</span>
-                  <span *ngSwitchCase="'currency'">
-                    {{ row[header.key] | rupiahPipe }}
-                  </span>
-                  <span *ngSwitchCase="'date'">{{
-                    row[header.key] | date : "yyyy-MM-dd"
-                  }}</span>
-                  <span *ngSwitchCase="'integer'">{{
-                    row[header.key] | number
-                  }}</span>
-                  <svg
-                    *ngSwitchCase="'icon'"
-                    class="block mx-auto cursor-pointer"
-                    (click)="onButtonClick(row, header.key)"
-                    width="18"
-                    height="19"
-                    viewBox="0 0 18 19"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7.89518 13.9143H9.62503V8.72477H7.89518V13.9143ZM8.76011 6.99491C9.00517 6.99491 9.21073 6.91188 9.3768 6.74582C9.54286 6.57975 9.62561 6.37447 9.62503 6.12999C9.62446 5.8855 9.54142 5.68023 9.37593 5.51416C9.21044 5.3481 9.00517 5.26506 8.76011 5.26506C8.51504 5.26506 8.30977 5.3481 8.14428 5.51416C7.97879 5.68023 7.89576 5.8855 7.89518 6.12999C7.8946 6.37447 7.97764 6.58004 8.14428 6.74668C8.31092 6.91332 8.5162 6.99607 8.76011 6.99491ZM8.76011 18.239C7.56362 18.239 6.43922 18.0118 5.38689 17.5574C4.33457 17.103 3.41918 16.4869 2.64075 15.709C1.86232 14.9312 1.2462 14.0158 0.792403 12.9629C0.338605 11.91 0.111418 10.7856 0.110841 9.58969C0.110264 8.39379 0.337452 7.26939 0.792403 6.21648C1.24735 5.16358 1.86347 4.2482 2.64075 3.47034C3.41803 2.69248 4.33341 2.07637 5.38689 1.62199C6.44037 1.16762 7.56478 0.94043 8.76011 0.94043C9.95543 0.94043 11.0798 1.16762 12.1333 1.62199C13.1868 2.07637 14.1022 2.69248 14.8795 3.47034C15.6567 4.2482 16.2731 5.16358 16.7287 6.21648C17.1842 7.26939 17.4111 8.39379 17.4094 9.58969C17.4076 10.7856 17.1805 11.91 16.7278 12.9629C16.2752 14.0158 15.659 14.9312 14.8795 15.709C14.0999 16.4869 13.1845 17.1033 12.1333 17.5583C11.0821 18.0132 9.95774 18.2401 8.76011 18.239ZM8.76011 16.5091C10.6918 16.5091 12.3279 15.8388 13.6686 14.4982C15.0092 13.1575 15.6795 11.5214 15.6795 9.58969C15.6795 7.65803 15.0092 6.02187 13.6686 4.68124C12.3279 3.3406 10.6918 2.67028 8.76011 2.67028C6.82844 2.67028 5.19228 3.3406 3.85165 4.68124C2.51101 6.02187 1.84069 7.65803 1.84069 9.58969C1.84069 11.5214 2.51101 13.1575 3.85165 14.4982C5.19228 15.8388 6.82844 16.5091 8.76011 16.5091Z"
-                      fill="black"
-                    />
-                  </svg>
-                  <ng-container *ngSwitchCase="'empty'"></ng-container>
-                </ng-container>
               </ng-container>
-            </ng-container>
-          </td>
+            </td>
+          </ng-container>
         </tr>
       </tbody>
     </table>
