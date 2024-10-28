@@ -34,6 +34,8 @@ import {
   DetailArInvoiceList,
   DetailArInvoiceResponse,
 } from './dto/detail-ar-invoice.dto';
+import { DynamicFormCashInComponent } from '../../components/dynamic-form-cash-in/dynamic-form-cash-in.component';
+import { FormCashInRequest, FormCashInResponse } from './dto/cash-in.dto';
 
 @Component({
   selector: 'app-ar-monitoring',
@@ -49,13 +51,13 @@ import {
     CommonModule,
     DynamicFormArrayV2Component,
     DynamicFormArrayPreviewV2Component,
+    DynamicFormCashInComponent,
   ],
   templateUrl: './ar-monitoring.component.html',
   styleUrl: './ar-monitoring.component.scss',
 })
 export class ArMonitoringComponent {
   arMonitoringForm!: FormGroup;
-  showModalForm = false;
   showModalDetail = false;
   showModalAdd = false;
   showModalInvoiceStatus = false;
@@ -262,6 +264,16 @@ export class ArMonitoringComponent {
 
   isCalculating: boolean = false;
 
+  amount!: string;
+  paidAmount!: string;
+  partnerName!: string;
+  projectName!: string;
+  deduction!: string;
+  netAmount!: string;
+  cashInStatus!: string;
+  paymentType!: string;
+  contractName!: string;
+
   constructor(
     private fb: FormBuilder,
     private httpService: HttpService,
@@ -386,16 +398,6 @@ export class ArMonitoringComponent {
         label: 'Amount',
         type: 'currency',
       },
-      // {
-      //   key: 'formPPN',
-      //   label: 'PPN',
-      //   type: 'currency',
-      // },
-      // {
-      //   key: 'formPPNWAPU',
-      //   label: 'PPN WAPU',
-      //   type: 'currency',
-      // },
       {
         key: 'formNetAmount',
         label: 'Net Amount',
@@ -980,7 +982,6 @@ export class ArMonitoringComponent {
       formPPN: data.ppn_amount,
       formNetAmount: this.formatWithMask(data.total_amount),
     });
-    console.log(this.arMonitoringForm.value);
   }
 
   async fetchPreviewDataDetail(type: string, contractName: string, data: any) {
@@ -1080,18 +1081,29 @@ export class ArMonitoringComponent {
           row?.row
         );
         break;
-      case 'payment':
+      case 'payment_status':
+        this.invoiceNo = row?.row?.invoice_no;
+        this.amount = this.formatWithMask(row?.row?.amount);
+        this.partnerName = row?.row?.partner_name;
+        this.projectName = row?.row?.project_name;
+        this.deduction = this.formatWithMask(row?.row?.deduction);
+        this.netAmount = this.formatWithMask(
+          row?.row?.amount - row?.row?.deduction
+        );
+        this.contractName = row?.row?.contract_name;
         this.showModalPayment = true;
-        break;
-      default:
-        this.showModalForm = true;
         break;
     }
   }
 
   handleFormSubmit(formValue: any, type: string): void {
-    if (type === 'add') {
-      this.createARInvoice(formValue);
+    switch (type) {
+      case 'add':
+        this.createARInvoice(formValue);
+        break;
+      case 'create':
+        this.createCashIn(formValue);
+        break;
     }
   }
 
@@ -1182,15 +1194,51 @@ export class ArMonitoringComponent {
       });
   }
 
+  createCashIn(formValue: any) {
+    this.loaderService.show();
+    this.httpService
+      .post<FormCashInResponse>(
+        environment.API_URL,
+        `api/cashIn/createCashIn?username=${this.authService.getUsername()}`,
+        new FormCashInRequest({
+          ...formValue,
+          contractName: this.contractName,
+        }),
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalPayment();
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.fetchArMonitoring();
+            this.notificationService.show(response?.info, 'success');
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.loaderService.hide();
+          this.notificationService.show('Error creating cash in.', 'error');
+          console.error('Error creating cash in', error);
+        },
+      });
+  }
+
   handleFormCancel(): void {
     this.arMonitoringForm.reset();
     this.showModalAdd = false;
     this.showModalInvoiceStatus = false;
     this.resetItemDetailList();
-  }
-
-  closeModalForm() {
-    this.showModalForm = false;
   }
 
   closeModalDetail() {

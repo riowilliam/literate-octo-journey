@@ -1,0 +1,147 @@
+<form [formGroup]="customForm" (ngSubmit)="onSubmit()">
+  <div class="w-full flex flex-col items-center justify-center">
+    <div
+      class="w-full flex flex-col items-center p-5 max-h-[400px] overflow-y-auto"
+    >
+      <div
+        class="w-full flex flex-col sm:flex-row gap-2 items-center justify-center px-5"
+      >
+        <button
+          type="button"
+          class="py-2 px-4 bg-custom-yellow text-xs rounded-lg hover:bg-custom-light-yellow focus:outline-none"
+          [ngClass]="{
+            'font-semibold': !isPartiallyPayment,
+            'bg-white': isPartiallyPayment
+          }"
+          (click)="onPaymentTypeChange('fully')"
+        >
+          Fully Payment
+        </button>
+        <button
+          type="button"
+          class="py-2 px-4 bg-custom-yellow text-xs rounded-lg hover:bg-custom-light-yellow focus:outline-none"
+          [ngClass]="{
+            'font-semibold': isPartiallyPayment,
+            'bg-white': !isPartiallyPayment
+          }"
+          (click)="onPaymentTypeChange('partially')"
+        >
+          Partially Payment
+        </button>
+      </div>
+
+      <div
+        class="w-full flex flex-col justify-between p-5 sm:min-w-[400px] sm:max-w-[400px]"
+      >
+        <label for="invoiceNo" class="text-sm mb-1">Invoice No</label>
+        <input
+          id="invoiceNo"
+          type="text"
+          formControlName="invoiceNo"
+          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
+          [attr.disabled]="true"
+          [readonly]="true"
+        />
+
+        <label for="amount" class="text-sm mb-1">Amount</label>
+        <input
+          id="amount"
+          type="text"
+          formControlName="amount"
+          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
+          [attr.disabled]="true"
+          [readonly]="true"
+        />
+
+        <ng-container *ngIf="showPaymentAmount">
+          <label for="paidAmount" class="text-sm mb-1">Paid Amount</label>
+          <input
+            id="paidAmount"
+            type="text"
+            formControlName="paidAmount"
+            class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+            [attr.disabled]="!isPartiallyPayment"
+          />
+        </ng-container>
+
+        <label for="partnerName" class="text-sm mb-1">Partner</label>
+        <input
+          id="partnerName"
+          type="text"
+          formControlName="partnerName"
+          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
+          [attr.disabled]="true"
+          [readonly]="true"
+        />
+
+        <label for="projectName" class="text-sm mb-1">Project</label>
+        <input
+          id="projectName"
+          type="text"
+          formControlName="projectName"
+          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
+          [attr.disabled]="true"
+          [readonly]="true"
+        />
+
+        <label for="deduction" class="text-sm mb-1">Deduction</label>
+        <input
+          id="deduction"
+          type="text"
+          formControlName="deduction"
+          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+          [attr.disabled]="true"
+        />
+
+        <label for="netAmount" class="text-sm mb-1">Net Amount</label>
+        <input
+          id="netAmount"
+          type="text"
+          formControlName="netAmount"
+          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
+          [readonly]="true"
+        />
+      </div>
+
+      <div
+        class="flex flex-col sm:flex-row gap-4 items-center justify-center px-5"
+      >
+        <label class="text-sm mb-1">
+          <input
+            type="radio"
+            formControlName="cashInStatus"
+            value="Pending Cash In"
+          />
+          Pending Cash In
+        </label>
+        <label class="text-sm mb-1">
+          <input
+            type="radio"
+            formControlName="cashInStatus"
+            value="Completed Cash In"
+          />
+          Completed Cash In
+        </label>
+      </div>
+    </div>
+
+    <div
+      class="w-full flex flex-col sm:flex-row gap-4 items-center justify-between p-5 sm:min-w-[400px] sm:max-w-[400px]"
+    >
+      <button
+        type="submit"
+        class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-yellow text-xs font-semibold rounded-lg hover:bg-custom-yellow focus:outline-none focus:ring-2 focus:ring-custom-light-yellow focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+        [disabled]="customForm.invalid"
+      >
+        Submit
+      </button>
+      <button
+        type="button"
+        class="w-full sm:min-w-[140px] sm:max-w-[140px] py-2 px-4 bg-custom-light-red text-xs font-semibold rounded-lg hover:bg-custom-red focus:outline-none focus:ring-2 focus:ring-custom-light-red focus:ring-opacity-50"
+        (click)="onCancel()"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</form>

@@ -1,11 +1,4 @@
 <app-dynamic-modal
-  [title]="'Form'"
-  [showModal]="showModalForm"
-  (closeModal)="closeModalForm()"
->
-</app-dynamic-modal>
-
-<app-dynamic-modal
   [title]="invoiceNo"
   [showModal]="showModalDetail"
   (closeModal)="closeModalDetail()"
@@ -85,6 +78,17 @@
   [showModal]="showModalPayment"
   (closeModal)="closeModalPayment()"
 >
+  <app-dynamic-form-cash-in
+    [invoiceNo]="invoiceNo"
+    [partnerName]="partnerName"
+    [projectName]="projectName"
+    [amount]="amount"
+    [netAmount]="netAmount"
+    [paidAmount]="paidAmount"
+    [deduction]="deduction"
+    (formSubmit)="handleFormSubmit($event, 'create')"
+    (formCancel)="closeModalPayment()"
+  ></app-dynamic-form-cash-in>
 </app-dynamic-modal>
 
 <app-content-card>

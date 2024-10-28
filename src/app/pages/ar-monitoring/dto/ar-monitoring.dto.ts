@@ -152,11 +152,7 @@ export class FormARInvoiceRequest {
     this.ppn = this.parseCurrency(data.formPPN);
     this.ppnWapu = this.parseCurrency(data.formPPNWAPU);
     this.pph = this.calculatePPH(data.formPPH);
-    this.totalAmount = this.calculateTotalAmount(
-      this.amount,
-      this.ppn,
-      this.pph
-    );
+    this.totalAmount = this.parseCurrency(data.formNetAmount);
     this.note = data.formNote;
 
     this.itemDetails = data.formItemDetailList.map((item: any) => ({
@@ -174,14 +170,6 @@ export class FormARInvoiceRequest {
       (total, pph) => total + this.parseCurrency(pph.formPPHAmount),
       0
     );
-  }
-
-  private calculateTotalAmount(
-    amount: number,
-    ppn: number,
-    pph: number
-  ): number {
-    return amount + ppn - pph;
   }
 }
 
