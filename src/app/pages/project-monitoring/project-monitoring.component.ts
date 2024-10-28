@@ -48,8 +48,7 @@ export class ProjectMonitoringComponent {
       tooltip: {
         trigger: 'axis',
         formatter: (params: any) => {
-          let tooltipContent =
-            '<strong>Project: ' + params[0].name + '</strong><br/>';
+          let tooltipContent = `<strong>Project: ${params[0].name}</strong><br/>`;
           params.forEach((param: any) => {
             tooltipContent += `${param.seriesName}: ${param.data}<br/>`;
           });
@@ -63,9 +62,11 @@ export class ProjectMonitoringComponent {
         type: 'category',
         data: [],
         axisLabel: {
-          rotate: 0,
-          interval: isMobile ? 20 : 10,
+          rotate: 45,
+          interval: 0,
           fontSize: isMobile ? 10 : 12,
+          formatter: (value: string) =>
+            value.length > 10 ? `${value.slice(0, 10)}...` : value,
         },
         axisTick: {
           alignWithLabel: true,
@@ -86,14 +87,24 @@ export class ProjectMonitoringComponent {
       },
       dataZoom: [{ type: 'slider', show: true, xAxisIndex: 0 }],
       series: [
-        { name: 'Cash In', type: 'bar', data: [] },
-        { name: 'Cash Out', type: 'bar', data: [] },
+        {
+          name: 'Cash In',
+          type: 'bar',
+          data: [],
+          barWidth: '40%',
+        },
+        {
+          name: 'Cash Out',
+          type: 'bar',
+          data: [],
+          barWidth: '40%',
+        },
       ],
       color: ['#6BA46D', '#9D3E3E'],
       grid: {
-        top: isMobile ? 50 : 50,
-        right: isMobile ? 20 : 50,
-        bottom: isMobile ? 70 : 70,
+        top: 60,
+        right: 20,
+        bottom: isMobile ? 100 : 120,
         left: isMobile ? 60 : 90,
       },
       legend: {
@@ -101,7 +112,7 @@ export class ProjectMonitoringComponent {
         orient: 'horizontal',
         left: 'left',
         top: 'top',
-        padding: 0,
+        padding: 10,
       },
     };
 
