@@ -39,10 +39,20 @@ export class AppComponent {
           url === '/change-email' ||
           url === '/change-username'
         );
+        this.removeListKeysFromSessionStorage();
       });
 
     this.loaderService.loading$.subscribe((loading) => {
       this.isLoading = loading;
+    });
+  }
+
+  removeListKeysFromSessionStorage() {
+    const keys = Object.keys(sessionStorage);
+    keys.forEach((key) => {
+      if (key.includes('_list')) {
+        sessionStorage.removeItem(key);
+      }
     });
   }
 }

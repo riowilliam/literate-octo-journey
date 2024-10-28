@@ -13,9 +13,9 @@ export class CashOutDetail {
   bankAccount!: string;
   bankAccountName!: string;
   bankName!: string;
-  amount!: any;
+  transferAmount!: any;
   transferFee!: any;
-  totalAmount!: any;
+  paymentAmount!: any;
 }
 
 export class FormCashOutDocumentRequest {
@@ -54,9 +54,9 @@ export class CashOutDetailList {
   bankAccount!: string;
   bankAccountName!: string;
   bankName!: string;
-  amount!: string;
+  transferAmount!: string;
   transferFee!: string;
-  totalAmount!: string;
+  paymentAmount!: string;
 
   static fromApiResponse(data: CashOutDetailList[]): CashOutDetail[] {
     return data.map((cashOutDetailData, index) => ({
@@ -68,9 +68,9 @@ export class CashOutDetailList {
       bankAccount: cashOutDetailData.bankAccount,
       bankAccountName: cashOutDetailData.bankAccountName,
       bankName: cashOutDetailData.bankName,
-      amount: cashOutDetailData.amount,
+      transferAmount: cashOutDetailData.transferAmount,
       transferFee: cashOutDetailData.transferFee,
-      totalAmount: cashOutDetailData.totalAmount,
+      paymentAmount: cashOutDetailData.paymentAmount,
     }));
   }
 }

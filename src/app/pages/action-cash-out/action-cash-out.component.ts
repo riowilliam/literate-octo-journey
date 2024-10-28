@@ -23,6 +23,7 @@ import { HttpHeaders, HttpParams } from '@angular/common/http';
 import { VendorListOfValueResponse } from './dto/vendor.dto';
 import { BankListResponse } from './dto/bank.dto';
 import { firstValueFrom } from 'rxjs';
+import { ProjectListOfValueResponse } from './dto/project.dto';
 
 @Component({
   selector: 'app-action-cash-out',
@@ -52,9 +53,9 @@ export class ActionCashOutComponent implements OnInit {
       label: 'Invoice',
     },
     {
-      type: 'text',
+      type: 'searchable-dropdown',
       name: 'projectName',
-      placeholder: 'Enter Text',
+      placeholder: 'Select an option',
       label: 'Unit',
     },
     {
@@ -80,7 +81,7 @@ export class ActionCashOutComponent implements OnInit {
     },
     {
       type: 'currency',
-      name: 'amount',
+      name: 'transferAmount',
       placeholder: 'Enter Text',
       label: 'Amount',
     },
@@ -92,7 +93,7 @@ export class ActionCashOutComponent implements OnInit {
     },
     {
       type: 'currency',
-      name: 'totalAmount',
+      name: 'paymentAmount',
       placeholder: 'Enter Text',
       label: 'Total',
     },
@@ -109,7 +110,11 @@ export class ActionCashOutComponent implements OnInit {
     label: string;
     shortLabel: string;
   }> = [];
-  totalAmount: number = 0;
+  dropdownOptionsProject: Array<{
+    value: string;
+    label: string;
+  }> = [];
+  paymentAmount: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -150,6 +155,17 @@ export class ActionCashOutComponent implements OnInit {
       this.fetchBank();
     }
 
+    const storedProject = sessionStorage.getItem('project_list');
+    if (storedProject) {
+      try {
+        this.dropdownOptionsProject = JSON.parse(storedProject);
+      } catch (error) {
+        this.fetchProject();
+      }
+    } else {
+      this.fetchProject();
+    }
+
     this.formGroup = this.fb.group({
       rows: this.fb.array([]),
     });
@@ -160,7 +176,7 @@ export class ActionCashOutComponent implements OnInit {
       this.addInitialRow();
     }
 
-    this.updateTotalAmount();
+    this.updatePaymentAmount();
 
     this.fields = this.fields?.map((config: any) => {
       if (config.name === 'vendorName') {
@@ -175,6 +191,13 @@ export class ActionCashOutComponent implements OnInit {
           options: this.dropdownOptionsBank,
         };
       }
+      if (config.name === 'projectName') {
+        return {
+          ...config,
+          options: this.dropdownOptionsProject,
+        };
+      }
+
       return config;
     });
   }
@@ -187,9 +210,9 @@ export class ActionCashOutComponent implements OnInit {
       bankAccount: [detail.bankAccount],
       bankAccountName: [detail.bankAccountName],
       bankName: [detail.bankName],
-      amount: [detail.amount],
+      transferAmount: [detail.transferAmount],
       transferFee: [detail.transferFee],
-      totalAmount: [detail.totalAmount],
+      paymentAmount: [detail.paymentAmount],
       projectName: [detail.projectName],
     });
   }
@@ -234,7 +257,7 @@ export class ActionCashOutComponent implements OnInit {
           dataCashOutDetail?.forEach((detail) => {
             const formGroup = this.createCashOutDetailFormGroup({
               ...detail,
-              amount: detail?.amount
+              transferAmount: detail?.transferAmount
                 ?.toString()
                 ?.replace(/\D/g, '')
                 ?.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
@@ -242,7 +265,7 @@ export class ActionCashOutComponent implements OnInit {
                 ?.toString()
                 ?.replace(/\D/g, '')
                 ?.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
-              totalAmount: detail?.totalAmount
+              paymentAmount: detail?.paymentAmount
                 ?.toString()
                 ?.replace(/\D/g, '')
                 ?.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
@@ -251,7 +274,7 @@ export class ActionCashOutComponent implements OnInit {
             dynamicFormComponent.formGroup = this.formGroup;
             dynamicFormComponent.fields = this.fields;
             dynamicFormComponent.addRow(formGroup);
-            this.updateTotalAmount();
+            this.updatePaymentAmount();
           });
         }
       } else {
@@ -263,17 +286,17 @@ export class ActionCashOutComponent implements OnInit {
     }
   }
 
-  private updateTotalAmount() {
+  private updatePaymentAmount() {
     this.formGroup.valueChanges.subscribe((formData) => {
       formData?.rows?.forEach((el: any) => {
-        el.amount = parseFloat(el?.amount?.toString().replace(/\./g, '')) || 0;
+        el.transferAmount = parseFloat(el?.transferAmount?.toString().replace(/\./g, '')) || 0;
       });
 
-      this.totalAmount = formData.rows.reduce(
+      this.paymentAmount = formData.rows.reduce(
         (accumulator: number, current: any) => {
           const currentTotal =
             parseFloat(
-              (current?.totalAmount || '0').toString().replace(/\./g, '')
+              (current?.paymentAmount || '0').toString().replace(/\./g, '')
             ) || 0;
           return accumulator + currentTotal;
         },
@@ -282,7 +305,7 @@ export class ActionCashOutComponent implements OnInit {
 
       const request = new FormCashOutDocumentRequest(
         this.name,
-        this.totalAmount,
+        this.paymentAmount,
         formData.rows
       );
       this.isRequestInvalid = this.isRequestEmpty(request);
@@ -376,15 +399,6 @@ export class ActionCashOutComponent implements OnInit {
               }
               return config;
             });
-            this.fields = this.fields?.map((config: any) => {
-              if (config.name === 'bankName') {
-                return {
-                  ...config,
-                  options: this.dropdownOptionsBank,
-                };
-              }
-              return config;
-            });
             sessionStorage.setItem(
               'bank_list',
               JSON.stringify(this.dropdownOptionsBank)
@@ -397,6 +411,56 @@ export class ActionCashOutComponent implements OnInit {
           this.loaderService.hide();
           this.notificationService.show(error, 'error');
           console.error('Failed to fetch bank list', error);
+        },
+      });
+  }
+
+  fetchProject() {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('projectName', '');
+    this.loaderService.show();
+    this.httpService
+      .get<ProjectListOfValueResponse>(
+        environment.API_URL,
+        'api/project/getProjectList',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.dropdownOptionsProject = response?.data.map((data) => ({
+              value: data.projectName,
+              label: data.projectName,
+            }));
+            this.fields = this.fields?.map((config: any) => {
+              if (config.name === 'projectName') {
+                return {
+                  ...config,
+                  options: this.dropdownOptionsProject,
+                };
+              }
+              return config;
+            });
+            sessionStorage.setItem(
+              'project_list',
+              JSON.stringify(this.dropdownOptionsProject)
+            );
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch project list', error);
         },
       });
   }
@@ -421,22 +485,22 @@ export class ActionCashOutComponent implements OnInit {
     const processedRequest: Partial<FormCashOutDocumentRequest> = {
       subTotal,
       cashOutDetailList: cashOutDetailList.map(({ no, ...details }) => {
-        let amount: number;
-        if (typeof details?.amount === 'string') {
-          amount = parseFloat(details?.amount?.replace(/\./g, '')) || 0;
+        let transferAmount: number;
+        if (typeof details?.transferAmount === 'string') {
+          transferAmount = parseFloat(details?.transferAmount?.replace(/\./g, '')) || 0;
         } else {
-          amount = parseFloat(details?.amount) || 0;
+          transferAmount = parseFloat(details?.transferAmount) || 0;
         }
         const transferFee =
           parseFloat(details?.transferFee?.replace(/\./g, '')) || 0;
-        const totalAmount =
-          parseFloat(details?.totalAmount?.replace(/\./g, '')) || 0;
+        const paymentAmount =
+          parseFloat(details?.paymentAmount?.replace(/\./g, '')) || 0;
 
         return {
           ...details,
-          amount,
+          transferAmount,
           transferFee,
-          totalAmount,
+          paymentAmount,
         };
       }),
     };
@@ -452,12 +516,12 @@ export class ActionCashOutComponent implements OnInit {
     if (!request.subTotal) return true;
 
     return request.cashOutDetailList.some((row) => {
-      const amount =
-        parseFloat(row?.amount?.toString()?.replace(/\./g, '')) || 0;
+      const transferAmount =
+        parseFloat(row?.transferAmount?.toString()?.replace(/\./g, '')) || 0;
       const transferFee =
         parseFloat(row?.transferFee?.toString()?.replace(/\./g, '')) || 0;
-      const totalAmount =
-        parseFloat(row?.totalAmount?.toString()?.replace(/\./g, '')) || 0;
+      const paymentAmount =
+        parseFloat(row?.paymentAmount?.toString()?.replace(/\./g, '')) || 0;
 
       return (
         !row.vendorName ||
@@ -467,21 +531,21 @@ export class ActionCashOutComponent implements OnInit {
         !row.bankName ||
         !row.bankAccountName ||
         !row.bankName ||
-        !row.amount ||
-        !row.totalAmount ||
-        amount <= 0 ||
-        totalAmount <= 0 ||
-        transferFee > amount
+        !row.transferAmount ||
+        !row.paymentAmount ||
+        transferAmount <= 0 ||
+        paymentAmount <= 0 ||
+        transferFee > transferAmount
       );
     });
   }
 
   onFormSubmit(formData: any) {
     const documentName = this.name || '';
-    const totalAmount = this.totalAmount || 0;
+    const paymentAmount = this.paymentAmount || 0;
     const request = new FormCashOutDocumentRequest(
       documentName,
-      totalAmount,
+      paymentAmount,
       formData.rows
     );
     const payload = this.processCashOutRequest(request, this.name);

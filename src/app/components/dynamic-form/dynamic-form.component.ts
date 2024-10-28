@@ -73,9 +73,9 @@ export class DynamicFormComponent {
           acc[field.name] = [null];
           return acc;
         }, {} as { [name: string]: any }),
-        amount: [0],
+        transferAmount: [0],
         transferFee: [0],
-        totalAmount: [0],
+        paymentAmount: [0],
       });
     }
 
@@ -84,7 +84,7 @@ export class DynamicFormComponent {
   }
 
   calculateTotalForRow(row: FormGroup<any>): void {
-    const amountControl = row?.get('amount');
+    const amountControl = row?.get('transferAmount');
     const transferFeeControl = row?.get('transferFee');
 
     const calculateTotal = () => {
@@ -94,11 +94,13 @@ export class DynamicFormComponent {
       const amount = parseFloat(amountString.replace(/\./g, '')) || 0;
       const transferFee = parseFloat(transferFeeString.replace(/\./g, '')) || 0;
 
-      const totalAmount = (amount - transferFee).toString()?.replace(/\D/g, '');
+      const paymentAmount = (amount - transferFee)
+        .toString()
+        ?.replace(/\D/g, '');
 
       row
-        ?.get('totalAmount')
-        ?.setValue(totalAmount?.replace(/\B(?=(\d{3})+(?!\d))/g, '.'), {
+        ?.get('paymentAmount')
+        ?.setValue(paymentAmount?.replace(/\B(?=(\d{3})+(?!\d))/g, '.'), {
           emitEvent: false,
         });
     };
