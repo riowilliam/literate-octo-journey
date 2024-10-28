@@ -56,8 +56,14 @@
                   type="text"
                   [formControlName]="field.name"
                   [placeholder]="field.placeholder"
-                  class="form-input text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow"
-                  [ngClass]="field.bgClass"
+                  class="form-input text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black"
+                  [ngClass]="
+                    field.name === 'bankAccountName'
+                      ? 'focus:outline-none ' + field.bgClass
+                      : 'focus:outline-none focus:ring-2 focus:ring-custom-light-yellow ' +
+                        field.bgClass
+                  "
+                  [readonly]="field.name === 'bankAccountName'"
                 />
               </div>
               <div class="mx-2.5">
@@ -68,8 +74,14 @@
                   type="number"
                   [formControlName]="field.name"
                   [placeholder]="field.placeholder"
-                  class="form-input text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow"
-                  [ngClass]="field.bgClass"
+                  class="form-input text-center mb-2 border border-black px-3 py-2 text-sm placeholder:text-black"
+                  [ngClass]="
+                    field.name === 'bankAccount'
+                      ? 'focus:outline-none ' + field.bgClass
+                      : 'focus:outline-none focus:ring-2 focus:ring-custom-light-yellow ' +
+                        field.bgClass
+                  "
+                  [readonly]="field.name === 'bankAccount'"
                 />
               </div>
               <div class="mx-2.5">
@@ -148,9 +160,15 @@
                     placeholder="{{ field.placeholder }}"
                     (input)="filterOptions($event, field.name + '-' + i)"
                     (focus)="setInitialOptions(field.name + '-' + i)"
-                    class="w-full pr-8 appearance-none form-input text-center border border-black px-3 py-2 text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow"
+                    class="w-full pr-8 appearance-none form-input text-center border border-black px-3 py-2 text-sm placeholder:text-black"
                     autocomplete="off"
-                    [ngClass]="field.bgClass"
+                    [ngClass]="
+                      field.name === 'bankName'
+                        ? 'focus:outline-none ' + field.bgClass
+                        : 'focus:outline-none focus:ring-2 focus:ring-custom-light-yellow ' +
+                          field.bgClass
+                    "
+                    [readonly]="field.name === 'bankName'"
                   />
 
                   <div

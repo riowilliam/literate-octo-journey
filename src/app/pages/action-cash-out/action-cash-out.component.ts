@@ -63,21 +63,21 @@ export class ActionCashOutComponent implements OnInit {
       name: 'bankAccount',
       placeholder: 'Enter Text',
       label: 'Bank Account',
-      bgClass: 'bg-gray-100',
+      bgClass: 'cursor-not-allowed',
     },
     {
       type: 'text',
       name: 'bankAccountName',
       placeholder: 'Enter Text',
       label: 'Bank Account Name',
-      bgClass: 'bg-gray-100',
+      bgClass: 'cursor-not-allowed',
     },
     {
       type: 'searchable-dropdown',
       name: 'bankName',
       placeholder: 'Select an option',
       label: 'Bank Name',
-      bgClass: 'bg-gray-100',
+      bgClass: 'cursor-not-allowed',
     },
     {
       type: 'currency',
@@ -104,6 +104,7 @@ export class ActionCashOutComponent implements OnInit {
     value: string;
     label: string;
     shortLabel: string;
+    listDetail: any;
   }> = [];
   dropdownOptionsBank: Array<{
     value: string;
@@ -289,7 +290,8 @@ export class ActionCashOutComponent implements OnInit {
   private updatePaymentAmount() {
     this.formGroup.valueChanges.subscribe((formData) => {
       formData?.rows?.forEach((el: any) => {
-        el.transferAmount = parseFloat(el?.transferAmount?.toString().replace(/\./g, '')) || 0;
+        el.transferAmount =
+          parseFloat(el?.transferAmount?.toString().replace(/\./g, '')) || 0;
       });
 
       this.paymentAmount = formData.rows.reduce(
@@ -337,6 +339,11 @@ export class ActionCashOutComponent implements OnInit {
               value: bank.vendorName,
               label: bank.vendorName,
               shortLabel: bank.vendorName,
+              listDetail: {
+                bankAccount: bank.bankAccount,
+                bankAccountName: bank.bankAccountName,
+                bankName: bank.bankName,
+              },
             }));
             this.fields = this.fields?.map((config: any) => {
               if (config.name === 'vendorName') {
@@ -487,7 +494,8 @@ export class ActionCashOutComponent implements OnInit {
       cashOutDetailList: cashOutDetailList.map(({ no, ...details }) => {
         let transferAmount: number;
         if (typeof details?.transferAmount === 'string') {
-          transferAmount = parseFloat(details?.transferAmount?.replace(/\./g, '')) || 0;
+          transferAmount =
+            parseFloat(details?.transferAmount?.replace(/\./g, '')) || 0;
         } else {
           transferAmount = parseFloat(details?.transferAmount) || 0;
         }

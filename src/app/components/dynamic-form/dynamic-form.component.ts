@@ -143,6 +143,24 @@ export class DynamicFormComponent {
     this.rows?.controls[i]?.get(name)?.setValue(option?.label);
     this.showDropdown[name] = false;
     this.filteredOptions[name] = [];
+
+    if (name === 'vendorName') {
+      this.rows?.controls[i]
+        ?.get('bankAccount')
+        ?.setValue(option?.listDetail?.bankAccount);
+      this.rows?.controls[i]
+        ?.get('bankAccountName')
+        ?.setValue(option?.listDetail?.bankAccountName);
+
+      const bankListString = sessionStorage.getItem('bank_list');
+      const bankList = bankListString ? JSON.parse(bankListString) : [];
+      if (bankList && bankList.length > 0) {
+        const selectedBank = bankList.find(
+          (data: any) => data?.shortLabel === option?.listDetail?.bankName
+        );
+        this.rows?.controls[i]?.get('bankName')?.setValue(selectedBank?.label);
+      }
+    }
   }
 
   isAcronymMatch(searchTerm: string, optionLabel: string): boolean {
@@ -166,7 +184,9 @@ export class DynamicFormComponent {
 
     if (field && field.options) {
       this.filteredOptions[name] = [...field.options];
-      this.showDropdown[name] = true;
+      if (field.name !== 'bankName') {
+        this.showDropdown[name] = true;
+      }
     }
   }
 

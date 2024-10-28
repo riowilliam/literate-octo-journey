@@ -126,7 +126,7 @@ export class RegularCashOutComponent {
     },
   ];
   dropdownOptions: Array<{ value: string; label: string }> = [];
-  subTotal!: number;
+  subTotal: number = 0;
 
   constructor(
     private fb: FormBuilder,

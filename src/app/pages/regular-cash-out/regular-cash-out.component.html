@@ -59,7 +59,7 @@
 
 <app-content-table
   [title]="'Cash Out Mutation'"
-  [value]="'Total : ' + (subTotal | rupiahPipe)"
+  [value]="'Total : ' + (subTotal ? (subTotal | rupiahPipe) : 0)"
   [hasValue]="true"
 >
   <app-dynamic-table
