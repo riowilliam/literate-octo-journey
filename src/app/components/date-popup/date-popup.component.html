@@ -1,5 +1,5 @@
 <div
-  class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50"
+  class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-100"
   *ngIf="isOpen"
   (click)="close()"
 >
@@ -8,7 +8,16 @@
     (click)="$event.stopPropagation()"
   >
     <button class="absolute top-2 right-2" (click)="close()">X</button>
-    <!-- Add your date picker or any other content here -->
-    <input type="date" class="w-full border border-gray-300 rounded-md p-2" />
+    <input
+      type="date"
+      class="w-full border border-gray-300 rounded-md p-2"
+      (change)="onDateChange($event)"
+    />
+    <button
+      class="mt-4 w-full bg-blue-500 text-white rounded-md p-2"
+      (click)="confirmDate()"
+    >
+      Confirm
+    </button>
   </div>
 </div>

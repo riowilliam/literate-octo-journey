@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-date-popup',
@@ -10,6 +10,9 @@ import { Component } from '@angular/core';
 })
 export class DatePopupComponent {
   isOpen = false;
+  selectedDate!: string;
+
+  @Output() dateSelected = new EventEmitter<string>();
 
   open() {
     this.isOpen = true;
@@ -17,5 +20,14 @@ export class DatePopupComponent {
 
   close() {
     this.isOpen = false;
+  }
+
+  onDateChange(event: any) {
+    this.selectedDate = event.target.value;
+  }
+
+  confirmDate() {
+    this.dateSelected.emit(this.selectedDate);
+    this.close();
   }
 }

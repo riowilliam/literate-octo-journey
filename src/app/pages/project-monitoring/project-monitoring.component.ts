@@ -10,7 +10,6 @@ import { ProjectMonitoringResponse } from './dto/project.monitoring';
 import { environment } from '../../../environments/environment';
 import { ContentCardComponent } from '../../components/content-card/content-card.component';
 import { ContentChartComponent } from '../../components/content-chart/content-chart.component';
-import { DynamicBarChartComponent } from '../../components/dynamic-bar-chart/dynamic-bar-chart.component';
 import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
 
 import * as echarts from 'echarts';
@@ -21,7 +20,6 @@ import * as echarts from 'echarts';
   imports: [
     ContentCardComponent,
     ContentChartComponent,
-    DynamicBarChartComponent,
     DynamicCardComponent,
     CommonModule,
   ],
