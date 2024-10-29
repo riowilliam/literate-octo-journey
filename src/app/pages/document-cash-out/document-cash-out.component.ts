@@ -416,9 +416,9 @@ export class DocumentCashOutComponent {
                 ?.value?.toString()
                 ?.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
             );
-            this.rows?.controls[index].get('transferFee')?.setValue(
+            this.rows?.controls[index].get('transfer_fee')?.setValue(
               this.rows?.controls[index]
-                .get('transferFee')
+                .get('transfer_fee')
                 ?.value?.toString()
                 ?.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
             );

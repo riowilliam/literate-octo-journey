@@ -219,7 +219,7 @@ export class DashboardComponent {
       tooltip: {
         trigger: 'axis',
         formatter: (params: any) => {
-          let tooltipContent = `<strong>Project: ${params[0].name}</strong><br/>`;
+          let tooltipContent = `<strong>Date: ${params[0].name}</strong><br/>`;
           params.forEach((param: any) => {
             tooltipContent += `${param.seriesName}: ${param.data}<br/>`;
           });
@@ -308,9 +308,14 @@ export class DashboardComponent {
           label: {
             show: true,
             position: 'inside',
-            formatter: '{d}%',
             color: '#fff',
             fontWeight: 'bold',
+            formatter: function (params: any) {
+              if (params.data.value === 0) {
+                return '';
+              }
+              return `${params.percent}%`;
+            },
           },
         },
       ],
@@ -590,6 +595,19 @@ export class DashboardComponent {
 
   async onSelectionWeeklyChange() {
     if (this.selectedWeek && this.selectedMonth) {
+      const monthIndex = this.months.indexOf(this.selectedMonth);
+      const startOfMonth = new Date(new Date().getFullYear(), monthIndex, 1);
+      const startDate = new Date(
+        startOfMonth.getTime() +
+          (this.selectedWeek - 1) * 7 * 24 * 60 * 60 * 1000
+      );
+      const dayOfWeek = startDate.getDay();
+      const offsetToMonday = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
+      startDate.setDate(startDate.getDate() + offsetToMonday);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      this.startDate = startDate.toLocaleDateString('en-CA');
+      this.endDate = endDate.toLocaleDateString('en-CA');
       await this.fetchStatistics();
       this.renderChart();
     }
@@ -597,6 +615,19 @@ export class DashboardComponent {
 
   async onSelectionMonthlyChange() {
     if (this.selectedMonth && this.selectedYear) {
+      const startOfMonth = new Date(
+        `${this.selectedYear}-${this.selectedMonth}-01`
+      );
+      const monthIndex = this.months.indexOf(this.selectedMonth);
+      const endOfMonth = new Date(
+        new Date(
+          Number(this.selectedYear),
+          Number(monthIndex + 1),
+          1
+        ).getTime() - 1
+      );
+      this.startDate = startOfMonth.toLocaleDateString('en-CA');
+      this.endDate = endOfMonth.toLocaleDateString('en-CA');
       await this.fetchStatistics();
       this.renderChart();
     }
@@ -604,14 +635,20 @@ export class DashboardComponent {
 
   async onSelectionYearlyChange() {
     if (this.selectedYear) {
+      const startOfYear = new Date(`${this.selectedYear}-01-01`);
+      const endOfYear = new Date(`${this.selectedYear}-12-31`);
+      this.startDate = startOfYear.toLocaleDateString('en-CA');
+      this.endDate = endOfYear.toLocaleDateString('en-CA');
       await this.fetchStatistics();
       this.renderChart();
     }
   }
 
   async onDateSelected(selectedDate: string) {
-    this.selectedDate = selectedDate;
     if (selectedDate) {
+      this.selectedDate = selectedDate;
+      this.startDate = this.selectedDate;
+      this.endDate = this.selectedDate;
       await this.fetchStatistics();
       this.renderChart();
     }
@@ -937,7 +974,6 @@ export class DashboardComponent {
   }
 
   async fetchContractList() {
-    console.log('test');
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', '')
@@ -1008,7 +1044,6 @@ export class DashboardComponent {
         response?.info?.toLowerCase() === 'success'
       ) {
         if (response?.data?.partnerList.length > 0) {
-          console.log('test');
           this.dropdownOptionsPartner =
             this.mapDropdownOptionsPartner(response);
 
@@ -1151,7 +1186,6 @@ export class DashboardComponent {
   }
 
   private mapDropdownOptionsPartner(response: PartnerListResponse) {
-    console.log(response);
     return response?.data?.partnerList?.map((data) => ({
       value: data?.partnerName,
       label: data?.partnerName,
