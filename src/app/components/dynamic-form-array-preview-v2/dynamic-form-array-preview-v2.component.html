@@ -200,7 +200,7 @@
                   </div>
                 </ng-container>
 
-                <ng-container *ngIf="['currency'].includes(field.type)">
+                <ng-container *ngIf="['currency', 'text'].includes(field.type)">
                   <input
                     [id]="field.key + '-' + i"
                     [name]="field.key + '-' + i"

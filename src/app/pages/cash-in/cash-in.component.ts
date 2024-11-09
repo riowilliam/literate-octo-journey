@@ -131,7 +131,7 @@ export class CashInComponent {
       sections: [
         [
           { label: 'Completed', value: 0, type: 'currency' },
-          { label: 'Action', value: 0, type: 'currency' },
+          { label: 'Incomplete', value: 0, type: 'currency' },
         ],
       ],
     },
@@ -532,14 +532,14 @@ export class CashInComponent {
 
   private mapDropdownOptionsInvoice(response: InvoiceListResponse) {
     return {
-      invoiceNo: response.data.map((data) => ({
-        value: data.invoiceNo,
-        label: data.invoiceNo,
+      invoiceNo: response?.data?.map((data) => ({
+        value: data?.invoiceNo,
+        label: data?.invoiceNo,
         listDetail: {
-          amount: data.amount,
-          partnerName: data.partnerName,
-          projectName: data.projectName,
-          contractName: data.contractName,
+          amount: data?.amount,
+          partnerName: data?.partnerName,
+          projectName: data?.projectName,
+          contractName: data?.contractName,
         },
       })),
     };

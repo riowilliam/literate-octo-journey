@@ -4,6 +4,7 @@ import {
   HttpErrorResponse,
   HttpHeaders,
   HttpParams,
+  HttpResponse,
 } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
@@ -58,6 +59,23 @@ export class HttpService {
   ): Observable<T> {
     return this.http
       .delete<T>(`${baseUrl}/${endpoint}`, { headers })
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  postDownloadFile(
+    baseUrl: string,
+    endpoint: string,
+    body: any,
+    params?: HttpParams,
+    headers?: HttpHeaders
+  ): Observable<HttpResponse<Blob>> {
+    return this.http
+      .post(`${baseUrl}/${endpoint}`, body, {
+        headers,
+        params,
+        observe: 'response',
+        responseType: 'blob',
+      })
       .pipe(catchError(this.handleError.bind(this)));
   }
 

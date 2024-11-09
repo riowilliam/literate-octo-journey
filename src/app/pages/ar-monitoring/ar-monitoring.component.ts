@@ -120,6 +120,7 @@ export class ArMonitoringComponent {
     transform?: (value: any, row?: any) => any;
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
+    { key: 'item_details', renderType: () => 'number', label: 'ID' },
     { key: 'invoice_no', renderType: () => 'text', label: 'Invoice No' },
     { key: 'partner_name', renderType: () => 'text', label: 'Partner Name' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
@@ -203,7 +204,7 @@ export class ArMonitoringComponent {
     {
       key: 'detail',
       renderType: (value: any, row: any) => {
-        if (row?.invoice_status === 0) {
+        if (row?.invoice_status === 2 || row?.invoice_status === 0) {
           return 'empty';
         } else {
           return 'icon';
@@ -338,6 +339,7 @@ export class ArMonitoringComponent {
         type: 'select',
         options: this.dropdownOptionsProject,
         placeholder: 'Select an option',
+        hidden: true,
       },
       {
         key: 'formBAPPNo',
@@ -436,13 +438,11 @@ export class ArMonitoringComponent {
       {
         key: 'formItemName',
         label: 'Item Name',
-        type: 'select',
-        options: this.dropdownOptionsItem,
-        placeholder: 'Select an option',
+        type: 'text',
       },
       {
         key: 'formPaidQuantity',
-        label: 'Paid Value',
+        label: 'Value',
         type: 'currency',
         width: 'w-[40px]',
       },
@@ -458,13 +458,11 @@ export class ArMonitoringComponent {
       {
         key: 'formItemName',
         label: 'Item Name',
-        type: 'select',
-        options: this.dropdownOptionsItem,
-        placeholder: 'Select an option',
+        type: 'text',
       },
       {
         key: 'formPaidQuantity',
-        label: 'Paid Value',
+        label: 'Value',
         type: 'currency',
         width: 'w-[40px]',
       },
@@ -483,6 +481,17 @@ export class ArMonitoringComponent {
           (option) => option?.value === contractValue
         );
         if (selectedContract && selectedContract?.listDetail) {
+          const selectedContractData: any = {
+            data: selectedContract?.listDetail,
+          };
+          this.dropdownOptionsItem =
+            this.mapDropdownOptionsItem(selectedContractData);
+          this.formArrayConfig = this.formArrayConfig.map((config: any) => {
+            if (config.key === 'formItemName') {
+              return { ...config, options: this.dropdownOptionsItem };
+            }
+            return config;
+          });
           this.updateItemDetails(selectedContract?.listDetail);
         }
       });
@@ -500,6 +509,7 @@ export class ArMonitoringComponent {
           this.arMonitoringForm
             .get('formPPN')
             ?.setValue(this.formatWithMask(totalPpnValue));
+          this.fetchProjectList(partnerValue);
         }
       });
 
@@ -708,7 +718,7 @@ export class ArMonitoringComponent {
       });
   }
 
-  async fetchContractList(type: string, contractName?: string) {
+  async fetchContractList(type: string, contractName?: string, data?: any) {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', '')
@@ -734,6 +744,13 @@ export class ArMonitoringComponent {
         if (response?.data?.length > 0) {
           if (type !== 'add') {
             response.data[0]?.itemList.forEach((item) => {
+              data?.item_details?.map((el: any) => {
+                if (item?.itemName === el?.itemName) {
+                  return (item.totalQuantity = el?.paymentQuantity
+                    ? el?.paymentQuantity
+                    : item.totalQuantity);
+                }
+              });
               this.formItemDetailList.push(
                 this.createFormGroupItemDetail(item, type)
               );
@@ -850,10 +867,11 @@ export class ArMonitoringComponent {
     }
   }
 
-  async fetchProjectList() {
+  async fetchProjectList(partnerName: string) {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
-      .set('projectName', '');
+      .set('projectName', '')
+      .set('partnerName', partnerName);
 
     try {
       const response = await firstValueFrom(
@@ -866,6 +884,13 @@ export class ArMonitoringComponent {
           })
         )
       );
+
+      this.formConfig = this.formConfig.map((config: any) => {
+        if (config.key === 'formProject') {
+          return { ...config, hidden: false };
+        }
+        return config;
+      });
 
       if (
         response?.status === 200 &&
@@ -924,15 +949,6 @@ export class ArMonitoringComponent {
         response?.info?.toLowerCase() === 'success'
       ) {
         if (response?.data?.length > 0) {
-          this.dropdownOptionsItem = this.mapDropdownOptionsItem(response);
-
-          this.formArrayConfig = this.formArrayConfig.map((config: any) => {
-            if (config.key === 'formItemName') {
-              return { ...config, options: this.dropdownOptionsItem };
-            }
-            return config;
-          });
-
           this.formPreviewArrayConfig = this.formPreviewArrayConfig.map(
             (config: any) => {
               if (config.key === 'formItemName') {
@@ -959,10 +975,8 @@ export class ArMonitoringComponent {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchItemList()]);
       await Promise.all([this.fetchContractList(type)]);
       await Promise.all([this.fetchPartnerList()]);
-      await Promise.all([this.fetchProjectList()]);
       this.showModalAdd = true;
     } catch (error) {
       console.error('Error fetching data', error);
@@ -989,9 +1003,8 @@ export class ArMonitoringComponent {
 
     try {
       await Promise.all([this.fetchItemList()]);
-      await Promise.all([this.fetchContractList(type, contractName)]);
+      await Promise.all([this.fetchContractList(type, contractName, data)]);
       await Promise.all([this.fetchPartnerList()]);
-      await Promise.all([this.fetchProjectList()]);
       await Promise.all([this.prefillPreviewForm(data)]);
       this.showModalInvoiceStatus = true;
     } catch (error) {
@@ -1083,7 +1096,7 @@ export class ArMonitoringComponent {
         break;
       case 'payment_status':
         this.invoiceNo = row?.row?.invoice_no;
-        this.amount = this.formatWithMask(row?.row?.amount);
+        this.amount = this.formatWithMask(row?.row?.total_amount);
         this.partnerName = row?.row?.partner_name;
         this.projectName = row?.row?.project_name;
         this.deduction = this.formatWithMask(row?.row?.deduction);
@@ -1310,14 +1323,14 @@ export class ArMonitoringComponent {
   }
 
   private mapDropdownOptionsProject(response: ProjectListResponse) {
-    return response.data.map((data) => ({
+    return response?.data?.map((data) => ({
       value: data?.projectName,
       label: data?.projectName,
     }));
   }
 
   private mapDropdownOptionsItem(response: ItemListResponse) {
-    return response.data.map((data) => ({
+    return response?.data?.map((data) => ({
       value: data?.itemName,
       label: data?.itemName,
     }));

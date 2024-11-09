@@ -468,6 +468,35 @@
                     </div>
                   </ng-container>
 
+                  <ng-container *ngIf="field.type === 'text'">
+                    <input
+                      [id]="field.key + '-' + i"
+                      [name]="field.key + '-' + i"
+                      [type]="field.type"
+                      [formControlName]="field.key"
+                      [placeholder]="field.placeholder || ''"
+                      readonly
+                      [class]="
+                        field.width
+                          ? field.width +
+                            ' mb-1 form-input text-left border border-[#A4A4A4] px-1 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC] bg-gray-100 cursor-not-allowed focus:ring-0'
+                          : 'mb-1 form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC] bg-gray-100 cursor-not-allowed focus:ring-0'
+                      "
+                      [ngClass]="{
+                        'border-red-500 focus:ring-red-500':
+                          dynamicForm.get(field.key)?.invalid &&
+                          (dynamicForm.get(field.key)?.touched ||
+                            dynamicForm.get(field.key)?.dirty),
+                        'border-[#A4A4A4] focus:ring-custom-light-yellow':
+                          dynamicForm.get(field.key)?.valid ||
+                          !(
+                            dynamicForm.get(field.key)?.touched ||
+                            dynamicForm.get(field.key)?.dirty
+                          ),
+                      }"
+                    />
+                  </ng-container>
+
                   <ng-container *ngIf="['currency'].includes(field.type)">
                     <input
                       [id]="field.key + '-' + i"

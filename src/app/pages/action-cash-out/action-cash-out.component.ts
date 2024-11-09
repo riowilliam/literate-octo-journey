@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ContentFormComponent } from '../../components/content-form/content-form.component';
@@ -16,7 +16,6 @@ import {
   CashOutDetailList,
   DocumentDetailResponse,
   FormCashOutDocumentRequest,
-  FormCashOutDocumentResponse,
 } from './dto/action-cash-out.dto';
 import { environment } from '../../../environments/environment';
 import { HttpHeaders, HttpParams } from '@angular/common/http';
@@ -36,6 +35,7 @@ import { ProjectListOfValueResponse } from './dto/project.dto';
   ],
   templateUrl: './action-cash-out.component.html',
   styleUrl: './action-cash-out.component.scss',
+  providers: [DatePipe],
 })
 export class ActionCashOutComponent implements OnInit {
   formGroup!: FormGroup;
@@ -124,7 +124,8 @@ export class ActionCashOutComponent implements OnInit {
     private authService: AuthService,
     private loaderService: LoaderService,
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private datePipe: DatePipe
   ) {
     this.name = this.route.snapshot.paramMap.get('name')!;
   }
@@ -567,26 +568,38 @@ export class ActionCashOutComponent implements OnInit {
   createCashOutDocument(request: Partial<FormCashOutDocumentRequest>) {
     this.loaderService.show();
     this.httpService
-      .post<FormCashOutDocumentResponse>(
+      .postDownloadFile(
         environment.API_URL,
         `api/cashOut/createCashOutDoc?username=${this.authService.getUsername()}`,
         request,
+        undefined,
         new HttpHeaders({
           Authorization: `Bearer ${this.authService.getToken()}`,
         })
       )
       .subscribe({
         next: (response) => {
-          if (
-            response?.status === 200 &&
-            response?.info?.toLowerCase() === 'success'
-          ) {
-            this.loaderService.hide();
-            this.notificationService.show(response?.info, 'success');
+          this.loaderService.hide();
+          if (response.body) {
+            this.notificationService.show(
+              'Download document succesfully',
+              'success'
+            );
+            const url = window.URL.createObjectURL(response.body);
+            const link = document.createElement('a');
+            const date = new Date();
+            link.href = url;
+            link.download = `HK-CO-${this.datePipe.transform(
+              date,
+              'yyMMdd-hhmmss'
+            )!}`;
+            link.click();
+            window.URL.revokeObjectURL(url);
+
             this.router.navigate(['/document-cash-out']);
           } else {
-            this.loaderService.hide();
-            this.notificationService.show(response?.info, 'info');
+            this.notificationService.show('Error creating document.', 'error');
+            console.error('Error creating document.');
           }
         },
         error: (error) => {
@@ -594,38 +607,56 @@ export class ActionCashOutComponent implements OnInit {
           this.notificationService.show('Error creating document.', 'error');
           console.error('Error creating document', error);
         },
+        complete: () => {
+          this.loaderService.hide();
+        },
       });
   }
 
   editCashOutDocument(request: Partial<FormCashOutDocumentRequest>) {
     this.loaderService.show();
     this.httpService
-      .post<FormCashOutDocumentResponse>(
+      .postDownloadFile(
         environment.API_URL,
         `api/cashOut/editCashOutDoc?username=${this.authService.getUsername()}`,
         request,
+        undefined,
         new HttpHeaders({
           Authorization: `Bearer ${this.authService.getToken()}`,
         })
       )
       .subscribe({
         next: (response) => {
-          if (
-            response?.status === 200 &&
-            response?.info?.toLowerCase() === 'success'
-          ) {
-            this.loaderService.hide();
-            this.notificationService.show(response?.info, 'success');
+          this.loaderService.hide();
+          if (response.body) {
+            this.notificationService.show(
+              'Download document succesfully',
+              'success'
+            );
+            const url = window.URL.createObjectURL(response.body);
+            const link = document.createElement('a');
+            const date = new Date();
+            link.href = url;
+            link.download = `HK-CO-${this.datePipe.transform(
+              date,
+              'yyMMdd-hhmmss'
+            )!}`;
+            link.click();
+            window.URL.revokeObjectURL(url);
+
             this.router.navigate(['/document-cash-out']);
           } else {
-            this.loaderService.hide();
-            this.notificationService.show(response?.info, 'info');
+            this.notificationService.show('Error creating document.', 'error');
+            console.error('Error creating document.');
           }
         },
         error: (error) => {
           this.loaderService.hide();
-          this.notificationService.show('Error edit document.', 'error');
-          console.error('Error edit document', error);
+          this.notificationService.show('Error creating document.', 'error');
+          console.error('Error creating document', error);
+        },
+        complete: () => {
+          this.loaderService.hide();
         },
       });
   }

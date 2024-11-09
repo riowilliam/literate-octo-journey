@@ -16,6 +16,7 @@ export class ArInvoiceDetailList {
   modifiedDate!: string;
   modifiedBy!: string;
   deduction!: number;
+  itemDetails!: any;
 
   static fromApiResponse(data: ArInvoiceList[]): ArInvoiceDetail[] {
     return data.flatMap((mutationList) =>
@@ -38,6 +39,7 @@ export class ArInvoiceDetailList {
         modified_date: arInvoiceDetailData.modifiedDate || 'N/A',
         modified_by: arInvoiceDetailData.modifiedBy || 'Unknown',
         deduction: arInvoiceDetailData.deduction || 0,
+        item_details: arInvoiceDetailData.itemDetails,
       }))
     );
   }
@@ -84,6 +86,7 @@ export class ArInvoiceDetail {
   modified_date!: string;
   modified_by!: string;
   deduction!: number;
+  item_details!: any;
 }
 
 export class ArInvoiceList {

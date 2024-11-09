@@ -76,7 +76,7 @@ export class DashboardComponent {
       headerText: 'AR Invoice',
       sections: [
         [
-          { label: 'Total Created', value: 0, type: 'currency' },
+          { label: 'Total Created', value: 0 },
           { label: 'Total Amount', value: 0, type: 'currency' },
         ],
       ],
@@ -85,7 +85,7 @@ export class DashboardComponent {
       headerText: 'Cash In',
       sections: [
         [
-          { label: 'Total Created', value: 0, type: 'currency' },
+          { label: 'Total Created', value: 0 },
           { label: 'Total Amount', value: 0, type: 'currency' },
         ],
       ],
@@ -94,7 +94,7 @@ export class DashboardComponent {
       headerText: 'Cash Out Documents',
       sections: [
         [
-          { label: 'Total Created', value: 0, type: 'currency' },
+          { label: 'Total Created', value: 0 },
           { label: 'Total Amount', value: 0, type: 'currency' },
         ],
       ],
@@ -423,13 +423,13 @@ export class DashboardComponent {
       {
         key: 'formItemName',
         label: 'Item Name',
-        type: 'select',
+        type: 'text',
         options: this.dropdownOptionsItem,
         placeholder: 'Select an option',
       },
       {
         key: 'formPaidQuantity',
-        label: 'Paid Value',
+        label: 'Value',
         type: 'currency',
         width: 'w-[40px]',
       },
@@ -448,6 +448,17 @@ export class DashboardComponent {
           (option) => option?.value === contractValue
         );
         if (selectedContract && selectedContract?.listDetail) {
+          const selectedContractData: any = {
+            data: selectedContract?.listDetail,
+          };
+          this.dropdownOptionsItem =
+            this.mapDropdownOptionsItem(selectedContractData);
+          this.formArrayConfig = this.formArrayConfig.map((config: any) => {
+            if (config.key === 'formItemName') {
+              return { ...config, options: this.dropdownOptionsItem };
+            }
+            return config;
+          });
           this.updateItemDetails(selectedContract?.listDetail);
         }
       });
@@ -739,7 +750,7 @@ export class DashboardComponent {
         headerText: 'AR Invoice',
         sections: [
           [
-            { label: 'Total Created', value: 0, type: 'currency' },
+            { label: 'Total Created', value: 0 },
             { label: 'Total Amount', value: 0, type: 'currency' },
           ],
         ],
@@ -748,7 +759,7 @@ export class DashboardComponent {
         headerText: 'Cash In',
         sections: [
           [
-            { label: 'Total Created', value: 0, type: 'currency' },
+            { label: 'Total Created', value: 0 },
             { label: 'Total Amount', value: 0, type: 'currency' },
           ],
         ],
@@ -757,7 +768,7 @@ export class DashboardComponent {
         headerText: 'Cash Out Documents',
         sections: [
           [
-            { label: 'Total Created', value: 0, type: 'currency' },
+            { label: 'Total Created', value: 0 },
             { label: 'Total Amount', value: 0, type: 'currency' },
           ],
         ],
@@ -958,11 +969,17 @@ export class DashboardComponent {
     });
   }
 
-  private createFormGroupItemDetail() {
+  private createFormGroupItemDetail(item?: any, type?: string) {
     return this.fb.group({
-      formItemName: [null, Validators.required],
-      formPaidQuantity: ['', [Validators.required, Validators.min(1)]],
-      formRemainingQuantity: [''],
+      formItemName: [
+        type !== 'add' ? this.getItemValue(item?.itemName) : null,
+        Validators.required,
+      ],
+      formPaidQuantity: [
+        type !== 'add' ? item?.totalQuantity : '',
+        [Validators.required, Validators.min(1)],
+      ],
+      formRemainingQuantity: [type !== 'add' ? item?.remainingQuantity : ''],
     });
   }
 
@@ -1128,51 +1145,6 @@ export class DashboardComponent {
     }
   }
 
-  async fetchItemList() {
-    const params = new HttpParams()
-      .set('username', this.authService.getUsername())
-      .set('itemName', '');
-
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get<ItemListResponse>(
-          environment.API_URL,
-          'api/item/getItemList',
-          params,
-          new HttpHeaders({
-            Authorization: `Bearer ${this.authService.getToken()}`,
-          })
-        )
-      );
-
-      if (
-        response?.status === 200 &&
-        response?.info?.toLowerCase() === 'success'
-      ) {
-        if (response?.data?.length > 0) {
-          this.dropdownOptionsItem = this.mapDropdownOptionsItem(response);
-
-          this.formArrayConfig = this.formArrayConfig.map((config: any) => {
-            if (config.key === 'formItemName') {
-              return { ...config, options: this.dropdownOptionsItem };
-            }
-            return config;
-          });
-
-          sessionStorage.setItem(
-            'item_list',
-            JSON.stringify(this.dropdownOptionsItem)
-          );
-        }
-      } else {
-        this.notificationService.show(response?.info, 'info');
-      }
-    } catch (error: any) {
-      console.error('Failed to fetch item list', error);
-      this.notificationService.show(error, 'error');
-    }
-  }
-
   resetItemDetailList() {
     this.formItemDetailList.clear();
   }
@@ -1198,14 +1170,14 @@ export class DashboardComponent {
   }
 
   private mapDropdownOptionsProject(response: ProjectListResponse) {
-    return response.data.map((data) => ({
+    return response?.data?.map((data) => ({
       value: data?.projectName,
       label: data?.projectName,
     }));
   }
 
   private mapDropdownOptionsItem(response: ItemListResponse) {
-    return response.data.map((data) => ({
+    return response?.data?.map((data) => ({
       value: data?.itemName,
       label: data?.itemName,
     }));
@@ -1240,7 +1212,7 @@ export class DashboardComponent {
     this.resetItemDetailList();
 
     listDetail.forEach((item: any) => {
-      this.formItemDetailList.push(this.createFormGroupItemDetail());
+      this.formItemDetailList.push(this.createFormGroupItemDetail(item, ''));
     });
   }
 
@@ -1248,7 +1220,6 @@ export class DashboardComponent {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchItemList()]);
       await Promise.all([this.fetchContractList()]);
       await Promise.all([this.fetchPartnerList()]);
       await Promise.all([this.fetchProjectList()]);
@@ -1344,14 +1315,14 @@ export class DashboardComponent {
 
   private mapDropdownOptionsInvoice(response: InvoiceListResponse) {
     return {
-      invoiceNo: response.data.map((data) => ({
-        value: data.invoiceNo,
-        label: data.invoiceNo,
+      invoiceNo: response?.data?.map((data) => ({
+        value: data?.invoiceNo,
+        label: data?.invoiceNo,
         listDetail: {
-          amount: data.amount,
-          partnerName: data.partnerName,
-          projectName: data.projectName,
-          contractName: data.contractName,
+          amount: data?.amount,
+          partnerName: data?.partnerName,
+          projectName: data?.projectName,
+          contractName: data?.contractName,
         },
       })),
     };

@@ -235,7 +235,7 @@ export class ContractComponent {
       this.fb.group({
         formItemName: [null, Validators.required],
         formTotalQuantity: ['', [Validators.required, Validators.min(1)]],
-        formPaidQuantity: [''],
+        formPaidQuantity: [0],
       })
     );
   }
