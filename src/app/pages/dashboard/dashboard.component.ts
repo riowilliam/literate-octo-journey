@@ -80,6 +80,8 @@ export class DashboardComponent {
           { label: 'Total Amount', value: 0, type: 'currency' },
         ],
       ],
+      route: '',
+      queryParams: {},
     },
     {
       headerText: 'Cash In',
@@ -89,6 +91,8 @@ export class DashboardComponent {
           { label: 'Total Amount', value: 0, type: 'currency' },
         ],
       ],
+      route: '',
+      queryParams: {},
     },
     {
       headerText: 'Cash Out Documents',
@@ -98,6 +102,8 @@ export class DashboardComponent {
           { label: 'Total Amount', value: 0, type: 'currency' },
         ],
       ],
+      route: '',
+      queryParams: {},
     },
   ];
 
@@ -105,14 +111,20 @@ export class DashboardComponent {
     {
       headerText: 'AR Invoice',
       sections: [[{ label: 'Total Data', value: 0 }]],
+      route: '',
+      queryParams: {},
     },
     {
       headerText: 'Cash In',
       sections: [[{ label: 'Total Data', value: 0 }]],
+      route: '',
+      queryParams: {},
     },
     {
       headerText: 'Cash Out Documents',
       sections: [[{ label: 'Total Data', value: 0 }]],
+      route: '',
+      queryParams: {},
     },
   ];
 
@@ -352,21 +364,21 @@ export class DashboardComponent {
       {
         key: 'formPartner',
         label: 'Partner',
-        type: 'select',
+        type: 'searchable-dropdown',
         options: this.dropdownOptionsPartner,
         placeholder: 'Select an option',
       },
       {
         key: 'formContract',
         label: 'Contract',
-        type: 'select',
+        type: 'searchable-dropdown',
         options: this.dropdownOptionsContract,
         placeholder: 'Select an option',
       },
       {
         key: 'formProject',
         label: 'Project',
-        type: 'select',
+        type: 'searchable-dropdown',
         options: this.dropdownOptionsProject,
         placeholder: 'Select an option',
       },
@@ -754,6 +766,8 @@ export class DashboardComponent {
             { label: 'Total Amount', value: 0, type: 'currency' },
           ],
         ],
+        route: '/ar-monitoring',
+        queryParams: { startDate: this.startDate, endDate: this.endDate },
       },
       {
         headerText: 'Cash In',
@@ -763,6 +777,8 @@ export class DashboardComponent {
             { label: 'Total Amount', value: 0, type: 'currency' },
           ],
         ],
+        route: '/cash-in',
+        queryParams: { startDate: this.startDate, endDate: this.endDate },
       },
       {
         headerText: 'Cash Out Documents',
@@ -772,6 +788,8 @@ export class DashboardComponent {
             { label: 'Total Amount', value: 0, type: 'currency' },
           ],
         ],
+        route: '/document-cash-out',
+        queryParams: { startDate: this.startDate, endDate: this.endDate },
       },
     ];
 
@@ -779,14 +797,20 @@ export class DashboardComponent {
       {
         headerText: 'AR Invoice',
         sections: [[{ label: 'Total Data', value: 0 }]],
+        route: '/ar-monitoring',
+        queryParams: { startDate: this.startDate, endDate: this.endDate },
       },
       {
         headerText: 'Cash In',
         sections: [[{ label: 'Total Data', value: 0 }]],
+        route: '/cash-in',
+        queryParams: { startDate: this.startDate, endDate: this.endDate },
       },
       {
         headerText: 'Cash Out Documents',
         sections: [[{ label: 'Total Data', value: 0 }]],
+        route: '/document-cash-out',
+        queryParams: { startDate: this.startDate, endDate: this.endDate },
       },
     ];
 
@@ -976,7 +1000,7 @@ export class DashboardComponent {
         Validators.required,
       ],
       formPaidQuantity: [
-        type !== 'add' ? item?.totalQuantity : '',
+        type !== 'add' ? 0 : '',
         [Validators.required, Validators.min(1)],
       ],
       formRemainingQuantity: [type !== 'add' ? item?.remainingQuantity : ''],
@@ -1326,5 +1350,13 @@ export class DashboardComponent {
         },
       })),
     };
+  }
+
+  navigateToPage(route: string, queryParams?: any) {
+    if (queryParams) {
+      this.router.navigate([route], { queryParams });
+    } else {
+      this.router.navigate([route]);
+    }
   }
 }

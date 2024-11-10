@@ -36,6 +36,7 @@ import {
 } from './dto/detail-ar-invoice.dto';
 import { DynamicFormCashInComponent } from '../../components/dynamic-form-cash-in/dynamic-form-cash-in.component';
 import { FormCashInRequest, FormCashInResponse } from './dto/cash-in.dto';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-ar-monitoring',
@@ -280,7 +281,8 @@ export class ArMonitoringComponent {
     private httpService: HttpService,
     private authService: AuthService,
     private loaderService: LoaderService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private route: ActivatedRoute
   ) {
     this.filterForm = this.fb.group({
       partnerName: [''],
@@ -289,6 +291,9 @@ export class ArMonitoringComponent {
       endDate: [''],
       invoiceStatus: [''],
     });
+    const params = this.route.snapshot.queryParams;
+    this.filterForm.controls['startDate']?.setValue(params['startDate'] || '');
+    this.filterForm.controls['endDate']?.setValue(params['endDate'] || '');
   }
 
   ngOnInit() {
@@ -322,21 +327,21 @@ export class ArMonitoringComponent {
       {
         key: 'formPartner',
         label: 'Partner',
-        type: 'select',
+        type: 'searchable-dropdown',
         options: this.dropdownOptionsPartner,
         placeholder: 'Select an option',
       },
       {
         key: 'formContract',
         label: 'Contract',
-        type: 'select',
+        type: 'searchable-dropdown',
         options: this.dropdownOptionsContract,
         placeholder: 'Select an option',
       },
       {
         key: 'formProject',
         label: 'Project',
-        type: 'select',
+        type: 'searchable-dropdown',
         options: this.dropdownOptionsProject,
         placeholder: 'Select an option',
         hidden: true,
@@ -927,50 +932,6 @@ export class ArMonitoringComponent {
     }
   }
 
-  async fetchItemList() {
-    const params = new HttpParams()
-      .set('username', this.authService.getUsername())
-      .set('itemName', '');
-
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get<ItemListResponse>(
-          environment.API_URL,
-          'api/item/getItemList',
-          params,
-          new HttpHeaders({
-            Authorization: `Bearer ${this.authService.getToken()}`,
-          })
-        )
-      );
-
-      if (
-        response?.status === 200 &&
-        response?.info?.toLowerCase() === 'success'
-      ) {
-        if (response?.data?.length > 0) {
-          this.formPreviewArrayConfig = this.formPreviewArrayConfig.map(
-            (config: any) => {
-              if (config.key === 'formItemName') {
-                return { ...config, options: this.dropdownOptionsItem };
-              }
-              return config;
-            }
-          );
-          sessionStorage.setItem(
-            'item_list',
-            JSON.stringify(this.dropdownOptionsItem)
-          );
-        }
-      } else {
-        this.notificationService.show(response?.info, 'info');
-      }
-    } catch (error: any) {
-      console.error('Failed to fetch item list', error);
-      this.notificationService.show(error, 'error');
-    }
-  }
-
   async fetchDataDetail(type: string) {
     this.loaderService.show();
 
@@ -1002,7 +963,6 @@ export class ArMonitoringComponent {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchItemList()]);
       await Promise.all([this.fetchContractList(type, contractName, data)]);
       await Promise.all([this.fetchPartnerList()]);
       await Promise.all([this.prefillPreviewForm(data)]);
@@ -1288,7 +1248,7 @@ export class ArMonitoringComponent {
         Validators.required,
       ],
       formPaidQuantity: [
-        type !== 'add' ? item?.totalQuantity : '',
+        type !== 'add' && this.showModalAdd ? 0 : item?.totalQuantity,
         [Validators.required, Validators.min(1)],
       ],
       formRemainingQuantity: [type !== 'add' ? item?.remainingQuantity : ''],

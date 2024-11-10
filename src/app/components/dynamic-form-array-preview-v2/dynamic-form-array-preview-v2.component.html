@@ -151,7 +151,7 @@
           *ngFor="let item of formPreviewArray.controls; let i = index"
           [formGroupName]="i"
         >
-          <div class="flex justify-between gap-auto">
+          <div class="flex justify-between gap-2">
             <ng-container *ngFor="let field of itemPreviewConfig">
               <div class="flex flex-col w-fit justify-center items-center">
                 <label
@@ -200,7 +200,7 @@
                   </div>
                 </ng-container>
 
-                <ng-container *ngIf="['currency', 'text'].includes(field.type)">
+                <ng-container *ngIf="['currency'].includes(field.type)">
                   <input
                     [id]="field.key + '-' + i"
                     [name]="field.key + '-' + i"
@@ -215,6 +215,26 @@
                         ? field.width +
                           ' mb-1 form-input text-left border border-[#A4A4A4] px-1 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed'
                         : 'mb-1 form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed'
+                    "
+                    (input)="onInputItemDetailListChange($event, field.key, i)"
+                  />
+                </ng-container>
+
+                <ng-container *ngIf="['text'].includes(field.type)">
+                  <input
+                    [id]="field.key + '-' + i"
+                    [name]="field.key + '-' + i"
+                    [type]="field.type"
+                    [formControlName]="field.key"
+                    [placeholder]="field.placeholder || ''"
+                    [pattern]="field.pattern"
+                    [inputMode]="field.inputmode"
+                    [readonly]="true"
+                    [class]="
+                      field.width
+                        ? field.width +
+                          ' w-[200px] mb-1 form-input text-left border border-[#A4A4A4] px-1 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed'
+                        : 'w-[200px] mb-1 form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed'
                     "
                     (input)="onInputItemDetailListChange($event, field.key, i)"
                   />

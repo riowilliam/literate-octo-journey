@@ -19,7 +19,7 @@ import { HttpService } from '../../services/http.service';
 import { AuthService } from '../../services/auth.service';
 import { LoaderService } from '../../services/loader.service';
 import { NotificationService } from '../../services/notification.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { DynamicFormCashInV2Component } from '../../components/dynamic-form-cash-in-v2/dynamic-form-cash-in-v2.component';
@@ -162,7 +162,7 @@ export class CashInComponent {
     private authService: AuthService,
     private loaderService: LoaderService,
     private notificationService: NotificationService,
-    private router: Router
+    private route: ActivatedRoute
   ) {
     this.filterForm = this.fb.group({
       partnerName: [''],
@@ -171,6 +171,9 @@ export class CashInComponent {
       startDate: [''],
       endDate: [''],
     });
+    const params = this.route.snapshot.queryParams;
+    this.filterForm.controls['startDate']?.setValue(params['startDate'] || '');
+    this.filterForm.controls['endDate']?.setValue(params['endDate'] || '');
   }
 
   ngOnInit() {

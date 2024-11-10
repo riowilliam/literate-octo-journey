@@ -7,7 +7,7 @@ import { ContentFilterComponent } from '../../components/content-filter/content-
 import { ContentCardComponent } from '../../components/content-card/content-card.component';
 import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import {
   CashOutDetail,
@@ -230,7 +230,8 @@ export class DocumentCashOutComponent {
     private authService: AuthService,
     private loaderService: LoaderService,
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.filterForm = this.fb.group({
       documentName: [''],
@@ -238,6 +239,9 @@ export class DocumentCashOutComponent {
       startDate: [''],
       endDate: [''],
     });
+    const params = this.route.snapshot.queryParams;
+    this.filterForm.controls['startDate']?.setValue(params['startDate'] || '');
+    this.filterForm.controls['endDate']?.setValue(params['endDate'] || '');
   }
 
   ngOnInit() {

@@ -592,7 +592,7 @@ export class ActionCashOutComponent implements OnInit {
             link.download = `HK-CO-${this.datePipe.transform(
               date,
               'yyMMdd-hhmmss'
-            )!}`;
+            )!}.zip`;
             link.click();
             window.URL.revokeObjectURL(url);
 
@@ -640,7 +640,7 @@ export class ActionCashOutComponent implements OnInit {
             link.download = `HK-CO-${this.datePipe.transform(
               date,
               'yyMMdd-hhmmss'
-            )!}`;
+            )!}.zip`;
             link.click();
             window.URL.revokeObjectURL(url);
 
