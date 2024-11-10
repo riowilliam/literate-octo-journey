@@ -284,40 +284,6 @@ export class ArMonitoringComponent {
     private notificationService: NotificationService,
     private route: ActivatedRoute
   ) {
-    this.filterForm = this.fb.group({
-      partnerName: [''],
-      projectName: [''],
-      startDate: [''],
-      endDate: [''],
-      invoiceStatus: [''],
-    });
-    const params = this.route.snapshot.queryParams;
-    this.filterForm.controls['startDate']?.setValue(params['startDate'] || '');
-    this.filterForm.controls['endDate']?.setValue(params['endDate'] || '');
-  }
-
-  ngOnInit() {
-    this.fetchArMonitoring();
-
-    this.arMonitoringForm = this.fb.group({
-      formInvoiceNo: ['', Validators.required],
-      formPartner: [null, Validators.required],
-      formContract: [null, Validators.required],
-      formProject: [null, Validators.required],
-      formBAPPNo: ['', Validators.required],
-      formAmount: ['', Validators.required],
-      formPPN: ['', Validators.required],
-      formPPNWAPU: [''],
-      formPPH: this.fb.array([]),
-      formNetAmount: ['', Validators.required],
-      formNote: [''],
-      formItemDetailList: this.fb.array([], quantityValidator()),
-    });
-
-    this.formPPH.push(this.createFormGroupPPH());
-
-    this.formItemDetailList.push(this.createFormGroupItemDetail());
-
     this.formConfig = [
       {
         key: 'formInvoiceNo',
@@ -479,11 +445,46 @@ export class ArMonitoringComponent {
       },
     ];
 
+    this.filterForm = this.fb.group({
+      partnerName: [''],
+      projectName: [''],
+      startDate: [''],
+      endDate: [''],
+      invoiceStatus: [''],
+    });
+    const params = this.route.snapshot.queryParams;
+    this.filterForm.controls['startDate']?.setValue(params['startDate'] || '');
+    this.filterForm.controls['endDate']?.setValue(params['endDate'] || '');
+  }
+
+  ngOnInit() {
+    this.fetchArMonitoring();
+
+    this.arMonitoringForm = this.fb.group({
+      formInvoiceNo: ['', Validators.required],
+      formPartner: [null, Validators.required],
+      formContract: [null, Validators.required],
+      formProject: [null, Validators.required],
+      formBAPPNo: ['', Validators.required],
+      formAmount: ['', Validators.required],
+      formPPN: ['', Validators.required],
+      formPPNWAPU: [''],
+      formPPH: this.fb.array([]),
+      formNetAmount: ['', Validators.required],
+      formNote: [''],
+      formItemDetailList: this.fb.array([], quantityValidator()),
+    });
+
+    this.formPPH.push(this.createFormGroupPPH());
+
+    this.formItemDetailList.push(this.createFormGroupItemDetail());
+
     this.arMonitoringForm
       .get('formContract')
       ?.valueChanges.subscribe((contractValue) => {
         const selectedContract = this.dropdownOptionsContract.find(
-          (option) => option?.value === contractValue
+          (option) =>
+            option?.value === contractValue || option?.label === contractValue
         );
         if (selectedContract && selectedContract?.listDetail) {
           const selectedContractData: any = {
@@ -1072,6 +1073,10 @@ export class ArMonitoringComponent {
   handleFormSubmit(formValue: any, type: string): void {
     switch (type) {
       case 'add':
+        const selectedContract = this.dropdownOptionsContract.find(
+          (option) => option?.label === formValue?.formContract
+        );
+        formValue.formContract = selectedContract?.value;
         this.createARInvoice(formValue);
         break;
       case 'create':

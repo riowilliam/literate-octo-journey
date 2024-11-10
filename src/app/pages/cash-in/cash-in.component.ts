@@ -253,7 +253,7 @@ export class CashInComponent {
                         type: 'currency',
                       },
                       {
-                        label: 'Action',
+                        label: 'Incomplete',
                         value:
                           response?.data?.content[0]?.cashInSummary
                             ?.totalPending,

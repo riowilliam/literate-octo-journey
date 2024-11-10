@@ -223,7 +223,106 @@ export class DashboardComponent {
     private loaderService: LoaderService,
     private notificationService: NotificationService,
     private fb: FormBuilder
-  ) {}
+  ) {
+    this.formConfig = [
+      {
+        key: 'formInvoiceNo',
+        label: 'Invoice No.',
+        type: 'text',
+      },
+      {
+        key: 'formPartner',
+        label: 'Partner',
+        type: 'searchable-dropdown',
+        options: this.dropdownOptionsPartner,
+        placeholder: 'Select an option',
+      },
+      {
+        key: 'formContract',
+        label: 'Contract',
+        type: 'searchable-dropdown',
+        options: this.dropdownOptionsContract,
+        placeholder: 'Select an option',
+      },
+      {
+        key: 'formProject',
+        label: 'Project',
+        type: 'searchable-dropdown',
+        options: this.dropdownOptionsProject,
+        placeholder: 'Select an option',
+        hidden: true,
+      },
+      {
+        key: 'formBAPPNo',
+        label: 'BAPP No.',
+        type: 'text',
+      },
+      {
+        key: 'formAmount',
+        label: 'Amount',
+        type: 'currency',
+      },
+      {
+        key: 'formPPN',
+        label: 'PPN',
+        type: 'currency',
+      },
+      {
+        key: 'formPPNWAPU',
+        label: 'PPN WAPU',
+        type: 'currency',
+      },
+    ];
+
+    this.formSimpleConfig = [
+      {
+        key: 'formPPHLabel',
+        label: 'PPH',
+        type: 'select',
+        options: this.dropdownOptionsPPH,
+        placeholder: 'Select an option',
+      },
+      {
+        key: 'formPPHAmount',
+        type: 'currency',
+      },
+    ];
+
+    this.formLastConfig = [
+      {
+        key: 'formNetAmount',
+        label: 'Net Amount',
+        type: 'currency',
+      },
+      {
+        key: 'formNote',
+        label: 'Note',
+        type: 'text',
+      },
+    ];
+
+    this.formArrayConfig = [
+      {
+        key: 'formItemName',
+        label: 'Item Name',
+        type: 'text',
+        options: this.dropdownOptionsItem,
+        placeholder: 'Select an option',
+      },
+      {
+        key: 'formPaidQuantity',
+        label: 'Value',
+        type: 'currency',
+        width: 'w-[40px]',
+      },
+      {
+        key: 'formRemainingQuantity',
+        label: 'Remaining Value',
+        type: 'currency',
+        width: 'w-[40px]',
+      },
+    ];
+  }
 
   ngOnInit() {
     const isMobile = window.innerWidth <= 600;
@@ -355,109 +454,12 @@ export class DashboardComponent {
 
     this.formItemDetailList.push(this.createFormGroupItemDetail());
 
-    this.formConfig = [
-      {
-        key: 'formInvoiceNo',
-        label: 'Invoice No.',
-        type: 'text',
-      },
-      {
-        key: 'formPartner',
-        label: 'Partner',
-        type: 'searchable-dropdown',
-        options: this.dropdownOptionsPartner,
-        placeholder: 'Select an option',
-      },
-      {
-        key: 'formContract',
-        label: 'Contract',
-        type: 'searchable-dropdown',
-        options: this.dropdownOptionsContract,
-        placeholder: 'Select an option',
-      },
-      {
-        key: 'formProject',
-        label: 'Project',
-        type: 'searchable-dropdown',
-        options: this.dropdownOptionsProject,
-        placeholder: 'Select an option',
-      },
-      {
-        key: 'formBAPPNo',
-        label: 'BAPP No.',
-        type: 'text',
-      },
-      {
-        key: 'formAmount',
-        label: 'Amount',
-        type: 'currency',
-      },
-      {
-        key: 'formPPN',
-        label: 'PPN',
-        type: 'currency',
-      },
-      {
-        key: 'formPPNWAPU',
-        label: 'PPN WAPU',
-        type: 'currency',
-      },
-    ];
-
-    this.formSimpleConfig = [
-      {
-        key: 'formPPHLabel',
-        label: 'PPH',
-        type: 'select',
-        options: this.dropdownOptionsPPH,
-        placeholder: 'Select an option',
-      },
-      {
-        key: 'formPPHAmount',
-        type: 'currency',
-      },
-    ];
-
-    this.formLastConfig = [
-      {
-        key: 'formNetAmount',
-        label: 'Net Amount',
-        type: 'currency',
-      },
-      {
-        key: 'formNote',
-        label: 'Note',
-        type: 'text',
-      },
-    ];
-
-    this.formArrayConfig = [
-      {
-        key: 'formItemName',
-        label: 'Item Name',
-        type: 'text',
-        options: this.dropdownOptionsItem,
-        placeholder: 'Select an option',
-      },
-      {
-        key: 'formPaidQuantity',
-        label: 'Value',
-        type: 'currency',
-        width: 'w-[40px]',
-      },
-      {
-        key: 'formRemainingQuantity',
-        label: 'Remaining Value',
-        type: 'currency',
-        width: 'w-[40px]',
-      },
-    ];
-
     this.arMonitoringForm
       .get('formContract')
       ?.valueChanges.subscribe((contractValue) => {
         const selectedContract = this.dropdownOptionsContract.find(
-          (option) => option?.value === contractValue
+          (option) =>
+            option?.value === contractValue || option?.label === contractValue
         );
         if (selectedContract && selectedContract?.listDetail) {
           const selectedContractData: any = {
@@ -488,6 +490,7 @@ export class DashboardComponent {
           this.arMonitoringForm
             .get('formPPN')
             ?.setValue(this.formatWithMask(totalPpnValue));
+          this.fetchProjectList(partnerValue);
         }
       });
 
@@ -935,6 +938,10 @@ export class DashboardComponent {
   handleFormSubmit(formValue: any, type: string): void {
     switch (type) {
       case 'new-invoice':
+        const selectedContract = this.dropdownOptionsContract.find(
+          (option) => option?.label === formValue?.formContract
+        );
+        formValue.formContract = selectedContract?.value;
         this.createARInvoice(formValue);
         break;
       case 'new-cash-in':
@@ -1123,10 +1130,11 @@ export class DashboardComponent {
     }
   }
 
-  async fetchProjectList() {
+  async fetchProjectList(partnerName: string) {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
-      .set('projectName', '');
+      .set('projectName', '')
+      .set('partnerName', partnerName);
 
     try {
       const response = await firstValueFrom(
@@ -1139,6 +1147,13 @@ export class DashboardComponent {
           })
         )
       );
+
+      this.formConfig = this.formConfig.map((config: any) => {
+        if (config.key === 'formProject') {
+          return { ...config, hidden: false };
+        }
+        return config;
+      });
 
       if (
         response?.status === 200 &&
@@ -1246,7 +1261,6 @@ export class DashboardComponent {
     try {
       await Promise.all([this.fetchContractList()]);
       await Promise.all([this.fetchPartnerList()]);
-      await Promise.all([this.fetchProjectList()]);
       this.showModalAddInvoice = true;
     } catch (error) {
       console.error('Error fetching data', error);
