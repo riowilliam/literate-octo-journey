@@ -3,6 +3,11 @@ import { Component, HostListener } from '@angular/core';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { LoaderService } from '../../services/loader.service';
+import { RoleResponse } from './role.dto';
+import { HttpService } from '../../services/http.service';
+import { environment } from '../../../environments/environment';
+import { HttpHeaders } from '@angular/common/http';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-header',
@@ -19,6 +24,7 @@ export class HeaderComponent {
       subMenu: null,
       subMenuOpen: false,
       isActive: false,
+      requiredPermissions: ['view_dashboard'],
     },
     {
       name: 'Project Monitoring',
@@ -26,6 +32,7 @@ export class HeaderComponent {
       subMenu: null,
       subMenuOpen: false,
       isActive: false,
+      requiredPermissions: ['view_project_monitoring'],
     },
     {
       name: 'AR Monitoring',
@@ -33,6 +40,7 @@ export class HeaderComponent {
       subMenu: null,
       subMenuOpen: false,
       isActive: false,
+      requiredPermissions: ['view_ar_monitoring'],
     },
     {
       name: 'Cash In',
@@ -40,35 +48,79 @@ export class HeaderComponent {
       subMenu: null,
       subMenuOpen: false,
       isActive: false,
+      requiredPermissions: ['view_cash_in'],
     },
     {
       name: 'Cash Out',
       link: null,
       subMenu: [
-        { name: 'Document', link: '/document-cash-out', isActive: false },
+        {
+          name: 'Document',
+          link: '/document-cash-out',
+          isActive: false,
+          requiredPermissions: ['manage_documents'],
+        },
         {
           name: 'Regular Mutation',
           link: '/regular-cash-out',
           isActive: false,
+          requiredPermissions: ['manage_regular_mutation'],
         },
-        { name: 'Facility', link: '/facility-asset', isActive: false },
+        {
+          name: 'Facility',
+          link: '/facility-asset',
+          isActive: false,
+          requiredPermissions: ['manage_facility'],
+        },
       ],
       subMenuOpen: false,
       isActive: false,
+      requiredPermissions: ['view_cash_out_menu'],
     },
     {
       name: 'Master Data',
       link: null,
       subMenu: [
-        { name: 'Partner', link: '/partner', isActive: false },
-        { name: 'Vendor', link: '/vendor', isActive: false },
-        { name: 'Project', link: '/project', isActive: false },
-        { name: 'Contract', link: '/contract', isActive: false },
-        { name: 'Items', link: '/items', isActive: false },
-        { name: 'User', link: '/user', isActive: false },
+        {
+          name: 'Partner',
+          link: '/partner',
+          isActive: false,
+          requiredPermissions: ['manage_partner'],
+        },
+        {
+          name: 'Vendor',
+          link: '/vendor',
+          isActive: false,
+          requiredPermissions: ['manage_vendor'],
+        },
+        {
+          name: 'Project',
+          link: '/project',
+          isActive: false,
+          requiredPermissions: ['manage_project'],
+        },
+        {
+          name: 'Contract',
+          link: '/contract',
+          isActive: false,
+          requiredPermissions: ['manage_contract'],
+        },
+        {
+          name: 'Items',
+          link: '/items',
+          isActive: false,
+          requiredPermissions: ['manage_items'],
+        },
+        {
+          name: 'User',
+          link: '/user',
+          isActive: false,
+          requiredPermissions: ['manage_user'],
+        },
       ],
       subMenuOpen: false,
       isActive: false,
+      requiredPermissions: ['view_master_data'],
     },
   ];
 
@@ -80,20 +132,149 @@ export class HeaderComponent {
   isMasterDataOpen: boolean = false;
   isCashOutOpen: boolean = false;
 
+  roles: { roleCode: string; roleName: string; permissions: string[] }[] = [];
+  permissions: string[] = [];
+
   constructor(
     private router: Router,
     private authService: AuthService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private httpService: HttpService,
+    private notificationService: NotificationService
   ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.updateActiveStates();
       }
     });
+
+    const storedRoles = sessionStorage.getItem('role_permissions');
+    if (storedRoles) {
+      try {
+        this.roles = JSON.parse(storedRoles);
+      } catch (error) {
+        this.fetchRoles();
+      }
+    } else {
+      this.fetchRoles();
+    }
   }
 
   ngOnInit(): void {
     this.fullName = this.authService.getFullName();
+  }
+
+  fetchRoles() {
+    this.loaderService.show();
+    this.httpService
+      .get<RoleResponse>(
+        environment.API_URL,
+        'api/user/getRoleList',
+        undefined,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.roles = response.data.map((role: any) => {
+              if (role.roleCode === 'S-ADM') {
+                this.permissions = [
+                  'view_dashboard',
+                  'view_project_monitoring',
+                  'view_ar_monitoring',
+                  'view_cash_in',
+                  'view_cash_out_menu',
+                  'view_master_data',
+                  'manage_documents',
+                  'manage_regular_mutation',
+                  'manage_facility',
+                  'manage_partner',
+                  'manage_vendor',
+                  'manage_project',
+                  'manage_contract',
+                  'manage_items',
+                  'manage_user',
+                ];
+              } else if (role.roleCode === 'ADMN') {
+                this.permissions = [
+                  'view_dashboard',
+                  'view_project_monitoring',
+                  'view_ar_monitoring',
+                  'view_cash_in',
+                  'view_cash_out_menu',
+                  'view_master_data',
+                  'manage_documents',
+                  'manage_regular_mutation',
+                  'manage_facility',
+                  'manage_partner',
+                  'manage_vendor',
+                  'manage_project',
+                  'manage_contract',
+                  'manage_items',
+                ];
+              } else if (role.roleCode === 'USER') {
+                this.permissions = [
+                  'view_dashboard',
+                  'view_project_monitoring',
+                  'view_ar_monitoring',
+                  'view_cash_in',
+                  'view_cash_out_menu',
+                  'view_master_data',
+                  'manage_documents',
+                  'manage_regular_mutation',
+                  'manage_facility',
+                  'manage_partner',
+                  'manage_vendor',
+                  'manage_project',
+                  'manage_contract',
+                  'manage_items',
+                ];
+              } else if (role.roleCode === 'USR-V') {
+                this.permissions = [
+                  'view_dashboard',
+                  'view_project_monitoring',
+                  'view_ar_monitoring',
+                  'view_cash_in',
+                  'view_cash_out_menu',
+                  'view_master_data',
+                  'manage_documents',
+                  'manage_regular_mutation',
+                  'manage_facility',
+                  'manage_partner',
+                  'manage_vendor',
+                  'manage_project',
+                  'manage_contract',
+                  'manage_items',
+                ];
+              }
+
+              return {
+                roleCode: role.roleCode,
+                roleName: role.roleName,
+                permissions: this.permissions,
+              };
+            });
+            sessionStorage.setItem(
+              'role_permissions',
+              JSON.stringify(this.roles)
+            );
+            this.filterMenuItems();
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch roles', error);
+        },
+      });
   }
 
   toggleMasterDataMenu(event: MouseEvent) {
@@ -208,5 +389,36 @@ export class HeaderComponent {
     }
 
     return false;
+  }
+
+  filterMenuItems(): void {
+    this.menuItems = this.menuItems.filter((item) =>
+      this.hasAccess(item.requiredPermissions)
+    );
+
+    this.menuItems.forEach((item) => {
+      if (item.subMenu) {
+        item.subMenu = item.subMenu.filter((subItem) =>
+          this.hasAccess(subItem.requiredPermissions)
+        );
+      }
+    });
+  }
+
+  hasAccess(requiredPermissions: string[] | null): boolean {
+    if (!requiredPermissions || requiredPermissions.length === 0) {
+      return true;
+    }
+
+    const userPermissions = this.roles.flatMap((role) => {
+      if (this.authService.getUserRole() === role.roleName) {
+        return role.permissions;
+      }
+      return [];
+    });
+
+    return requiredPermissions.some((permission) =>
+      userPermissions.includes(permission)
+    );
   }
 }

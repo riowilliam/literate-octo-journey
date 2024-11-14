@@ -128,11 +128,14 @@ export class FormCashInRequest {
     this.partnerName = data.partnerName;
     this.contractName = data.contractName;
     this.projectName = data.projectName;
-    this.invoiceAmount = this.parseCurrency(data.paidAmount);
+    this.invoiceAmount = this.parseCurrency(data.amount);
     this.paymentAmount = this.parseCurrency(data.netAmount);
     this.paymentType = Number(data.paymentType);
     this.deduction = this.parseCurrency(data.deduction);
-    this.cashInStatus = this.determineCashInStatus(data.cashInStatus);
+    this.cashInStatus =
+      Number(data.paymentType) === 2
+        ? 'Incompleted'
+        : this.determineCashInStatus(data.cashInStatus);
   }
 
   private parseCurrency(value: string | number): number {

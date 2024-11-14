@@ -5,12 +5,9 @@
 >
   <app-dynamic-form-complete-cash-in
     [invoiceNo]="invoiceNo"
-    [amount]="amount"
-    [paidAmount]="paidAmount"
+    [paymentAmount]="paymentAmount"
     [partnerName]="partnerName"
     [projectName]="projectName"
-    [deduction]="deduction"
-    [netAmount]="netAmount"
     [cashInStatus]="cashInStatus"
     [paymentType]="paymentType"
     [contractName]="contractName"
@@ -32,6 +29,7 @@
     [netAmount]="netAmount"
     [paidAmount]="paidAmount"
     [deduction]="deduction"
+    [paymentAmount]="paymentAmount"
     (formSubmit)="handleFormSubmit($event, 'add')"
     (formCancel)="closeModalAdd()"
     [options]="dropdownOptionsInvoice"

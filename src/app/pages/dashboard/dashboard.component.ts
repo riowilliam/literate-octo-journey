@@ -213,6 +213,7 @@ export class DashboardComponent {
   paymentType!: string;
   contractName!: string;
   cashInId!: number;
+  paymentAmount!: string;
 
   dropdownOptionsInvoice: { [key: string]: any[] } = {};
 
@@ -1357,10 +1358,11 @@ export class DashboardComponent {
         value: data?.invoiceNo,
         label: data?.invoiceNo,
         listDetail: {
-          amount: data?.amount,
+          amount: data?.totalAmount,
           partnerName: data?.partnerName,
           projectName: data?.projectName,
           contractName: data?.contractName,
+          paidAmount: data?.paidAmount,
         },
       })),
     };

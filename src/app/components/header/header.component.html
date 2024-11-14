@@ -57,33 +57,37 @@
 
       <!-- Desktop Menu -->
       <nav class="hidden md:inline-block">
-        <a
-          *ngFor="let item of menuItems"
-          [routerLink]="item.link"
-          [ngClass]="{
-            'bg-custom-yellow': isActive(item),
-            'rounded-b-none': item.subMenuOpen && item.subMenu
-          }"
-          class="relative inline-flex flex-wrap items-center justify-center content-center hover:bg-custom-light-yellow px-3 py-2 text-sm rounded-md font-semibold ml-2 min-w-[107px]"
-          (click)="handleMenuItemClick(item)"
-        >
-          {{ item.name }}
-          <div
-            *ngIf="item.subMenu && item.subMenuOpen"
-            class="absolute top-full left-0 bg-white shadow-lg z-10 rounded-b-md overflow-clip"
+        <ng-container *ngFor="let item of menuItems">
+          <a
+            *ngIf="hasAccess(item.requiredPermissions)"
+            [routerLink]="item.link"
+            [ngClass]="{
+              'bg-custom-yellow': isActive(item),
+              'rounded-b-none': item.subMenuOpen && item.subMenu
+            }"
+            class="relative inline-flex flex-wrap items-center justify-center content-center hover:bg-custom-light-yellow px-3 py-2 text-sm rounded-md font-semibold ml-2 min-w-[107px]"
+            (click)="handleMenuItemClick(item)"
           >
-            <a
-              *ngFor="let subItem of item.subMenu"
-              [routerLink]="subItem.link"
-              [ngClass]="{
-                'bg-custom-yellow': isActive(subItem),
-              }"
-              class="inline-block w-full px-4 py-2 hover:bg-custom-light-yellow text-center"
+            {{ item.name }}
+            <div
+              *ngIf="item.subMenu && item.subMenuOpen"
+              class="absolute top-full left-0 bg-white shadow-lg z-10 rounded-b-md overflow-clip"
             >
-              {{ subItem.name }}
-            </a>
-          </div>
-        </a>
+              <ng-container *ngFor="let subItem of item.subMenu">
+                <a
+                  *ngIf="hasAccess(subItem.requiredPermissions)"
+                  [routerLink]="subItem.link"
+                  [ngClass]="{
+                    'bg-custom-yellow': isActive(subItem),
+                  }"
+                  class="inline-block w-full px-4 py-2 hover:bg-custom-light-yellow text-center"
+                >
+                  {{ subItem.name }}
+                </a>
+              </ng-container>
+            </div>
+          </a>
+        </ng-container>
       </nav>
     </div>
 
@@ -141,21 +145,25 @@
       </div>
       <nav class="flex flex-col flex-grow pl-4 space-y-2 overflow-y-auto">
         <a
+          *ngIf="hasAccess(['view_dashboard'])"
           href="/dashboard"
           class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
           >Dashboard</a
         >
         <a
+          *ngIf="hasAccess(['view_project_monitoring'])"
           href="/project-monitoring"
           class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
           >Project Monitoring</a
         >
         <a
+          *ngIf="hasAccess(['view_ar_monitoring'])"
           href="/ar-monitoring"
           class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
           >AR Monitoring</a
         >
         <a
+          *ngIf="hasAccess(['view_cash_in'])"
           href="/cash-in"
           class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
           >Cash In</a
@@ -163,6 +171,7 @@
 
         <!-- Cash Out Menu -->
         <div
+          *ngIf="hasAccess(['view_cash_out_menu'])"
           (click)="toggleCashOutMenu($event)"
           class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
         >
@@ -177,16 +186,19 @@
           class="pl-4 space-y-2 transition-max-height duration-300 ease-in-out"
         >
           <a
+            *ngIf="hasAccess(['manage_documents'])"
             href="/document-cash-out"
             class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
             >Document</a
           >
           <a
+            *ngIf="hasAccess(['manage_regular_mutation'])"
             href="/regular-cash-out"
             class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
             >Regular Mutation</a
           >
           <a
+            *ngIf="hasAccess(['manage_facility'])"
             href="/facility-asset"
             class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
             >Facility</a
@@ -195,6 +207,7 @@
 
         <!-- Master Data Menu -->
         <div
+          *ngIf="hasAccess(['view_master_data'])"
           (click)="toggleMasterDataMenu($event)"
           class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
         >
@@ -209,31 +222,37 @@
           class="pl-4 space-y-2 transition-max-height duration-300 ease-in-out"
         >
           <a
+            *ngIf="hasAccess(['manage_partner'])"
             href="/partner"
             class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
             >Partner</a
           >
           <a
+            *ngIf="hasAccess(['manage_vendor'])"
             href="/vendor"
             class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
             >Vendor</a
           >
           <a
+            *ngIf="hasAccess(['manage_project'])"
             href="/project"
             class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
             >Project</a
           >
           <a
+            *ngIf="hasAccess(['manage_contract'])"
             href="/contract"
             class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
             >Contract</a
           >
           <a
+            *ngIf="hasAccess(['manage_items'])"
             href="/items"
             class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
             >Items</a
           >
           <a
+            *ngIf="hasAccess(['manage_user'])"
             href="/user"
             class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
             >User</a

@@ -17,12 +17,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 })
 export class DynamicFormCompleteCashInComponent {
   @Input() invoiceNo: string | null = null;
-  @Input() amount: string | null = null;
-  @Input() paidAmount: string | null = null;
+  @Input() paymentAmount: string | null = null;
   @Input() partnerName: string | null = null;
   @Input() projectName: string | null = null;
-  @Input() deduction: string | null = null;
-  @Input() netAmount: string | null = null;
   @Input() cashInStatus: string | null = null;
   @Input() paymentType: string | null = null;
   @Input() contractName: string | null = null;
@@ -35,12 +32,9 @@ export class DynamicFormCompleteCashInComponent {
   constructor(private fb: FormBuilder) {
     this.customForm = this.fb.group({
       invoiceNo: [''],
-      amount: [''],
-      paidAmount: [''],
+      paymentAmount: [''],
       partnerName: [''],
       projectName: [''],
-      deduction: [''],
-      netAmount: [''],
       cashInStatus: [''],
       paymentType: [''],
       contractName: [''],
@@ -60,12 +54,9 @@ export class DynamicFormCompleteCashInComponent {
   setInitialValues(): void {
     this.customForm.patchValue({
       invoiceNo: this.invoiceNo,
-      amount: this.formatWithMask(this.amount),
-      paidAmount: this.formatWithMask(this.paidAmount),
       partnerName: this.partnerName,
       projectName: this.projectName,
-      deduction: this.formatWithMask(this.deduction),
-      netAmount: this.formatWithMask(this.netAmount),
+      paymentAmount: this.formatWithMask(this.paymentAmount),
       cashInStatus: this.cashInStatus,
       paymentType: this.paymentType,
       contractName: this.contractName,

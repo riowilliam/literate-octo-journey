@@ -16,6 +16,8 @@ export class InvoiceList {
   createdBy!: string;
   modifiedDate!: string;
   modifiedBy!: string;
+  paymentAmount!: number;
+  paidAmount!: number;
 }
 
 export class InvoiceListResponse {

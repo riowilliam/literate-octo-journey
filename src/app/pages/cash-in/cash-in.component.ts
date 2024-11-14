@@ -148,6 +148,7 @@ export class CashInComponent {
   paymentType!: string;
   contractName!: string;
   cashInId!: number;
+  paymentAmount!: string;
 
   dropdownOptionsInvoice: { [key: string]: any[] } = {};
 
@@ -253,7 +254,7 @@ export class CashInComponent {
                         type: 'currency',
                       },
                       {
-                        label: 'Incomplete',
+                        label: 'Incompleted',
                         value:
                           response?.data?.content[0]?.cashInSummary
                             ?.totalPending,
@@ -311,64 +312,12 @@ export class CashInComponent {
     }
   }
 
-  async fetchCompleteInvoiceList(invoiceNo: string) {
-    const params = new HttpParams()
-      .set('username', this.authService.getUsername())
-      .set('invoiceNo', invoiceNo);
-
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get<InvoiceListResponse>(
-          environment.API_URL,
-          'api/cashIn/getArInvoiceList',
-          params,
-          new HttpHeaders({
-            Authorization: `Bearer ${this.authService.getToken()}`,
-          })
-        )
-      );
-
-      if (
-        response?.status === 200 &&
-        response?.info?.toLowerCase() === 'success'
-      ) {
-        if (response?.data?.length > 0) {
-          this.amount = this.formatWithMask(response.data[0]?.amount);
-          this.partnerName = response.data[0]?.partnerName;
-          this.projectName = response.data[0]?.projectName;
-          this.deduction = this.formatWithMask(response.data[0]?.deduction);
-          this.netAmount = this.formatWithMask(response.data[0]?.totalAmount);
-          this.paymentType = response.data[0]?.paymentStatus;
-          this.contractName = response.data[0]?.contractName;
-        }
-      } else {
-        this.notificationService.show(response?.info, 'info');
-      }
-    } catch (error: any) {
-      console.error('Failed to fetch invoice list', error);
-      this.notificationService.show(error, 'error');
-    }
-  }
-
   async fetchUtilCashIn() {
     this.loaderService.show();
 
     try {
       await Promise.all([this.fetchInvoiceList()]);
       this.showModalAdd = true;
-    } catch (error) {
-      console.error('Error fetching data', error);
-    } finally {
-      this.loaderService.hide();
-    }
-  }
-
-  async fetchUtilCompleteCashIn(invoiceNo: string) {
-    this.loaderService.show();
-
-    try {
-      await Promise.all([this.fetchCompleteInvoiceList(invoiceNo)]);
-      this.showModalCashInStatus = true;
     } catch (error) {
       console.error('Error fetching data', error);
     } finally {
@@ -391,11 +340,29 @@ export class CashInComponent {
   handleButtonClick(row: any) {
     switch (row?.key) {
       case 'cash_in_status':
+        this.amount = '';
+        this.netAmount = '';
+        this.paidAmount = '';
+        this.deduction = '';
         this.invoiceNo = row?.row?.invoice_no;
         this.cashInId = row?.row?.cash_in_id;
-        this.fetchUtilCompleteCashIn(row?.row?.invoice_no);
+        this.partnerName = row?.row?.partner_name;
+        this.projectName = row?.row?.project_name;
+        this.contractName = row?.row?.contract_name;
+        this.paymentAmount = this.formatWithMask(row?.row?.payment_amount);
+        this.showModalCashInStatus = true;
         break;
       case 'add':
+        this.amount = '';
+        this.netAmount = '';
+        this.paidAmount = '';
+        this.deduction = '';
+        this.invoiceNo = '';
+        this.cashInId = 0;
+        this.partnerName = '';
+        this.projectName = '';
+        this.contractName = '';
+        this.paymentAmount = '';
         this.fetchUtilCashIn();
         break;
       case 'apply':
@@ -443,7 +410,16 @@ export class CashInComponent {
             this.pageSize = 10;
             this.sortBy = '';
             this.sortOrder = '';
-            this.closeModalAdd();
+            this.amount = '';
+            this.netAmount = '';
+            this.paidAmount = '';
+            this.deduction = '';
+            this.invoiceNo = '';
+            this.cashInId = 0;
+            this.partnerName = '';
+            this.projectName = '';
+            this.contractName = '';
+            this.paymentAmount = '';
             this.notificationService.show(response?.info, 'success');
           } else {
             this.notificationService.show(response?.info, 'info');
@@ -482,6 +458,16 @@ export class CashInComponent {
             this.pageSize = 10;
             this.sortBy = '';
             this.sortOrder = '';
+            this.amount = '';
+            this.netAmount = '';
+            this.paidAmount = '';
+            this.deduction = '';
+            this.invoiceNo = '';
+            this.cashInId = 0;
+            this.partnerName = '';
+            this.projectName = '';
+            this.contractName = '';
+            this.paymentAmount = '';
             this.fetchCashIn();
             this.notificationService.show(response?.info, 'success');
           } else {
@@ -539,10 +525,11 @@ export class CashInComponent {
         value: data?.invoiceNo,
         label: data?.invoiceNo,
         listDetail: {
-          amount: data?.amount,
+          amount: data?.totalAmount,
           partnerName: data?.partnerName,
           projectName: data?.projectName,
           contractName: data?.contractName,
+          paidAmount: data?.paidAmount,
         },
       })),
     };

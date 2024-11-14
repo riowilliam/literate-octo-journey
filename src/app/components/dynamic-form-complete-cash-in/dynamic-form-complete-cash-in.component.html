@@ -16,28 +16,6 @@
           [readonly]="true"
         />
 
-        <label for="amount" class="text-sm mb-1">Amount</label>
-        <input
-          id="amount"
-          type="text"
-          formControlName="amount"
-          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
-          [attr.disabled]="true"
-          [readonly]="true"
-        />
-
-        <ng-container *ngIf="paidAmount">
-          <label for="paidAmount" class="text-sm mb-1">Paid Amount</label>
-          <input
-            id="paidAmount"
-            type="text"
-            formControlName="paidAmount"
-            class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
-            [attr.disabled]="true"
-            [readonly]="true"
-          />
-        </ng-container>
-
         <label for="partnerName" class="text-sm mb-1">Partner Name</label>
         <input
           id="partnerName"
@@ -58,21 +36,11 @@
           [readonly]="true"
         />
 
-        <label for="deduction" class="text-sm mb-1">Deduction</label>
+        <label for="paymentAmount" class="text-sm mb-1">Payment Amount</label>
         <input
-          id="deduction"
+          id="paymentAmount"
           type="text"
-          formControlName="deduction"
-          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
-          [attr.disabled]="true"
-          [readonly]="true"
-        />
-
-        <label for="netAmount" class="text-sm mb-1">Net Amount</label>
-        <input
-          id="netAmount"
-          type="text"
-          formControlName="netAmount"
+          formControlName="paymentAmount"
           class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
           [attr.disabled]="true"
           [readonly]="true"
