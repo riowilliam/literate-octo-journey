@@ -229,11 +229,14 @@ function amountValidation(group: FormGroup): ValidationErrors | null {
   const paidAmount = parseCurrency(group.get('paidAmount')?.value);
   const deduction = parseCurrency(group.get('deduction')?.value);
   const paymentAmount = parseCurrency(group.get('paymentAmount')?.value);
+  const paymentType = Number(group.get('paymentType')?.value);
 
   const errors: ValidationErrors = {};
 
-  if (paymentAmount > amount - paidAmount) {
-    errors['paymentAmountGreaterThanAmountMinusAmount'] = true;
+  if (paymentType === 2) {
+    if (paymentAmount > amount - paidAmount) {
+      errors['paymentAmountGreaterThanAmountMinusAmount'] = true;
+    }
   }
 
   if (deduction >= paymentAmount) {
