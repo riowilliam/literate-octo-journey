@@ -860,7 +860,7 @@ export class DashboardComponent {
     } else if (timeRange === 'Weekly') {
       const dayOfMonth = today.getDate();
       const weekOfMonth = Math.ceil(dayOfMonth / 7);
-      this.selectedWeek = weekOfMonth;
+      this.selectedWeek = weekOfMonth + 1;
       const pureMonthInWeekly = today.getMonth();
       const currentMonthLabel = this.monthsV2[pureMonthInWeekly].label;
       this.selectedMonth = currentMonthLabel;
@@ -1011,7 +1011,7 @@ export class DashboardComponent {
         type !== 'add' ? 0 : '',
         [
           item?.remainingQuantity ? Validators.required : () => {},
-          item?.remainingQuantity ? Validators.min(1) : () => {},
+          item?.remainingQuantity ? Validators.min(0) : () => {},
         ],
       ],
       formRemainingQuantity: [type !== 'add' ? item?.remainingQuantity : ''],

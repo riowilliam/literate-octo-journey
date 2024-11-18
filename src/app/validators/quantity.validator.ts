@@ -7,16 +7,31 @@ export function quantityValidator(): ValidatorFn {
       formRemainingQuantity: number;
     }>;
 
-    const isInvalid = items.some((item) => {
+    const hasInvalidPaidQuantity = items.some((item) => {
       const paidQuantity = parseInt(item.formPaidQuantity, 10);
       const remainingQuantity = item.formRemainingQuantity;
+
+      if (paidQuantity > remainingQuantity) {
+        return true;
+      }
 
       if (paidQuantity === 0 && remainingQuantity === 0) {
         return false;
       }
 
-      return paidQuantity > remainingQuantity;
+      if (paidQuantity === 0 && remainingQuantity > 0) {
+        return false;
+      }
+
+      return false;
     });
+
+    const allPaidQuantitiesZero = items.every((item) => {
+      const paidQuantity = parseInt(item.formPaidQuantity, 10);
+      return paidQuantity === 0;
+    });
+
+    const isInvalid = hasInvalidPaidQuantity || allPaidQuantitiesZero;
 
     return isInvalid ? { quantityMismatch: { value: control.value } } : null;
   };

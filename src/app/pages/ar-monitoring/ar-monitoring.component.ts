@@ -1258,7 +1258,7 @@ export class ArMonitoringComponent {
         type !== 'add' && this.showModalAdd ? 0 : item?.totalQuantity,
         [
           item?.remainingQuantity ? Validators.required : () => {},
-          item?.remainingQuantity ? Validators.min(1) : () => {},
+          item?.remainingQuantity ? Validators.min(0) : () => {},
         ],
       ],
       formRemainingQuantity: [type !== 'add' ? item?.remainingQuantity : ''],
