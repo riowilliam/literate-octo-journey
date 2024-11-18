@@ -275,6 +275,7 @@ export class ArMonitoringComponent {
   cashInStatus!: string;
   paymentType!: string;
   contractName!: string;
+  paymentAmount!: string;
 
   constructor(
     private fb: FormBuilder,
@@ -1065,6 +1066,7 @@ export class ArMonitoringComponent {
           row?.row?.amount - row?.row?.deduction
         );
         this.contractName = row?.row?.contract_name;
+        this.paymentAmount = this.formatWithMask(row?.row?.total_amount);
         this.showModalPayment = true;
         break;
     }
@@ -1254,7 +1256,10 @@ export class ArMonitoringComponent {
       ],
       formPaidQuantity: [
         type !== 'add' && this.showModalAdd ? 0 : item?.totalQuantity,
-        [Validators.required, Validators.min(1)],
+        [
+          item?.remainingQuantity ? Validators.required : () => {},
+          item?.remainingQuantity ? Validators.min(1) : () => {},
+        ],
       ],
       formRemainingQuantity: [type !== 'add' ? item?.remainingQuantity : ''],
     });

@@ -11,6 +11,10 @@ export function quantityValidator(): ValidatorFn {
       const paidQuantity = parseInt(item.formPaidQuantity, 10);
       const remainingQuantity = item.formRemainingQuantity;
 
+      if (paidQuantity === 0 && remainingQuantity === 0) {
+        return false;
+      }
+
       return paidQuantity > remainingQuantity;
     });
 

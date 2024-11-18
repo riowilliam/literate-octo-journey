@@ -420,6 +420,7 @@ export class CashInComponent {
             this.projectName = '';
             this.contractName = '';
             this.paymentAmount = '';
+            this.fetchCashIn();
             this.notificationService.show(response?.info, 'success');
           } else {
             this.notificationService.show(response?.info, 'info');

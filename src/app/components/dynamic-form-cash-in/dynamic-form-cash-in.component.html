@@ -59,8 +59,9 @@
             id="paidAmount"
             type="text"
             formControlName="paidAmount"
-            class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+            class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none disabled:bg-[#ECECEC] cursor-not-allowed"
             [attr.disabled]="!isPartiallyPayment"
+            [readonly]="true"
           />
         </ng-container>
 
@@ -82,6 +83,20 @@
           class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
           [attr.disabled]="true"
           [readonly]="true"
+        />
+
+        <label for="paymentAmount" class="text-sm mb-1">Payment Amount</label>
+        <input
+          id="paymentAmount"
+          type="text"
+          formControlName="paymentAmount"
+          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black"
+          [readonly]="!isPartiallyPayment ? true : false"
+          [ngClass]="
+            !isPartiallyPayment
+              ? ' focus:outline-none cursor-not-allowed '
+              : ' focus:ring-2 focus:ring-custom-light-yellow focus:outline-none '
+          "
         />
 
         <label for="deduction" class="text-sm mb-1">Deduction</label>

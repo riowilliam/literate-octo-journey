@@ -32,6 +32,7 @@ export class DynamicFormCashInComponent {
   @Input() netAmount: string | null = null;
   @Input() cashInStatus: string | null = null;
   @Input() paymentType: string | null = null;
+  @Input() paymentAmount: string | null = null;
 
   @Output() formSubmit = new EventEmitter<any>();
   @Output() formCancel = new EventEmitter<void>();
@@ -45,13 +46,18 @@ export class DynamicFormCashInComponent {
       {
         invoiceNo: ['', Validators.required],
         amount: ['', Validators.required],
-        paidAmount: ['', Validators.required],
+        paidAmount: [''],
         partnerName: ['', Validators.required],
         projectName: ['', Validators.required],
-        deduction: ['', Validators.required],
+        deduction: [''],
         netAmount: ['', Validators.required],
         cashInStatus: ['', Validators.required],
         paymentType: ['', Validators.required],
+        contractName: [''],
+        paymentAmount: [
+          this.isPartiallyPayment ? 'Pending Cash In' : '',
+          Validators.required,
+        ],
       },
       { validators: amountValidation }
     );
@@ -80,14 +86,15 @@ export class DynamicFormCashInComponent {
       netAmount: this.formatWithMask(this.netAmount),
       cashInStatus: this.cashInStatus,
       paymentType: '1',
+      paymentAmount: this.formatWithMask(this.paymentAmount),
     });
   }
 
   initializeValueChangeSubscriptions(): void {
-    this.customForm.get('paidAmount')?.valueChanges.subscribe((value) => {
+    this.customForm.get('paymentAmount')?.valueChanges.subscribe((value) => {
       const formattedValue = this.formatWithMask(value);
       this.customForm
-        .get('paidAmount')
+        .get('paymentAmount')
         ?.setValue(formattedValue, { emitEvent: false });
       this.updateNetAmount();
     });
@@ -105,9 +112,10 @@ export class DynamicFormCashInComponent {
       ?.valueChanges.pipe(distinctUntilChanged())
       .subscribe((newInvoiceAmount) => {
         if (!this.isPartiallyPayment) {
-          const currentPaidAmount = this.customForm.get('paidAmount')?.value;
-          if (currentPaidAmount !== newInvoiceAmount) {
-            this.customForm.get('paidAmount')?.setValue(newInvoiceAmount);
+          const currentPaymentAmount =
+            this.customForm.get('paymentAmount')?.value;
+          if (currentPaymentAmount !== newInvoiceAmount) {
+            this.customForm.get('paymentAmount')?.setValue(newInvoiceAmount);
           }
         }
       });
@@ -115,31 +123,35 @@ export class DynamicFormCashInComponent {
 
   updateNetAmount(): void {
     const amount = parseCurrency(this.customForm.get('amount')?.value);
-    const paidAmount = parseCurrency(this.customForm.get('paidAmount')?.value);
+    const paymentAmount = parseCurrency(
+      this.customForm.get('paymentAmount')?.value
+    );
     const deduction = parseCurrency(this.customForm.get('deduction')?.value);
 
     const netAmount =
-      (this.isPartiallyPayment ? paidAmount : amount) -
+      (this.isPartiallyPayment ? paymentAmount : amount) -
       (deduction ? deduction : 0);
     this.customForm.get('netAmount')?.setValue(this.formatWithMask(netAmount));
   }
 
   onPaymentTypeChange(paymentType: string): void {
     this.isPartiallyPayment = paymentType === 'partially';
-
+    this.customForm.get('deduction')?.setValue(null);
+    this.customForm.get('netAmount')?.setValue(null);
     if (this.isPartiallyPayment) {
       this.customForm.controls['cashInStatus'].setValue('Pending Cash In');
       this.customForm.controls['cashInStatus'].disable();
-      this.customForm.controls['paymentType'].setValue('1');
-      this.customForm.controls['paidAmount'].setValue(null);
+      this.customForm.controls['paymentType'].setValue('2');
+      this.customForm.controls['paymentAmount'].setValue(null);
       this.showPaymentAmount = true;
     } else {
       this.customForm.controls['cashInStatus'].setValue(null);
       this.customForm.controls['cashInStatus'].enable();
-      this.customForm.controls['paymentType'].setValue('2');
+      this.customForm.controls['paymentType'].setValue('1');
       this.customForm
-        .get('paidAmount')
+        .get('paymentAmount')
         ?.setValue(this.customForm.get('netAmount')?.value);
+
       this.showPaymentAmount = false;
     }
   }
@@ -179,19 +191,19 @@ function amountValidation(group: FormGroup): ValidationErrors | null {
   const amount = parseCurrency(group.get('amount')?.value);
   const paidAmount = parseCurrency(group.get('paidAmount')?.value);
   const deduction = parseCurrency(group.get('deduction')?.value);
+  const paymentAmount = parseCurrency(group.get('paymentAmount')?.value);
+  const paymentType = Number(group.get('paymentType')?.value);
 
   const errors: ValidationErrors = {};
 
-  if (paidAmount > amount) {
-    errors['paidAmountGreaterThanAmount'] = true;
+  if (paymentType === 2) {
+    if (paymentAmount > amount - paidAmount) {
+      errors['paymentAmountGreaterThanAmountMinusAmount'] = true;
+    }
   }
 
-  if (deduction >= amount) {
-    errors['deductionGreaterThanAmount'] = true;
-  }
-
-  if (deduction >= paidAmount) {
-    errors['deductionGreaterThanPaidAmount'] = true;
+  if (deduction >= paymentAmount) {
+    errors['deductionGreaterThanPaymentAmount'] = true;
   }
 
   return Object.keys(errors).length ? errors : null;

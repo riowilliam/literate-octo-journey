@@ -95,7 +95,7 @@ export class DashboardComponent {
       queryParams: {},
     },
     {
-      headerText: 'Cash Out Documents',
+      headerText: 'Cash Out Document',
       sections: [
         [
           { label: 'Total Created', value: 0 },
@@ -121,7 +121,7 @@ export class DashboardComponent {
       queryParams: {},
     },
     {
-      headerText: 'Cash Out Documents',
+      headerText: 'Cash Out Document',
       sections: [[{ label: 'Total Data', value: 0 }]],
       route: '',
       queryParams: {},
@@ -785,7 +785,7 @@ export class DashboardComponent {
         queryParams: { startDate: this.startDate, endDate: this.endDate },
       },
       {
-        headerText: 'Cash Out Documents',
+        headerText: 'Cash Out Document',
         sections: [
           [
             { label: 'Total Created', value: 0 },
@@ -811,7 +811,7 @@ export class DashboardComponent {
         queryParams: { startDate: this.startDate, endDate: this.endDate },
       },
       {
-        headerText: 'Cash Out Documents',
+        headerText: 'Cash Out Document',
         sections: [[{ label: 'Total Data', value: 0 }]],
         route: '/document-cash-out',
         queryParams: { startDate: this.startDate, endDate: this.endDate },
@@ -1009,7 +1009,10 @@ export class DashboardComponent {
       ],
       formPaidQuantity: [
         type !== 'add' ? 0 : '',
-        [Validators.required, Validators.min(1)],
+        [
+          item?.remainingQuantity ? Validators.required : () => {},
+          item?.remainingQuantity ? Validators.min(1) : () => {},
+        ],
       ],
       formRemainingQuantity: [type !== 'add' ? item?.remainingQuantity : ''],
     });

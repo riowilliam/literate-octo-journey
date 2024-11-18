@@ -58,7 +58,10 @@ export class DynamicFormCashInV2Component {
         cashInStatus: ['', Validators.required],
         paymentType: ['', Validators.required],
         contractName: [''],
-        paymentAmount: ['', Validators.required],
+        paymentAmount: [
+          this.isPartiallyPayment ? 'Pending Cash In' : '',
+          Validators.required,
+        ],
       },
       { validators: amountValidation }
     );
