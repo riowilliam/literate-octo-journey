@@ -807,6 +807,60 @@ export class ArMonitoringComponent {
     }
   }
 
+  async fetchPreviewContractList(contractName?: string, tmpData?: any) {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('contractName', '')
+      .set('contractCode', contractName ? contractName : '');
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<ContractDetailResponse>(
+          environment.API_URL,
+          'api/contract/getContractList',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        this.resetItemDetailList();
+        if (response?.data?.length > 0) {
+          this.formItemDetailList.clear();
+          tmpData.item_details.forEach((tmpItem: any) => {
+            response.data[0]?.itemList.forEach((item) => {
+              if (tmpItem?.itemName === item?.itemName) {
+                this.formItemDetailList.push(
+                  this.createPreviewFormGroupItemDetail(item, tmpItem)
+                );
+              }
+            });
+          });
+
+          this.formPreviewConfig = this.formPreviewConfig.map((config: any) => {
+            if (config.key === 'formContract') {
+              return {
+                ...config,
+                options: this.mapDropdownOptionsContract(response),
+              };
+            }
+            return config;
+          });
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch contract list', error);
+      this.notificationService.show(error, 'error');
+    }
+  }
+
   async fetchPartnerList() {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
@@ -961,11 +1015,11 @@ export class ArMonitoringComponent {
     });
   }
 
-  async fetchPreviewDataDetail(type: string, contractName: string, data: any) {
+  async fetchPreviewDataDetail(contractName: string, data: any) {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchContractList(type, contractName, data)]);
+      await Promise.all([this.fetchPreviewContractList(contractName, data)]);
       await Promise.all([this.fetchPartnerList()]);
       await Promise.all([this.prefillPreviewForm(data)]);
       this.showModalInvoiceStatus = true;
@@ -1050,11 +1104,7 @@ export class ArMonitoringComponent {
         this.fetchArMonitoring();
         break;
       case 'invoice_status':
-        this.fetchPreviewDataDetail(
-          row?.key,
-          row?.row?.contract_name,
-          row?.row
-        );
+        this.fetchPreviewDataDetail(row?.row?.contract_name, row?.row);
         break;
       case 'payment_status':
         this.invoiceNo = row?.row?.invoice_no;
@@ -1262,6 +1312,14 @@ export class ArMonitoringComponent {
         ],
       ],
       formRemainingQuantity: [type !== 'add' ? item?.remainingQuantity : ''],
+    });
+  }
+
+  private createPreviewFormGroupItemDetail(item?: any, tmpItem?: any) {
+    return this.fb.group({
+      formItemName: [tmpItem?.itemName],
+      formPaidQuantity: [tmpItem?.paymentQuantity],
+      formRemainingQuantity: [item?.remainingQuantity],
     });
   }
 

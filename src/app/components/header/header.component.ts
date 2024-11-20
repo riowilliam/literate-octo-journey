@@ -133,7 +133,6 @@ export class HeaderComponent {
   isCashOutOpen: boolean = false;
 
   roles: { roleCode: string; roleName: string; permissions: string[] }[] = [];
-  permissions: string[] = [];
 
   constructor(
     private router: Router,
@@ -183,81 +182,10 @@ export class HeaderComponent {
             response?.info?.toLowerCase() === 'success'
           ) {
             this.roles = response.data.map((role: any) => {
-              if (role.roleCode === 'S-ADM') {
-                this.permissions = [
-                  'view_dashboard',
-                  'view_project_monitoring',
-                  'view_ar_monitoring',
-                  'view_cash_in',
-                  'view_cash_out_menu',
-                  'view_master_data',
-                  'manage_documents',
-                  'manage_regular_mutation',
-                  'manage_facility',
-                  'manage_partner',
-                  'manage_vendor',
-                  'manage_project',
-                  'manage_contract',
-                  'manage_items',
-                  'manage_user',
-                ];
-              } else if (role.roleCode === 'ADMN') {
-                this.permissions = [
-                  'view_dashboard',
-                  'view_project_monitoring',
-                  'view_ar_monitoring',
-                  'view_cash_in',
-                  'view_cash_out_menu',
-                  'view_master_data',
-                  'manage_documents',
-                  'manage_regular_mutation',
-                  'manage_facility',
-                  'manage_partner',
-                  'manage_vendor',
-                  'manage_project',
-                  'manage_contract',
-                  'manage_items',
-                ];
-              } else if (role.roleCode === 'USER') {
-                this.permissions = [
-                  'view_dashboard',
-                  'view_project_monitoring',
-                  'view_ar_monitoring',
-                  'view_cash_in',
-                  'view_cash_out_menu',
-                  'view_master_data',
-                  'manage_documents',
-                  'manage_regular_mutation',
-                  'manage_facility',
-                  'manage_partner',
-                  'manage_vendor',
-                  'manage_project',
-                  'manage_contract',
-                  'manage_items',
-                ];
-              } else if (role.roleCode === 'USR-V') {
-                this.permissions = [
-                  'view_dashboard',
-                  'view_project_monitoring',
-                  'view_ar_monitoring',
-                  'view_cash_in',
-                  'view_cash_out_menu',
-                  'view_master_data',
-                  'manage_documents',
-                  'manage_regular_mutation',
-                  'manage_facility',
-                  'manage_partner',
-                  'manage_vendor',
-                  'manage_project',
-                  'manage_contract',
-                  'manage_items',
-                ];
-              }
-
               return {
                 roleCode: role.roleCode,
                 roleName: role.roleName,
-                permissions: this.permissions,
+                permissions: role.permissions,
               };
             });
             sessionStorage.setItem(

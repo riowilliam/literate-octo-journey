@@ -1,10 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  HostListener,
-  Input,
-  Output,
-} from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import {
   FormGroup,
   FormArray,
@@ -12,7 +6,6 @@ import {
   FormBuilder,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { DotAfterThreeCharsDirective } from '../../directives/dot-after-three-chars.directive';
 
 export interface FieldConfig {
   type: string;
@@ -26,7 +19,7 @@ export interface FieldConfig {
 @Component({
   selector: 'app-dynamic-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DotAfterThreeCharsDirective],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './dynamic-form.component.html',
   styleUrl: './dynamic-form.component.scss',
 })

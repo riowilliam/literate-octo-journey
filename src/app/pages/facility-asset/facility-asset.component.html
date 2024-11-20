@@ -1,70 +1,3 @@
-<app-dynamic-modal
-  [title]="'Form'"
-  [showModal]="showModalForm"
-  (closeModal)="closeModalForm()"
->
-  <app-dynamic-input
-    type="text"
-    [value]="textValue"
-    placeholder="Enter text"
-    [disabled]="isDisabled"
-    label="Text Input"
-    [inputClass]="'px-3 py-2 border rounded'"
-    [labelClass]="'text-gray-700'"
-    (valueChange)="handleValueChange($event)"
-  ></app-dynamic-input>
-
-  <app-dynamic-input
-    type="number"
-    [value]="numberValue"
-    placeholder="Enter number"
-    [disabled]="isDisabled"
-    label="Number Input"
-    [inputClass]="'px-3 py-2 border rounded'"
-    [labelClass]="'text-gray-700'"
-    (valueChange)="handleValueChange($event)"
-  ></app-dynamic-input>
-
-  <app-dynamic-input
-    type="dropdown"
-    [value]="selectedOption"
-    [options]="dropdownOptions"
-    [disabled]="isDisabled"
-    label="Dropdown"
-    [inputClass]="'px-3 py-2 border rounded'"
-    [labelClass]="'text-gray-700'"
-    (valueChange)="handleValueChange($event)"
-  ></app-dynamic-input>
-
-  <app-dynamic-input
-    type="textarea"
-    [value]="textareaValue"
-    placeholder="Enter text"
-    [disabled]="isDisabled"
-    label="Textarea"
-    [inputClass]="'px-3 py-2 border rounded'"
-    [labelClass]="'text-gray-700'"
-    (valueChange)="handleValueChange($event)"
-  ></app-dynamic-input>
-
-  <app-dynamic-input
-    type="datepicker"
-    [value]="dateValue"
-    [disabled]="isDisabled"
-    label="Datepicker"
-    [inputClass]="'px-3 py-2 border rounded'"
-    [labelClass]="'text-gray-700'"
-    (valueChange)="handleValueChange($event)"
-  ></app-dynamic-input>
-</app-dynamic-modal>
-
-<app-dynamic-modal
-  [title]="'Add'"
-  [showModal]="showModalAdd"
-  (closeModal)="closeModalAdd()"
->
-</app-dynamic-modal>
-
 <app-content-card>
   <div class="flex gap-4" *ngFor="let card of cards">
     <app-dynamic-card [headerText]="card.headerText" [sections]="card.sections">
@@ -79,83 +12,83 @@
 >
   <app-dynamic-input
     type="text"
-    [value]="textValue"
+    [value]="filterForm.get('vendorName')?.value"
     placeholder="Enter text"
-    [disabled]="isDisabled"
     label="Vendor Name"
+    formControlName="vendorName"
     [inputClass]="
       'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'vendorName')"
   ></app-dynamic-input>
 
   <app-dynamic-input
     type="text"
-    [value]="textValue"
+    [value]="filterForm.get('facilityType')?.value"
     placeholder="Enter text"
-    [disabled]="isDisabled"
     label="Facility Type"
+    formControlName="facilityType"
     [inputClass]="
       'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'facilityType')"
   ></app-dynamic-input>
 
   <app-dynamic-input
     type="dropdown"
-    [value]="selectedOption"
+    [value]="filterForm.get('transactionType')?.value"
     placeholder="Select an option"
-    [options]="dropdownOptions"
-    [disabled]="isDisabled"
+    [options]="dropdownTransactionTypeOptions"
     label="Transaction Type"
+    formControlName="transactionType"
     [inputClass]="
       'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'transactionType')"
   ></app-dynamic-input>
 
   <div class="flex flex-wrap items-end content-center gap-4">
     <app-dynamic-input
       type="datepicker"
-      [value]="dateValue"
-      [disabled]="isDisabled"
+      [value]="filterForm.get('startDate')?.value"
       label="Transaction Date"
+      formControlName="startDate"
       [inputClass]="
         'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
       "
       [labelClass]="'font-medium text-sm mb-1'"
-      (valueChange)="handleValueChange($event)"
+      (valueChange)="handleValueChange($event, 'startDate')"
     ></app-dynamic-input>
 
     <span class="mb-2 font-medium text-sm">Until</span>
 
     <app-dynamic-input
       type="datepicker"
-      [value]="dateValue"
-      [disabled]="isDisabled"
+      [value]="filterForm.get('endDate')?.value"
+      formControlName="endDate"
       [inputClass]="
         'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
       "
       [labelClass]="'font-medium text-sm mb-1'"
-      (valueChange)="handleValueChange($event)"
+      (valueChange)="handleValueChange($event, 'endDate')"
     ></app-dynamic-input>
   </div>
 
   <app-dynamic-input
     type="dropdown"
-    [value]="selectedOption"
+    [value]="filterForm.get('tenorDateOnWeekend')?.value"
     placeholder="Select an option"
-    [options]="dropdownOptions"
-    [disabled]="isDisabled"
+    [options]="dropdownTenorDateOnWeekendOptions"
     label="Tenor Date On Weekend"
+    formControlName="tenorDateOnWeekend"
     [inputClass]="
       'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event)"
+    (valueChange)="handleValueChange($event, 'tenorDateOnWeekend')"
   ></app-dynamic-input>
 </app-content-filter>
 
@@ -163,6 +96,10 @@
   <app-dynamic-table
     [headers]="headers"
     [rows]="data"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [currentPage]="pageNo + 1"
+    (buttonPagination)="onPageChange($event)"
     (buttonClick)="handleButtonClick($event)"
   >
   </app-dynamic-table>

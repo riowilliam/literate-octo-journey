@@ -40,8 +40,6 @@ import { firstValueFrom } from 'rxjs';
     ContentTableComponent,
     DynamicInputComponent,
     ContentFilterComponent,
-    ContentCardComponent,
-    DynamicCardComponent,
     CommonModule,
     DynamicFormArrayComponent,
   ],

@@ -33,8 +33,6 @@ import { BankListResponse } from './dto/bank.dto';
     ContentTableComponent,
     DynamicInputComponent,
     ContentFilterComponent,
-    ContentCardComponent,
-    DynamicCardComponent,
     CommonModule,
     DynamicFormOnPopUpComponent,
   ],

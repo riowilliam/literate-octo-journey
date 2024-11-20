@@ -158,10 +158,12 @@ export class FormARInvoiceRequest {
     this.totalAmount = this.parseCurrency(data.formNetAmount);
     this.note = data.formNote;
 
-    this.itemDetails = data.formItemDetailList.map((item: any) => ({
-      itemName: item.formItemName,
-      paymentQuantity: Number(item.formPaidQuantity),
-    }));
+    this.itemDetails = data.formItemDetailList
+      .filter((item: any) => Number(item.formPaidQuantity) > 0)
+      .map((item: any) => ({
+        itemName: item.formItemName,
+        paymentQuantity: Number(item.formPaidQuantity),
+      }));
   }
 
   private parseCurrency(value: string): number {

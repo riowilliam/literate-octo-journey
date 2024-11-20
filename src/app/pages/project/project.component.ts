@@ -32,8 +32,6 @@ import { environment } from '../../../environments/environment';
     ContentTableComponent,
     DynamicInputComponent,
     ContentFilterComponent,
-    ContentCardComponent,
-    DynamicCardComponent,
     CommonModule,
     DynamicFormOnPopUpComponent,
   ],

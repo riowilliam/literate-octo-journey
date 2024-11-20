@@ -32,8 +32,6 @@ import { NotificationService } from '../../services/notification.service';
     ContentTableComponent,
     DynamicInputComponent,
     ContentFilterComponent,
-    ContentCardComponent,
-    DynamicCardComponent,
     CommonModule,
     DynamicFormOnPopUpComponent,
   ],

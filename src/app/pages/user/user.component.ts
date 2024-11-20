@@ -33,8 +33,6 @@ import { DynamicFormOnPopUpComponent } from '../../components/dynamic-form-on-po
     ContentTableComponent,
     DynamicInputComponent,
     ContentFilterComponent,
-    ContentCardComponent,
-    DynamicCardComponent,
     CommonModule,
     DynamicFormOnPopUpComponent,
   ],

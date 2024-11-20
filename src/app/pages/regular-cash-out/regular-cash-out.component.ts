@@ -25,13 +25,10 @@ import { RupiahPipe } from '../../pipes/rupiah.pipe';
   selector: 'app-regular-cash-out',
   standalone: true,
   imports: [
-    DynamicModalComponent,
     DynamicTableComponent,
     ContentTableComponent,
     DynamicInputComponent,
     ContentFilterComponent,
-    ContentCardComponent,
-    DynamicCardComponent,
     CommonModule,
     RupiahPipe,
   ],
