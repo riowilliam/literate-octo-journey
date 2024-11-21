@@ -499,7 +499,9 @@ export class ArMonitoringComponent {
             }
             return config;
           });
-          this.updateItemDetails(selectedContract?.listDetail);
+          if (this.showModalAdd) {
+            this.updateItemDetails(selectedContract?.listDetail);
+          }
         }
       });
 
@@ -831,7 +833,6 @@ export class ArMonitoringComponent {
       ) {
         this.resetItemDetailList();
         if (response?.data?.length > 0) {
-          this.formItemDetailList.clear();
           tmpData.item_details.forEach((tmpItem: any) => {
             response.data[0]?.itemList.forEach((item) => {
               if (tmpItem?.itemName === item?.itemName) {
@@ -1288,6 +1289,14 @@ export class ArMonitoringComponent {
   }
 
   closeModalPayment() {
+    this.invoiceNo = '';
+    this.amount = '';
+    this.partnerName = '';
+    this.projectName = '';
+    this.deduction = '';
+    this.netAmount = '';
+    this.contractName = '';
+    this.paymentAmount = '';
     this.showModalPayment = false;
   }
 

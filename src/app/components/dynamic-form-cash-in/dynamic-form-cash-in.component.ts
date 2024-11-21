@@ -72,6 +72,7 @@ export class DynamicFormCashInComponent {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes) {
       this.setInitialValues();
+      this.onPaymentTypeChange('fully');
     }
   }
 
@@ -135,7 +136,11 @@ export class DynamicFormCashInComponent {
   }
 
   onPaymentTypeChange(paymentType: string): void {
-    this.isPartiallyPayment = paymentType === 'partially';
+    if (paymentType === 'partially') {
+      this.isPartiallyPayment = true;
+    } else {
+      this.isPartiallyPayment = false;
+    }
     this.customForm.get('deduction')?.setValue(null);
     this.customForm.get('netAmount')?.setValue(null);
     if (this.isPartiallyPayment) {
