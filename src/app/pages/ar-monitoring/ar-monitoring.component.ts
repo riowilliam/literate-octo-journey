@@ -126,6 +126,7 @@ export class ArMonitoringComponent {
     { key: 'partner_name', renderType: () => 'text', label: 'Partner Name' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
     { key: 'amount', renderType: () => 'currency', label: 'DPP Amount' },
+    { key: 'paid_amount', renderType: () => 'currency', label: 'Paid Amount' },
     { key: 'ppn_amount', renderType: () => 'currency', label: 'PPN Amount' },
     { key: 'pph_amount', renderType: () => 'currency', label: 'PPH Amount' },
     { key: 'deduction', renderType: () => 'currency', label: 'Deduction' },
@@ -1117,7 +1118,11 @@ export class ArMonitoringComponent {
           row?.row?.amount - row?.row?.deduction
         );
         this.contractName = row?.row?.contract_name;
-        this.paymentAmount = this.formatWithMask(row?.row?.total_amount);
+        this.paymentAmount = this.formatWithMask(
+          row?.row?.total_amount -
+            (row?.row?.paid_amount ? row?.row?.paid_amount : 0)
+        );
+        this.cashInStatus = row?.row?.payment_status;
         this.showModalPayment = true;
         break;
     }

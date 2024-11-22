@@ -146,7 +146,11 @@ export class FormCashInRequest {
   }
 
   private determineCashInStatus(cashInStatus: string): string {
-    if (cashInStatus === 'Pending Cash In') {
+    if (
+      cashInStatus === 'Pending Cash In' ||
+      cashInStatus === null ||
+      cashInStatus === undefined
+    ) {
       return 'Incompleted';
     } else {
       return 'Completed';

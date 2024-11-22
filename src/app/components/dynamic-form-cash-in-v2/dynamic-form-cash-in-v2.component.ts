@@ -120,8 +120,14 @@ export class DynamicFormCashInV2Component {
         if (!this.isPartiallyPayment) {
           const currentPaymentAmount =
             this.customForm.get('paymentAmount')?.value;
+          const paidAmount = this.customForm.get('paidAmount')?.value;
+          const currentAmount = this.customForm.get('amount')?.value;
           if (currentPaymentAmount !== newInvoiceAmount) {
-            this.customForm.get('paymentAmount')?.setValue(newInvoiceAmount);
+            this.customForm
+              .get('paymentAmount')
+              ?.setValue(
+                parseCurrency(currentAmount) - parseCurrency(paidAmount)
+              );
           }
         }
       });
@@ -133,10 +139,12 @@ export class DynamicFormCashInV2Component {
       this.customForm.get('paymentAmount')?.value
     );
     const deduction = parseCurrency(this.customForm.get('deduction')?.value);
+    const paidAmount = parseCurrency(this.customForm.get('paidAmount')?.value);
 
     const netAmount =
-      (this.isPartiallyPayment ? paymentAmount : amount) -
-      (deduction ? deduction : 0);
+      (this.isPartiallyPayment
+        ? paymentAmount
+        : amount - (paidAmount ? paidAmount : 0)) - (deduction ? deduction : 0);
     this.customForm.get('netAmount')?.setValue(this.formatWithMask(netAmount));
   }
 
