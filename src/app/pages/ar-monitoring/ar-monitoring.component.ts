@@ -126,6 +126,9 @@ export class ArMonitoringComponent {
     { key: 'partner_name', renderType: () => 'text', label: 'Customer Name' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
     { key: 'amount', renderType: () => 'currency', label: 'DPP Amount' },
+    { key: 'progress', renderType: () => 'currency', label: 'Progress' },
+    { key: 'retention', renderType: () => 'currency', label: 'Retention' },
+    { key: 'down_payment', renderType: () => 'currency', label: 'Down Payment' },
     { key: 'paid_amount', renderType: () => 'currency', label: 'Paid Amount' },
     { key: 'ppn_amount', renderType: () => 'currency', label: 'PPN Amount' },
     { key: 'pph_amount', renderType: () => 'currency', label: 'PPH Amount' },
@@ -136,8 +139,10 @@ export class ArMonitoringComponent {
       label: 'Total Amount',
     },
     { key: 'contract_name', renderType: () => 'text', label: 'Contract No' },
+    { key: 'tax_invoice_number', renderType: () => 'text', label: 'Tax Invoice Number' },
     { key: 'bapp_no', renderType: () => 'text', label: 'BAPP No' },
-    { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
+    { key: 'bapp_date', renderType: () => 'date', label: 'BAPP Date' },
+    { key: 'invoice_date', renderType: () => 'date', label: 'Invoice Date' },
     {
       key: 'invoice_status',
       renderType: (value: any) => {
@@ -1001,7 +1006,7 @@ export class ArMonitoringComponent {
 
   async prefillPreviewForm(data: any) {
     this.arMonitoringForm.patchValue({
-      formInvoiceNo: data.invoice_no,
+      formInvoiceNo: data.invoice_no,      
       formPartner: data.partner_name,
       formContract: data.contract_name,
       formProject: data.project_name,

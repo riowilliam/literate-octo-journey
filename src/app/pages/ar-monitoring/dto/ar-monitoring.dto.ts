@@ -4,11 +4,14 @@ export class ArInvoiceDetailList {
   contractName!: string;
   projectName!: string;
   bappNo!: string;
+  bappDate!: string;
   amount!: number;
+  retention!: number;
+  downPayment!: number;
+  progress!: number;
   ppn!: number;
   pph!: number;
   totalAmount!: number;
-  documentTracking!: string;
   invoiceStatus!: number;
   paymentStatus!: string | null;
   createdDate!: string;
@@ -18,6 +21,8 @@ export class ArInvoiceDetailList {
   deduction!: number;
   itemDetails!: any;
   paidAmount!: number;
+  taxInvoiceNumber!: string;
+  invoiceDate!: string;
 
   static fromApiResponse(data: ArInvoiceList[]): ArInvoiceDetail[] {
     return data.flatMap((mutationList) =>
@@ -28,11 +33,14 @@ export class ArInvoiceDetailList {
         contract_name: arInvoiceDetailData.contractName || '',
         project_name: arInvoiceDetailData.projectName || '',
         bapp_no: arInvoiceDetailData.bappNo || '',
+        bapp_date: arInvoiceDetailData.bappDate || '',
         amount: arInvoiceDetailData.amount || 0,
+        retention: arInvoiceDetailData.retention || 0,
+        down_payment: arInvoiceDetailData.downPayment || 0,
+        progress: arInvoiceDetailData.progress || 0,
         ppn_amount: arInvoiceDetailData.ppn || 0,
         pph_amount: arInvoiceDetailData.pph || 0,
         total_amount: arInvoiceDetailData.totalAmount || 0,
-        document_tracking: arInvoiceDetailData.documentTracking || 'Unknown',
         invoice_status: arInvoiceDetailData.invoiceStatus || 0,
         payment_status: arInvoiceDetailData.paymentStatus || null,
         created_date: arInvoiceDetailData.createdDate || 'N/A',
@@ -42,6 +50,8 @@ export class ArInvoiceDetailList {
         deduction: arInvoiceDetailData.deduction || 0,
         item_details: arInvoiceDetailData.itemDetails,
         paid_amount: arInvoiceDetailData.paidAmount || 0,
+        tax_invoice_number: arInvoiceDetailData.taxInvoiceNumber || '',
+        invoice_date: arInvoiceDetailData.invoiceDate || '',
       }))
     );
   }
@@ -76,11 +86,14 @@ export class ArInvoiceDetail {
   contract_name!: string;
   project_name!: string;
   bapp_no!: string;
+  bapp_date!: string;
   amount!: number;
+  retention!: number;
+  down_payment!: number;
+  progress!: number;
   ppn_amount!: number;
   pph_amount!: number;
   total_amount!: number;
-  document_tracking!: string;
   invoice_status!: number;
   payment_status!: string | null;
   created_date!: string;
@@ -90,6 +103,8 @@ export class ArInvoiceDetail {
   deduction!: number;
   item_details!: any;
   paid_amount!: number;
+  tax_invoice_number!: string;
+  invoice_date!: string;
 }
 
 export class ArInvoiceList {

@@ -28,7 +28,6 @@ export class PartnerList {
     return data.map((partnerData, index) => ({
       no: index + 1,
       partner_name: partnerData?.partnerName,
-      document_tracking: partnerData?.documentTracking === 'YES' ? 'Yes' : 'No',
       ppn_wapu: partnerData?.ppnWapu === 'YES' ? 'Yes' : 'No',
       active_project: partnerData?.activeProject,
       created_date: partnerData?.createdDate,
@@ -43,9 +42,6 @@ export class PartnerList {
 export class Partner {
   no!: number;
   partner_name!: string;
-  // valid_contract_date!: string;
-  // invalid_contract_date!: string;
-  document_tracking!: string;
   ppn_wapu!: string;
   active_project!: string[];
   created_date!: string;

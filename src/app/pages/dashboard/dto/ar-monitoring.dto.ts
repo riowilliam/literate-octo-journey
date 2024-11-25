@@ -30,7 +30,6 @@ export class ArInvoiceDetailList {
         ppn_amount: arInvoiceDetailData.ppn || 0,
         pph_amount: arInvoiceDetailData.pph || 0,
         total_amount: arInvoiceDetailData.totalAmount || 0,
-        document_tracking: arInvoiceDetailData.documentTracking || 'Unknown',
         invoice_status: arInvoiceDetailData.invoiceStatus || 0,
         payment_status: arInvoiceDetailData.paymentStatus || null,
         created_date: arInvoiceDetailData.createdDate || 'N/A',
@@ -76,7 +75,6 @@ export class ArInvoiceDetail {
   ppn_amount!: number;
   pph_amount!: number;
   total_amount!: number;
-  document_tracking!: string;
   invoice_status!: number;
   payment_status!: string | null;
   created_date!: string;
