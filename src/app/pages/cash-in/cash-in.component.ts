@@ -75,7 +75,7 @@ export class CashInComponent {
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
     { key: 'cash_in_id', renderType: () => 'number', label: 'ID' },
-    { key: 'partner_name', renderType: () => 'text', label: 'Partner Name' },
+    { key: 'partner_name', renderType: () => 'text', label: 'Customer Name' },
     { key: 'invoice_no', renderType: () => 'text', label: 'Invoice No' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
     { key: 'contract_name', renderType: () => 'text', label: 'Contract' },

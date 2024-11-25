@@ -73,7 +73,7 @@ export class VendorComponent {
     {
       key: 'bank_account',
       renderType: () => 'text',
-      label: 'Bank Name',
+      label: 'Bank Account',
     },
     {
       key: 'bank_account_name',

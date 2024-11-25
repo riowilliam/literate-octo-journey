@@ -233,7 +233,7 @@ export class DashboardComponent {
       },
       {
         key: 'formPartner',
-        label: 'Partner',
+        label: 'Customer',
         type: 'searchable-dropdown',
         options: this.dropdownOptionsPartner,
         placeholder: 'Select an option',
@@ -1029,7 +1029,7 @@ export class DashboardComponent {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', '')
-      .set('contractCode', '');
+      .set('contractNo', '');
 
     try {
       const response = await firstValueFrom(
@@ -1194,7 +1194,7 @@ export class DashboardComponent {
 
   private mapDropdownOptionsContract(response: ContractDetailResponse) {
     return response?.data?.map((data) => ({
-      value: data?.contractCode,
+      value: data?.contractNo,
       label: data?.contractName,
       listDetail: data?.itemList,
     }));

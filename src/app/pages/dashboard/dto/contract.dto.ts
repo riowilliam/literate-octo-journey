@@ -49,7 +49,7 @@ export class ItemDetailList {
 }
 
 export class ContractDetail {
-  contractCode!: string;
+  contractNo!: string;
   contractName!: string;
   itemList!: ItemDetailList[];
 }

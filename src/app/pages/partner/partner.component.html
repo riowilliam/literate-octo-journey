@@ -20,8 +20,6 @@
   <app-dynamic-form-on-pop-up
     [formValue]="{
       formPartnerName: partnerForm.get('formPartnerName')?.value,
-      formValidContractDate: partnerForm.get('formValidContractDate')?.value,
-      formInvalidContractDate: partnerForm.get('formInvalidContractDate')?.value,
       formPPNWapu: partnerForm.get('formPPNWapu')?.value,
       formDocumentTracking: partnerForm.get('formDocumentTracking')?.value,
       formActiveProject: partnerForm.get('formActiveProject')?.value,
@@ -71,27 +69,13 @@
     type="text"
     [value]="filterForm.get('partnerName')?.value"
     placeholder="Enter text"
-    label="Partner Name"
+    label="Customer Name"
     formControlName="partnerName"
     [inputClass]="
       'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
     (valueChange)="handleValueChange($event, 'partnerName')"
-  ></app-dynamic-input>
-
-  <app-dynamic-input
-    type="dropdown"
-    [value]="filterForm.get('documentTracking')?.value"
-    placeholder="Select an option"
-    [options]="dropdownOptionsDocumentTracking"
-    label="Document Tracking"
-    formControlName="documentTracking"
-    [inputClass]="
-      'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
-    "
-    [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event, 'documentTracking')"
   ></app-dynamic-input>
 
   <app-dynamic-input
@@ -137,8 +121,8 @@
 </app-content-filter>
 
 <app-content-table
-  [title]="'Partner List'"
-  [label]="'Add New Partner'"
+  [title]="'Customer List'"
+  [label]="'Add New Customer'"
   [hasButton]="true"
   (buttonClick)="handleButtonClick({ key: 'add' })"
 >

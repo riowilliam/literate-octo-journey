@@ -82,7 +82,7 @@ export class HeaderComponent {
       link: null,
       subMenu: [
         {
-          name: 'Partner',
+          name: 'Customer',
           link: '/partner',
           isActive: false,
           requiredPermissions: ['manage_partner'],

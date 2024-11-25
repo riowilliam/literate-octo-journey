@@ -18,14 +18,14 @@
 </app-dynamic-modal>
 
 <app-dynamic-modal
-  [title]="'Edit Contract ' + contractCode"
+  [title]="'Edit Contract ' + contractNo"
   [showModal]="showModalEdit"
   (closeModal)="closeModalEdit()"
 >
   <app-dynamic-form-array
     [formValue]="{
       formContractName: contractForm.get('formContractName')?.value,
-      contractCode: contractForm.get('contractCode')?.value,
+      contractNo: contractForm.get('contractNo')?.value,
     }"
     [dynamicForm]="contractForm"
     [formConfig]="formConfig"
@@ -41,7 +41,7 @@
 </app-dynamic-modal>
 
 <app-dynamic-modal
-  [title]="'Contract ' + contractCode"
+  [title]="'Contract ' + contractNo"
   [showModal]="showModalItemDetails"
   (closeModal)="closeModalItemDetails()"
 >
@@ -68,7 +68,7 @@
 </app-dynamic-modal>
 
 <app-dynamic-modal
-  [title]="'Contract ' + contractCode"
+  [title]="'Contract ' + contractNo"
   [showModal]="showModalRevision"
   (closeModal)="closeModalRevision()"
 >
@@ -102,6 +102,19 @@
 >
   <app-dynamic-input
     type="text"
+    [value]="filterForm.get('partnerName')?.value"
+    placeholder="Enter text"
+    label="Customer Name"
+    formControlName="partnerName"
+    [inputClass]="
+      'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+    "
+    [labelClass]="'font-medium text-sm mb-1'"
+    (valueChange)="handleValueChange($event, 'partnerName')"
+  ></app-dynamic-input>
+
+  <app-dynamic-input
+    type="text"
     [value]="filterForm.get('contractName')?.value"
     placeholder="Enter text"
     label="Contract Name"
@@ -117,7 +130,7 @@
     <app-dynamic-input
       type="datepicker"
       [value]="filterForm.get('startDate')?.value"
-      label="Created Date"
+      label="Contract Date"
       formControlName="startDate"
       [inputClass]="
         'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'

@@ -109,9 +109,9 @@ export class ContractComponent {
       | 'icon'
       | 'empty';
   }[] = [
-    { key: 'no', renderType: () => 'number', label: 'No' },
+    // { key: 'no', renderType: () => 'number', label: 'No' },
     { key: 'revision', renderType: () => 'text', label: 'Revision' },
-    { key: 'created_date', renderType: () => 'text', label: 'Created Date' },
+    { key: 'addendum_date', renderType: () => 'text', label: 'Addendum Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
   ];
   headers: {
@@ -132,8 +132,10 @@ export class ContractComponent {
       | 'empty';
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
-    { key: 'contract_code', renderType: () => 'text', label: 'Contract Code' },
+    { key: 'contract_no', renderType: () => 'text', label: 'Contract No' },
     { key: 'contract_name', renderType: () => 'text', label: 'Contract Name' },
+    { key: 'partner_name', renderType: () => 'text', label: 'Customer Name' },
+    { key: 'contract_date', renderType: () => 'text', label: 'Contract Date' },
     { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
     { key: 'modified_date', renderType: () => 'date', label: 'Modified Date' },
@@ -157,7 +159,7 @@ export class ContractComponent {
       class: 'bg-custom-light-yellow px-4 py-2 rounded hover:bg-custom-yellow',
     },
   ];
-  contractCode!: string;
+  contractNo!: string;
   dropdownOptions: Array<{ value: any; label: any }> = [];
   formConfig!: any;
   formArrayConfig!: any;
@@ -170,6 +172,7 @@ export class ContractComponent {
     private notificationService: NotificationService
   ) {
     this.filterForm = this.fb.group({
+      partnerName: [''],
       contractName: [''],
       startDate: [''],
       endDate: [''],
@@ -192,12 +195,12 @@ export class ContractComponent {
       formContractName: ['', Validators.required],
       formRevision: [''],
       formItemDetailList: this.fb.array([]),
-      contractCode: [''],
+      contractNo: [''],
     });
     this.formConfig = [
       {
-        key: 'contractCode',
-        label: 'Contract Code',
+        key: 'contractNo',
+        label: 'Contract No',
         type: 'text',
         hidden: true,
       },
@@ -253,6 +256,7 @@ export class ContractComponent {
       .set('sortBy', this.sortBy)
       .set('sortOrder', this.sortOrder)
       .set('contractName', this.filterForm.get('contractName')?.value || '')
+      .set('partnerName', this.filterForm.get('partnerName')?.value || '')
       .set('startDate', this.filterForm.get('startDate')?.value || '')
       .set('endDate', this.filterForm.get('endDate')?.value || '');
     this.loaderService.show();
@@ -343,11 +347,11 @@ export class ContractComponent {
       });
   }
 
-  async fetchContractDetail(contractCode: string, contractName: string) {
+  async fetchContractDetail(contractNo: string, contractName: string) {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', contractName)
-      .set('contractCode', contractCode);
+      .set('contractNo', contractNo);
 
     try {
       const response = await firstValueFrom(
@@ -397,10 +401,10 @@ export class ContractComponent {
     }
   }
 
-  async fetchRevisionList(contractCode: string) {
+  async fetchRevisionList(contractNo: string) {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
-      .set('contractCode', contractCode);
+      .set('contractNo', contractNo);
 
     try {
       const response = await firstValueFrom(
@@ -419,9 +423,9 @@ export class ContractComponent {
         response?.info?.toLowerCase() === 'success'
       ) {
         this.dataDetailRevision = [...Revision.fromApiResponse(response?.data)];
-        const { revision } = response?.data?.reduce((latest, current) => {
+        const revision = response?.data?.reduce((latest, current) => {
           return current?.revision > latest?.revision ? current : latest;
-        }, response?.data[0]);
+        }, response?.data[0])?.revision ?? 0;
         this.contractForm.get('formRevision')?.setValue(revision + 1);
       } else {
         this.notificationService.show(response?.info, 'info');
@@ -432,13 +436,13 @@ export class ContractComponent {
     }
   }
 
-  async fetchDataDetail(contractCode: string, contractName: string) {
+  async fetchDataDetail(contractNo: string, contractName: string) {
     this.loaderService.show();
 
     try {
       await Promise.all([
-        this.fetchContractDetail(contractCode, contractName),
-        this.fetchRevisionList(contractCode),
+        this.fetchContractDetail(contractNo, contractName),
+        this.fetchRevisionList(contractNo),
       ]);
       this.showModalEdit = true;
     } catch (error) {
@@ -448,11 +452,11 @@ export class ContractComponent {
     }
   }
 
-  async fetchItemDetails(contractCode: string, contractName: string) {
+  async fetchItemDetails(contractNo: string, contractName: string) {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchContractDetail(contractCode, contractName)]);
+      await Promise.all([this.fetchContractDetail(contractNo, contractName)]);
       this.showModalItemDetails = true;
     } catch (error) {
       console.error('Error fetching data', error);
@@ -461,11 +465,11 @@ export class ContractComponent {
     }
   }
 
-  async fetchRevision(contractCode: string) {
+  async fetchRevision(contractNo: string) {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchRevisionList(contractCode)]);
+      await Promise.all([this.fetchRevisionList(contractNo)]);
       this.showModalRevision = true;
     } catch (error) {
       console.error('Error fetching data', error);
@@ -499,18 +503,18 @@ export class ContractComponent {
           },
         ];
         this.addItemDetail();
-        this.contractForm.get('formRevision')?.setValue('1');
+        this.contractForm.get('formRevision')?.setValue('0');
         this.contractForm.get('formRevision')?.disable();
         this.showModalAdd = true;
         break;
       case 'action':
-        this.fetchDataDetail(row?.row?.contract_code, row?.row?.contract_name);
+        this.fetchDataDetail(row?.row?.contract_no, row?.row?.contract_name);
         this.contractForm.get('formRevision')?.disable();
         this.contractForm.patchValue({
           formContractName: row?.row?.contract_name,
-          contractCode: row?.row?.contract_code,
+          contractNo: row?.row?.contract_no,
         });
-        this.contractCode = row?.row?.contract_code;
+        this.contractNo = row?.row?.contract_no;
         this.formArrayConfig = [
           {
             key: 'formItemName',
@@ -533,12 +537,12 @@ export class ContractComponent {
         ];
         break;
       case 'item_details':
-        this.fetchItemDetails(row?.row?.contract_code, row?.row?.contract_name);
-        this.contractCode = row?.row?.contract_code;
+        this.fetchItemDetails(row?.row?.contract_no, row?.row?.contract_name);
+        this.contractNo = row?.row?.contract_no;
         break;
       case 'revision':
-        this.fetchRevision(row?.row?.contract_code);
-        this.contractCode = row?.row?.contract_code;
+        this.fetchRevision(row?.row?.contract_no);
+        this.contractNo = row?.row?.contract_no;
         break;
       case 'apply':
         this.pageNo = 0;
@@ -585,7 +589,7 @@ export class ContractComponent {
       this.editContract({
         formContractName: formValue.formContractName,
         formItemDetailList: formValue.formItemDetailList,
-        contractCode: formValue.contractCode,
+        contractNo: formValue.contractNo,
       });
     }
   }
@@ -647,7 +651,7 @@ export class ContractComponent {
             (item: any) =>
               new ItemDetailList(item.formItemName, item.formTotalQuantity)
           ),
-          formValue.contractCode
+          formValue.contractNo
         ),
         new HttpHeaders({
           Authorization: `Bearer ${this.authService.getToken()}`,

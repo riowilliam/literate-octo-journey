@@ -16,8 +16,6 @@ export class ProjectListOfValueResponse {
 
 export class PartnerList {
   partnerName!: string;
-  validContractDate!: string;
-  invalidContractDate!: string;
   documentTracking!: string;
   ppnWapu!: string;
   activeProject!: string[];
@@ -30,8 +28,6 @@ export class PartnerList {
     return data.map((partnerData, index) => ({
       no: index + 1,
       partner_name: partnerData?.partnerName,
-      valid_contract_date: partnerData?.validContractDate,
-      invalid_contract_date: partnerData?.invalidContractDate,
       document_tracking: partnerData?.documentTracking === 'YES' ? 'Yes' : 'No',
       ppn_wapu: partnerData?.ppnWapu === 'YES' ? 'Yes' : 'No',
       active_project: partnerData?.activeProject,
@@ -47,8 +43,8 @@ export class PartnerList {
 export class Partner {
   no!: number;
   partner_name!: string;
-  valid_contract_date!: string;
-  invalid_contract_date!: string;
+  // valid_contract_date!: string;
+  // invalid_contract_date!: string;
   document_tracking!: string;
   ppn_wapu!: string;
   active_project!: string[];
@@ -98,23 +94,17 @@ export class PartnerResponse {
 
 export class FormPartnerRequest {
   partnerName!: string;
-  validContractDate!: string;
-  invalidContractDate!: string;
   ppnWapu!: number;
   documentTracking!: number;
   activeProject!: string;
 
   constructor(
     partnerName: string,
-    validContractDate: string,
-    invalidContractDate: string,
     ppnWapu: string,
     documentTracking: string,
     activeProject: string
   ) {
     this.partnerName = partnerName;
-    this.validContractDate = validContractDate;
-    this.invalidContractDate = invalidContractDate;
     this.ppnWapu = ppnWapu === 'YES' ? 1 : 0;
     this.documentTracking = documentTracking === 'YES' ? 1 : 0;
     this.activeProject = activeProject?.toString();

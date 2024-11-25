@@ -1,6 +1,8 @@
 export class ContractList {
-  contractCode!: string;
+  contractNo!: string;
   contractName!: string;
+  partnerName!: string;
+  contractDate!: string;
   createdDate!: string;
   createdBy!: string;
   modifiedDate!: string;
@@ -9,8 +11,10 @@ export class ContractList {
   static fromApiResponse(data: ContractList[]): Contract[] {
     return data.map((contractData, index) => ({
       no: index + 1,
-      contract_code: contractData?.contractCode,
+      contract_no: contractData?.contractNo,
       contract_name: contractData?.contractName,
+      partner_name: contractData?.partnerName,
+      contract_date: contractData?.contractDate,
       created_date: contractData?.createdDate,
       created_by: contractData?.createdBy,
       modified_date: contractData?.modifiedDate,
@@ -24,7 +28,7 @@ export class ContractList {
 
 export class Contract {
   no!: number;
-  contract_code!: string;
+  contract_no!: string;
   created_date!: string;
   created_by!: string;
   modified_date!: string;
@@ -75,18 +79,18 @@ export class FormContractRequest {
   contractName!: string;
   revision!: number;
   itemDetailList!: ItemDetailList[];
-  contractCode?: number;
+  contractNo?: number;
 
   constructor(
     contractName: string,
     revision: string,
     itemDetailList: ItemDetailList[],
-    contractCode?: number
+    contractNo?: number
   ) {
     this.contractName = contractName;
     this.revision = +revision;
     this.itemDetailList = itemDetailList;
-    this.contractCode = contractCode;
+    this.contractNo = contractNo;
   }
 }
 
@@ -147,7 +151,7 @@ export class FormContractResponse {
 }
 
 export class ContractDetail {
-  contractCode!: string;
+  contractNo!: string;
   contractName!: string;
   itemList!: ItemDetailList[];
 }
@@ -165,24 +169,24 @@ export class ContractDetailResponse {
 }
 
 export class RevisionDetail {
-  no!: number;
+  // no!: number;
   revision!: number;
   created_by!: string;
-  created_date!: string;
+  addendum_date!: string;
 }
 
 export class Revision {
   revision!: number;
   createdBy!: string;
-  createdDate!: string;
+  addendumDate!: string;
   itemList!: ItemDetailList[];
 
   static fromApiResponse(data: Revision[]): RevisionDetail[] {
     return data.map((revisionDetail, index) => ({
-      no: index + 1,
+      // no: index + 1,
       revision: revisionDetail?.revision,
+      addendum_date: revisionDetail?.addendumDate,
       created_by: revisionDetail?.createdBy,
-      created_date: revisionDetail?.createdDate,
     }));
   }
 }
