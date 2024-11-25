@@ -93,26 +93,21 @@ export class PartnerComponent {
       | 'empty';
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
-    { key: 'partner_name', renderType: () => 'text', label: 'Partner Name' },
-    {
-      key: 'valid_contract_date',
-      renderType: () => 'date',
-      label: 'Valid Contract Date',
-    },
-    {
-      key: 'invalid_contract_date',
-      renderType: () => 'date',
-      label: 'Invalid Contract Date',
-    },
+    { key: 'partner_name', renderType: () => 'text', label: 'Customer Name' },
+    // {
+    //   key: 'valid_contract_date',
+    //   renderType: () => 'date',
+    //   label: 'Valid Contract Date',
+    // },
+    // {
+    //   key: 'invalid_contract_date',
+    //   renderType: () => 'date',
+    //   label: 'Invalid Contract Date',
+    // },
     { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
     { key: 'modified_date', renderType: () => 'date', label: 'Modified Date' },
     { key: 'modified_by', renderType: () => 'text', label: 'Modified By' },
-    {
-      key: 'document_tracking',
-      renderType: () => 'text',
-      label: 'Document Tracking',
-    },
     { key: 'ppn_wapu', renderType: () => 'text', label: 'PPN WAPU' },
     {
       key: 'active_project',
@@ -168,35 +163,17 @@ export class PartnerComponent {
     }
     this.partnerForm = this.fb.group({
       formPartnerName: ['', Validators.required],
-      formValidContractDate: ['', Validators.required],
-      formInvalidContractDate: ['', Validators.required],
       formPPNWapu: [null, Validators.required],
       formDocumentTracking: [null, Validators.required],
       formActiveProject: [null, Validators.required],
     });
     this.formConfig = [
-      { key: 'formPartnerName', label: 'Partner Name', type: 'text' },
-      {
-        key: 'formValidContractDate',
-        label: 'Valid Contract Date',
-        type: 'date',
-      },
-      {
-        key: 'formInvalidContractDate',
-        label: 'Invalid Contract Date',
-        type: 'date',
-      },
+      { key: 'formPartnerName', label: 'Customer Name', type: 'text' },
       {
         key: 'formPPNWapu',
         label: 'PPN WAPU',
         type: 'select',
         options: this.dropdownOptionsDocumentTracking,
-      },
-      {
-        key: 'formDocumentTracking',
-        label: 'Document Tracking',
-        type: 'select',
-        options: this.dropdownOptionsPPNWapu,
       },
       {
         key: 'formActiveProject',
@@ -337,8 +314,6 @@ export class PartnerComponent {
       case 'action':
         this.partnerForm.patchValue({
           formPartnerName: row?.row?.partner_name,
-          formValidContractDate: row?.row?.valid_contract_date,
-          formInvalidContractDate: row?.row?.invalid_contract_date,
           formPPNWapu: row?.row?.ppn_wapu === 'Yes' ? 'YES' : 'NO',
           formDocumentTracking:
             row?.row?.document_tracking === 'Yes' ? 'YES' : 'NO',
@@ -380,8 +355,6 @@ export class PartnerComponent {
   closeModalAdd() {
     this.partnerForm.reset({
       formPartnerName: '',
-      formValidContractDate: '',
-      formInvalidContractDate: '',
       formPPNWapu: null,
       formDocumentTracking: null,
       formActiveProject: null,
@@ -392,8 +365,6 @@ export class PartnerComponent {
   closeModalEdit() {
     this.partnerForm.reset({
       formPartnerName: '',
-      formValidContractDate: '',
-      formInvalidContractDate: '',
       formPPNWapu: null,
       formDocumentTracking: null,
       formActiveProject: null,
@@ -411,10 +382,6 @@ export class PartnerComponent {
     } else {
       this.editPartner({
         formPartnerName: this.partnerForm.get('formPartnerName')?.value,
-        formValidContractDate: this.partnerForm.get('formValidContractDate')
-          ?.value,
-        formInvalidContractDate: this.partnerForm.get('formInvalidContractDate')
-          ?.value,
         formPPNWapu: this.partnerForm.get('formPPNWapu')?.value,
         formDocumentTracking: this.partnerForm.get('formDocumentTracking')
           ?.value,
@@ -431,8 +398,6 @@ export class PartnerComponent {
         `api/partner/createPartner?username=${this.authService.getUsername()}`,
         new FormPartnerRequest(
           formValue.formPartnerName,
-          formValue.formValidContractDate,
-          formValue.formInvalidContractDate,
           formValue.formPPNWapu,
           formValue.formDocumentTracking,
           formValue.formActiveProject
@@ -475,8 +440,6 @@ export class PartnerComponent {
         `api/partner/editPartner?username=${this.authService.getUsername()}`,
         new FormPartnerRequest(
           formValue.formPartnerName,
-          formValue.formValidContractDate,
-          formValue.formInvalidContractDate,
           formValue.formPPNWapu,
           formValue.formDocumentTracking,
           formValue.formActiveProject

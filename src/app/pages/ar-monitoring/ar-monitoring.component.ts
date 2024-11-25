@@ -89,7 +89,7 @@ export class ArMonitoringComponent {
       | 'empty';
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
-    { key: 'partner_name', renderType: () => 'text', label: 'Partner Name' },
+    { key: 'partner_name', renderType: () => 'text', label: 'Customer Name' },
     { key: 'invoice_no', renderType: () => 'text', label: 'Invoice No' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
     { key: 'contract', renderType: () => 'text', label: 'Contract' },
@@ -123,7 +123,7 @@ export class ArMonitoringComponent {
     { key: 'no', renderType: () => 'number', label: 'No' },
     { key: 'item_details', renderType: () => 'number', label: 'ID' },
     { key: 'invoice_no', renderType: () => 'text', label: 'Invoice No' },
-    { key: 'partner_name', renderType: () => 'text', label: 'Partner Name' },
+    { key: 'partner_name', renderType: () => 'text', label: 'Customer Name' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
     { key: 'amount', renderType: () => 'currency', label: 'DPP Amount' },
     { key: 'paid_amount', renderType: () => 'currency', label: 'Paid Amount' },
@@ -135,14 +135,9 @@ export class ArMonitoringComponent {
       renderType: () => 'currency',
       label: 'Total Amount',
     },
-    { key: 'contract_name', renderType: () => 'text', label: 'Contract Code' },
+    { key: 'contract_name', renderType: () => 'text', label: 'Contract No' },
     { key: 'bapp_no', renderType: () => 'text', label: 'BAPP No' },
     { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
-    {
-      key: 'document_tracking',
-      renderType: () => 'text',
-      label: 'Document Tracking',
-    },
     {
       key: 'invoice_status',
       renderType: (value: any) => {
@@ -239,7 +234,7 @@ export class ArMonitoringComponent {
   ];
 
   dropdownOptions: Array<{ value: number; label: string }> = [
-    { value: 0, label: 'Approve' },
+    { value: 0, label: 'Not Approve' },
     { value: 1, label: 'Approved' },
     { value: 2, label: 'Rejected' },
   ];
@@ -294,7 +289,7 @@ export class ArMonitoringComponent {
       },
       {
         key: 'formPartner',
-        label: 'Partner',
+        label: 'Customer',
         type: 'searchable-dropdown',
         options: this.dropdownOptionsPartner,
         placeholder: 'Select an option',
@@ -344,7 +339,7 @@ export class ArMonitoringComponent {
       },
       {
         key: 'formPartner',
-        label: 'Partner',
+        label: 'Customer',
         type: 'select',
         options: this.dropdownOptionsPartner,
         placeholder: 'Select an option',
@@ -732,7 +727,7 @@ export class ArMonitoringComponent {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', '')
-      .set('contractCode', contractName ? contractName : '');
+      .set('contractNo', contractName ? contractName : '');
 
     try {
       const response = await firstValueFrom(
@@ -814,7 +809,7 @@ export class ArMonitoringComponent {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', '')
-      .set('contractCode', contractName ? contractName : '');
+      .set('contractNo', contractName ? contractName : '');
 
     try {
       const response = await firstValueFrom(
@@ -1346,7 +1341,7 @@ export class ArMonitoringComponent {
 
   private mapDropdownOptionsContract(response: ContractDetailResponse) {
     return response?.data?.map((data) => ({
-      value: data?.contractCode,
+      value: data?.contractNo,
       label: data?.contractName,
       listDetail: data?.itemList,
     }));
