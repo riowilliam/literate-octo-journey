@@ -132,6 +132,11 @@ export class FormARInvoiceRequest {
   contractName: string;
   projectName: string;
   bappNo: string;
+  bappDate: Date;
+  taxInvoiceNumber: string;
+  progress: number;
+  downPayment: number;
+  retention: number;
   amount: number;
   ppn: number;
   ppnWapu: number;
@@ -146,6 +151,11 @@ export class FormARInvoiceRequest {
     this.contractName = data.formContract;
     this.projectName = data.formProject;
     this.bappNo = data.formBAPPNo;
+    this.bappDate = data.formBAPPDate;
+    this.taxInvoiceNumber = data.formTaxInvoiceNumber;
+    this.progress = this.parseCurrency(data.formProgress);
+    this.downPayment = this.parseCurrency(data.formDownPayment);
+    this.retention = this.parseCurrency(data.formRetention);
     this.amount = this.parseCurrency(data.formAmount);
     this.ppn = this.parseCurrency(data.formPPN);
     this.ppnWapu = this.parseCurrency(data.formPPNWAPU);

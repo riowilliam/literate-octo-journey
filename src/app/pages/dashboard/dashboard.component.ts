@@ -259,6 +259,31 @@ export class DashboardComponent {
         type: 'text',
       },
       {
+        key: 'formBAPPDate',
+        label: 'BAPP Date',
+        type: 'datepicker',
+      },
+      {
+        key: 'formTaxInvoiceNumber',
+        label: 'Tax Invoice Number',
+        type: 'text',
+      },
+      {
+        key: 'formProgress',
+        label: 'Progress',
+        type: 'currency',
+      },
+      {
+        key: 'formDownPayment',
+        label: 'Down Payment',
+        type: 'currency',
+      },
+      {
+        key: 'formRetention',
+        label: 'Retention',
+        type: 'currency',
+      },
+      {
         key: 'formAmount',
         label: 'Amount',
         type: 'currency',
@@ -442,6 +467,11 @@ export class DashboardComponent {
       formContract: [null, Validators.required],
       formProject: [null, Validators.required],
       formBAPPNo: ['', Validators.required],
+      formBAPPDate: ['', Validators.required],
+      formTaxInvoiceNumber: ['', Validators.required],
+      formProgress: ['', Validators.required],
+      formDownPayment: ['', Validators.required],
+      formRetention: ['', Validators.required],
       formAmount: ['', Validators.required],
       formPPN: ['', Validators.required],
       formPPNWAPU: [''],
@@ -522,7 +552,7 @@ export class DashboardComponent {
           (option) => option?.label === pphLabel
         );
         totalPphValue += Math.ceil(
-          amount * (selectedPPH?.value ? selectedPPH?.value : 1)
+          (selectedPPH?.value != 0 ? amount * selectedPPH?.value : 0)
         );
         data
           ?.get('formPPHAmount')
