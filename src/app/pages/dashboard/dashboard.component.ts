@@ -232,6 +232,11 @@ export class DashboardComponent {
         type: 'text',
       },
       {
+        key: 'formInvoiceDate',
+        label: 'Invoice Date',
+        type: 'datepicker',
+      },
+      {
         key: 'formPartner',
         label: 'Customer',
         type: 'searchable-dropdown',
@@ -463,6 +468,7 @@ export class DashboardComponent {
 
     this.arMonitoringForm = this.fb.group({
       formInvoiceNo: ['', Validators.required],
+      formInvoiceDate: ['', Validators.required],
       formPartner: [null, Validators.required],
       formContract: [null, Validators.required],
       formProject: [null, Validators.required],
@@ -531,9 +537,22 @@ export class DashboardComponent {
       }
       this.isCalculating = true;
 
-      const amount = this.parseCurrency(
-        this.arMonitoringForm.get('formAmount')?.value || 0
+      const progress = this.parseCurrency(
+        this.arMonitoringForm.get('formProgress')?.value || 0
       );
+      const downPayment = this.parseCurrency(
+        this.arMonitoringForm.get('formDownPayment')?.value || 0
+      );
+      const retention = this.parseCurrency(
+        this.arMonitoringForm.get('formRetention')?.value || 0
+      );
+    
+      // Menjumlahkan formProgress, formDownPayment, dan formRetention untuk mendapatkan formAmount
+      const amount = progress - downPayment - retention;
+      this.arMonitoringForm.get('formAmount')?.setValue(this.formatWithMask(amount), {
+        emitEvent: false,
+      });
+
       const ppn = this.parseCurrency(
         this.arMonitoringForm.get('formPPN')?.value || 0
       );
@@ -595,6 +614,18 @@ export class DashboardComponent {
 
       this.isCalculating = false;
     };
+
+    this.arMonitoringForm
+    .get('formProgress')
+    ?.valueChanges.subscribe(calculateNetAmount);
+
+    this.arMonitoringForm
+      .get('formDownPayment')
+      ?.valueChanges.subscribe(calculateNetAmount);
+
+    this.arMonitoringForm
+    .get('formRetention')
+    ?.valueChanges.subscribe(calculateNetAmount);
 
     this.arMonitoringForm
       .get('formAmount')

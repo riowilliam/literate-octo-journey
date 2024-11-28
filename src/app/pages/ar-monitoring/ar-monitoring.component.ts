@@ -138,7 +138,7 @@ export class ArMonitoringComponent {
       renderType: () => 'currency',
       label: 'Total Amount',
     },
-    { key: 'contract_name', renderType: () => 'text', label: 'Contract No' },
+    { key: 'contract_no', renderType: () => 'text', label: 'Contract No' },
     { key: 'tax_invoice_number', renderType: () => 'text', label: 'Tax Invoice Number' },
     { key: 'bapp_no', renderType: () => 'text', label: 'BAPP No' },
     { key: 'bapp_date', renderType: () => 'date', label: 'BAPP Date' },
@@ -293,6 +293,11 @@ export class ArMonitoringComponent {
         type: 'text',
       },
       {
+        key: 'formInvoiceDate',
+        label: 'Invoice Date',
+        type: 'datepicker',
+      },
+      {
         key: 'formPartner',
         label: 'Customer',
         type: 'searchable-dropdown',
@@ -366,6 +371,11 @@ export class ArMonitoringComponent {
         key: 'formInvoiceNo',
         label: 'Invoice No.',
         type: 'text',
+      },
+      {
+        key: 'formInvoiceDate',
+        label: 'Invoice Date',
+        type: 'datepicker',
       },
       {
         key: 'formPartner',
@@ -508,6 +518,7 @@ export class ArMonitoringComponent {
 
     this.arMonitoringForm = this.fb.group({
       formInvoiceNo: ['', Validators.required],
+      formInvoiceDate: ['', Validators.required],
       formPartner: [null, Validators.required],
       formContract: [null, Validators.required],
       formProject: [null, Validators.required],
@@ -1080,7 +1091,8 @@ export class ArMonitoringComponent {
 
   async prefillPreviewForm(data: any) {
     this.arMonitoringForm.patchValue({
-      formInvoiceNo: data.invoice_no,      
+      formInvoiceNo: data.invoice_no, 
+      formInvoiceDate: data.invoice_date,      
       formPartner: data.partner_name,
       formContract: data.contract_name,
       formProject: data.project_name,

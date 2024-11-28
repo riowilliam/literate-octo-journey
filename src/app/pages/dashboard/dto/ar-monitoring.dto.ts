@@ -1,7 +1,7 @@
 export class ArInvoiceDetailList {
   invoiceNo!: string;
   partnerName!: string;
-  contractName!: string;
+  contractNo!: string;
   projectName!: string;
   bappNo!: string;
   amount!: number;
@@ -23,7 +23,7 @@ export class ArInvoiceDetailList {
         no: index + 1,
         invoice_no: arInvoiceDetailData.invoiceNo || '',
         partner_name: arInvoiceDetailData.partnerName || '',
-        contract_name: arInvoiceDetailData.contractName || '',
+        contract_no: arInvoiceDetailData.contractNo || '',
         project_name: arInvoiceDetailData.projectName || '',
         bapp_no: arInvoiceDetailData.bappNo || '',
         amount: arInvoiceDetailData.amount || 0,
@@ -68,7 +68,7 @@ export class ArInvoiceDetail {
   no!: number;
   invoice_no!: string;
   partner_name!: string;
-  contract_name!: string;
+  contract_no!: string;
   project_name!: string;
   bapp_no!: string;
   amount!: number;
@@ -128,8 +128,9 @@ export class ArInvoiceResponse {
 
 export class FormARInvoiceRequest {
   invoiceNo: string;
+  invoiceDate: Date;
   partnerName: string;
-  contractName: string;
+  contractNo: string;
   projectName: string;
   bappNo: string;
   bappDate: Date;
@@ -147,8 +148,9 @@ export class FormARInvoiceRequest {
 
   constructor(data: any) {
     this.invoiceNo = data.formInvoiceNo;
+    this.invoiceDate = data.formInvoiceDate;
     this.partnerName = data.formPartner;
-    this.contractName = data.formContract;
+    this.contractNo = data.formContract;
     this.projectName = data.formProject;
     this.bappNo = data.formBAPPNo;
     this.bappDate = data.formBAPPDate;

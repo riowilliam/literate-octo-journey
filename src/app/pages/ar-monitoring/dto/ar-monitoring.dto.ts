@@ -1,7 +1,9 @@
+import { number } from "echarts";
+
 export class ArInvoiceDetailList {
   invoiceNo!: string;
   partnerName!: string;
-  contractName!: string;
+  contractNo!: string;
   projectName!: string;
   bappNo!: string;
   bappDate!: string;
@@ -30,7 +32,7 @@ export class ArInvoiceDetailList {
         no: index + 1,
         invoice_no: arInvoiceDetailData.invoiceNo || '',
         partner_name: arInvoiceDetailData.partnerName || '',
-        contract_name: arInvoiceDetailData.contractName || '',
+        contract_no: arInvoiceDetailData.contractNo || '',
         project_name: arInvoiceDetailData.projectName || '',
         bapp_no: arInvoiceDetailData.bappNo || '',
         bapp_date: arInvoiceDetailData.bappDate || '',
@@ -83,7 +85,7 @@ export class ArInvoiceDetail {
   no!: number;
   invoice_no!: string;
   partner_name!: string;
-  contract_name!: string;
+  contract_no!: string;
   project_name!: string;
   bapp_no!: string;
   bapp_date!: string;
@@ -151,8 +153,9 @@ export class ArInvoiceResponse {
 
 export class FormARInvoiceRequest {
   invoiceNo: string;
+  invoiceDate: Date;
   partnerName: string;
-  contractName: string;
+  contractNo: string;
   projectName: string;
   bappNo: string;
   bappDate: Date;
@@ -169,16 +172,18 @@ export class FormARInvoiceRequest {
   itemDetails: { itemName: string; paymentQuantity: number }[];
 
   constructor(data: any) {
+    console.log(data.retention)
     this.invoiceNo = data.formInvoiceNo;
+    this.invoiceDate = data.formInvoiceDate;
     this.partnerName = data.formPartner;
-    this.contractName = data.formContract;
+    this.contractNo = data.formContract;
     this.projectName = data.formProject;
     this.bappNo = data.formBAPPNo;
     this.bappDate = data.formBAPPDate;
     this.taxInvoiceNumber = data.formTaxInvoiceNumber;
-    this.progress = data.formProgress;
-    this.downPayment = data.formDownPayment;
-    this.retention = data.retention;
+    this.progress = this.parseCurrency(data.formProgress);
+    this.downPayment = this.parseCurrency(data.formDownPayment);
+    this.retention = this.parseCurrency(data.formRetention);
     this.amount = this.parseCurrency(data.formAmount);
     this.ppn = this.parseCurrency(data.formPPN);
     this.ppnWapu = this.parseCurrency(data.formPPNWAPU);
