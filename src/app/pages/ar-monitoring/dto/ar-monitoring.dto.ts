@@ -172,7 +172,6 @@ export class FormARInvoiceRequest {
   itemDetails: { itemName: string; paymentQuantity: number }[];
 
   constructor(data: any) {
-    console.log(data.retention)
     this.invoiceNo = data.formInvoiceNo;
     this.invoiceDate = data.formInvoiceDate;
     this.partnerName = data.formPartner;

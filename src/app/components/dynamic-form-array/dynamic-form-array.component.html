@@ -229,6 +229,17 @@
             </div>
           </ng-container>
 
+          <ng-container *ngIf="field.type === 'datepicker'">
+            <input
+              [id]="field.key"
+              [name]="field.key"
+              type="date"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || 'Select a date'"
+              class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+            />
+          </ng-container>
+
           <div
             *ngIf="
               dynamicForm.get(field.key)?.invalid &&

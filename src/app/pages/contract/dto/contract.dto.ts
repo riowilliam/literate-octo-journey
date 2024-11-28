@@ -76,21 +76,33 @@ export class ContractResponse {
 }
 
 export class FormContractRequest {
+  contractNo!: string;
   contractName!: string;
+  partnerName!: string;
+  activeProject!: string;
+  contractDate!: Date;
+  addendumDate!: Date;
   revision!: number;
   itemDetailList!: ItemDetailList[];
-  contractNo?: number;
 
   constructor(
+    contractNo: string,
     contractName: string,
+    partnerName: string,
+    activeProject: string,
+    contractDate: Date,
+    addendumDate: Date,
     revision: string,
     itemDetailList: ItemDetailList[],
-    contractNo?: number
   ) {
+    this.contractNo = contractNo;
     this.contractName = contractName;
+    this.partnerName = partnerName;
+    this.activeProject = activeProject?.toString();
+    this.contractDate = contractDate;
+    this.addendumDate = addendumDate;
     this.revision = +revision;
     this.itemDetailList = itemDetailList;
-    this.contractNo = contractNo;
   }
 }
 
