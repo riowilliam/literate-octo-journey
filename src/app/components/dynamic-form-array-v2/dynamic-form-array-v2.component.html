@@ -52,7 +52,13 @@
               [placeholder]="field.placeholder || ''"
               [pattern]="field.pattern"
               [inputMode]="field.inputmode"
-              [readonly]="field.key === 'formPPNWAPU' || field.key === 'formAmount' || field.key === 'formPPN' ? true : false"
+              [readonly]="
+                field.key === 'formPPNWAPU' ||
+                field.key === 'formAmount' ||
+                field.key === 'formPPN'
+                  ? true
+                  : false
+              "
               [class]="
                 field.width
                   ? field.width +
@@ -61,12 +67,16 @@
               "
               [ngClass]="{
                 'border-red-500 focus:ring-red-500':
-                  (field.key === 'formPPNWAPU' || field.key === 'formAmount' || field.key === 'formPPN') &&
+                  (field.key === 'formPPNWAPU' ||
+                    field.key === 'formAmount' ||
+                    field.key === 'formPPN') &&
                   dynamicForm.get(field.key)?.invalid &&
                   (dynamicForm.get(field.key)?.touched ||
                     dynamicForm.get(field.key)?.dirty),
                 'border-[#A4A4A4] focus:ring-custom-light-yellow':
-                (field.key === 'formPPNWAPU' || field.key === 'formAmount' || field.key === 'formPPN') ||
+                  field.key === 'formPPNWAPU' ||
+                  field.key === 'formAmount' ||
+                  field.key === 'formPPN' ||
                   dynamicForm.get(field.key)?.valid ||
                   !(
                     dynamicForm.get(field.key)?.touched ||
@@ -75,7 +85,7 @@
                 'bg-gray-100 cursor-not-allowed focus:ring-0': [
                   'formPPNWAPU',
                   'formAmount',
-                  'formPPN',
+                  'formPPN'
                 ].includes(field.key)
               }"
               (input)="onInputChange($event, field.key)"
@@ -206,7 +216,9 @@
 
           <div
             *ngIf="
-              (field.key === 'formPPNWAPU' || field.key === 'formAmount' || field.key === 'formPPN') &&
+              (field.key === 'formPPNWAPU' ||
+                field.key === 'formAmount' ||
+                field.key === 'formPPN') &&
               dynamicForm.get(field.key)?.invalid &&
               (dynamicForm.get(field.key)?.touched ||
                 dynamicForm.get(field.key)?.dirty)
@@ -514,7 +526,7 @@
                     <input
                       [id]="field.key + '-' + i"
                       [name]="field.key + '-' + i"
-                      [type]="field.type"
+                      type="text"
                       [formControlName]="field.key"
                       [placeholder]="field.placeholder || ''"
                       [pattern]="field.pattern"
@@ -545,6 +557,7 @@
                       (input)="
                         onInputItemDetailListChange($event, field.key, i)
                       "
+                      appAllowDotOnly
                     />
                   </ng-container>
                 </div>

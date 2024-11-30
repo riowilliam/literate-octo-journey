@@ -8,7 +8,7 @@ export function quantityValidator(): ValidatorFn {
     }>;
 
     const hasInvalidPaidQuantity = items.some((item) => {
-      const paidQuantity = parseInt(item.formPaidQuantity, 10);
+      const paidQuantity = parseFloat(item.formPaidQuantity);
       const remainingQuantity = item.formRemainingQuantity;
 
       if (paidQuantity > remainingQuantity) {
@@ -27,7 +27,7 @@ export function quantityValidator(): ValidatorFn {
     });
 
     const allPaidQuantitiesZero = items.every((item) => {
-      const paidQuantity = parseInt(item.formPaidQuantity, 10);
+      const paidQuantity = parseFloat(item.formPaidQuantity);
       return paidQuantity === 0;
     });
 
