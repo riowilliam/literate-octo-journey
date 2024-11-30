@@ -8,11 +8,12 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { AllowDotOnlyDirective } from '../../directives/only-dot.directive';
 
 @Component({
   selector: 'app-dynamic-form-array-v2',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, AllowDotOnlyDirective],
   templateUrl: './dynamic-form-array-v2.component.html',
   styleUrl: './dynamic-form-array-v2.component.scss',
 })
@@ -205,20 +206,9 @@ export class DynamicFormArrayV2Component implements OnChanges {
   }
 
   onInputItemDetailListChange(event: any, fieldName: string, i: number): void {
-    const inputValue = event.target.value.replace(/\./g, '');
-    const parsedValue = parseFloat(inputValue);
-
-    if (!isNaN(parsedValue)) {
-      let value = parsedValue?.toString()?.replace(/\D/g, '');
-
-      if (value) {
-        value = value?.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-      }
-
-      this.itemDetailList?.controls[i]?.get(fieldName)?.setValue(value);
-    } else {
-      this.itemDetailList?.controls[i]?.get(fieldName)?.setValue(0);
-    }
+    this.itemDetailList?.controls[i]
+      ?.get(fieldName)
+      ?.setValue(event.target.value);
   }
 
   onSelectChange(event: Event) {

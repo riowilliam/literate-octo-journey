@@ -128,7 +128,11 @@ export class ArMonitoringComponent {
     { key: 'amount', renderType: () => 'currency', label: 'DPP Amount' },
     { key: 'progress', renderType: () => 'currency', label: 'Progress' },
     { key: 'retention', renderType: () => 'currency', label: 'Retention' },
-    { key: 'down_payment', renderType: () => 'currency', label: 'Down Payment' },
+    {
+      key: 'down_payment',
+      renderType: () => 'currency',
+      label: 'Down Payment',
+    },
     { key: 'paid_amount', renderType: () => 'currency', label: 'Paid Amount' },
     { key: 'ppn_amount', renderType: () => 'currency', label: 'PPN Amount' },
     { key: 'pph_amount', renderType: () => 'currency', label: 'PPH Amount' },
@@ -139,10 +143,15 @@ export class ArMonitoringComponent {
       label: 'Total Amount',
     },
     { key: 'contract_no', renderType: () => 'text', label: 'Contract No' },
-    { key: 'tax_invoice_number', renderType: () => 'text', label: 'Tax Invoice Number' },
+    {
+      key: 'tax_invoice_number',
+      renderType: () => 'text',
+      label: 'Tax Invoice Number',
+    },
     { key: 'bapp_no', renderType: () => 'text', label: 'BAPP No' },
     { key: 'bapp_date', renderType: () => 'date', label: 'BAPP Date' },
     { key: 'invoice_date', renderType: () => 'date', label: 'Invoice Date' },
+    { key: 'note', renderType: () => 'text', label: 'Note' },
     {
       key: 'invoice_status',
       renderType: (value: any) => {
@@ -432,6 +441,11 @@ export class ArMonitoringComponent {
         label: 'Net Amount',
         type: 'currency',
       },
+      {
+        key: 'formNote',
+        label: 'Note',
+        type: 'text',
+      },
     ];
 
     this.formSimpleConfig = [
@@ -533,7 +547,7 @@ export class ArMonitoringComponent {
       formPPNWAPU: [''],
       formPPH: this.fb.array([]),
       formNetAmount: ['', Validators.required],
-      formNote: [''],
+      formNote: ['', Validators.required],
       formItemDetailList: this.fb.array([], quantityValidator()),
     });
 
@@ -598,12 +612,13 @@ export class ArMonitoringComponent {
       const retention = this.parseCurrency(
         this.arMonitoringForm.get('formRetention')?.value || 0
       );
-    
-      // Menjumlahkan formProgress, formDownPayment, dan formRetention untuk mendapatkan formAmount
+
       const amount = progress - downPayment - retention;
-      this.arMonitoringForm.get('formAmount')?.setValue(this.formatWithMask(amount), {
-        emitEvent: false,
-      });
+      this.arMonitoringForm
+        .get('formAmount')
+        ?.setValue(this.formatWithMask(amount), {
+          emitEvent: false,
+        });
 
       const ppn = this.parseCurrency(
         this.arMonitoringForm.get('formPPN')?.value || 0
@@ -623,7 +638,7 @@ export class ArMonitoringComponent {
           (option) => option?.label === pphLabel
         );
         totalPphValue += Math.ceil(
-          (selectedPPH?.value != 0 ? amount * selectedPPH?.value : 0)
+          selectedPPH?.value != 0 ? amount * selectedPPH?.value : 0
         );
         data
           ?.get('formPPHAmount')
@@ -668,16 +683,16 @@ export class ArMonitoringComponent {
     };
 
     this.arMonitoringForm
-    .get('formProgress')
-    ?.valueChanges.subscribe(calculateNetAmount);
+      .get('formProgress')
+      ?.valueChanges.subscribe(calculateNetAmount);
 
     this.arMonitoringForm
       .get('formDownPayment')
       ?.valueChanges.subscribe(calculateNetAmount);
 
     this.arMonitoringForm
-    .get('formRetention')
-    ?.valueChanges.subscribe(calculateNetAmount);
+      .get('formRetention')
+      ?.valueChanges.subscribe(calculateNetAmount);
 
     this.arMonitoringForm
       .get('formAmount')
@@ -895,11 +910,11 @@ export class ArMonitoringComponent {
     }
   }
 
-  async fetchPreviewContractList(contractName?: string, tmpData?: any) {
+  async fetchPreviewContractList(contractNo?: string, tmpData?: any) {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', '')
-      .set('contractNo', contractName ? contractName : '');
+      .set('contractNo', contractNo ? contractNo : '');
 
     try {
       const response = await firstValueFrom(
@@ -1091,10 +1106,10 @@ export class ArMonitoringComponent {
 
   async prefillPreviewForm(data: any) {
     this.arMonitoringForm.patchValue({
-      formInvoiceNo: data.invoice_no, 
-      formInvoiceDate: data.invoice_date,      
+      formInvoiceNo: data.invoice_no,
+      formInvoiceDate: data.invoice_date,
       formPartner: data.partner_name,
-      formContract: data.contract_name,
+      formContract: data.contract_no,
       formProject: data.project_name,
       formBAPPNo: data.bapp_no,
       formBAPPDate: data.bapp_date,
@@ -1105,14 +1120,15 @@ export class ArMonitoringComponent {
       formAmount: this.formatWithMask(data.amount),
       formPPN: data.ppn_amount,
       formNetAmount: this.formatWithMask(data.total_amount),
+      formNote: data.note,
     });
   }
 
-  async fetchPreviewDataDetail(contractName: string, data: any) {
+  async fetchPreviewDataDetail(contractNo: string, data: any) {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchPreviewContractList(contractName, data)]);
+      await Promise.all([this.fetchPreviewContractList(contractNo, data)]);
       await Promise.all([this.fetchPartnerList()]);
       await Promise.all([this.prefillPreviewForm(data)]);
       this.showModalInvoiceStatus = true;
@@ -1197,7 +1213,7 @@ export class ArMonitoringComponent {
         this.fetchArMonitoring();
         break;
       case 'invoice_status':
-        this.fetchPreviewDataDetail(row?.row?.contract_name, row?.row);
+        this.fetchPreviewDataDetail(row?.row?.contract_no, row?.row);
         break;
       case 'payment_status':
         this.invoiceNo = row?.row?.invoice_no;
@@ -1410,7 +1426,7 @@ export class ArMonitoringComponent {
         Validators.required,
       ],
       formPaidQuantity: [
-        type !== 'add' && this.showModalAdd ? 0 : item?.totalQuantity,
+        type !== 'add' && this.showModalAdd ? '' : item?.totalQuantity,
         [
           item?.remainingQuantity ? Validators.required : () => {},
           item?.remainingQuantity ? Validators.min(0) : () => {},
