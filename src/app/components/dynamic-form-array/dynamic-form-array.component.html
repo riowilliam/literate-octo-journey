@@ -273,11 +273,7 @@
                 >
 
                 <ng-container
-                  *ngIf="
-                    ['text', 'email', 'tel', 'date', 'number'].includes(
-                      field.type
-                    )
-                  "
+                  *ngIf="['text', 'email', 'tel', 'date'].includes(field.type)"
                 >
                   <input
                     [id]="field.key + '-' + i"
@@ -308,6 +304,40 @@
                       'bg-gray-100 cursor-not-allowed focus:ring-0':
                         field.key === 'formPaidQuantity'
                     }"
+                  />
+                </ng-container>
+
+                <ng-container *ngIf="['number-only-dot'].includes(field.type)">
+                  <input
+                    [id]="field.key + '-' + i"
+                    [name]="field.key + '-' + i"
+                    type="text"
+                    [formControlName]="field.key"
+                    [placeholder]="field.placeholder || ''"
+                    [pattern]="field.pattern"
+                    [inputMode]="field.inputmode"
+                    [class]="
+                      field.width
+                        ? field.width +
+                          ' mb-1 form-input text-left border border-[#A4A4A4] px-1 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]'
+                        : 'mb-1 form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]'
+                    "
+                    [readonly]="field.key === 'formPaidQuantity' ? true : false"
+                    [ngClass]="{
+                      'border-red-500 focus:ring-red-500':
+                        dynamicForm.get(field.key)?.invalid &&
+                        (dynamicForm.get(field.key)?.touched ||
+                          dynamicForm.get(field.key)?.dirty),
+                      'border-[#A4A4A4] focus:ring-custom-light-yellow':
+                        dynamicForm.get(field.key)?.valid ||
+                        !(
+                          dynamicForm.get(field.key)?.touched ||
+                          dynamicForm.get(field.key)?.dirty
+                        ),
+                      'bg-gray-100 cursor-not-allowed focus:ring-0':
+                        field.key === 'formPaidQuantity'
+                    }"
+                    appAllowDotOnly
                   />
                 </ng-container>
 

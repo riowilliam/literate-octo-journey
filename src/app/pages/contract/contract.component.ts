@@ -4,8 +4,6 @@ import { DynamicTableComponent } from '../../components/dynamic-table/dynamic-ta
 import { ContentTableComponent } from '../../components/content-table/content-table.component';
 import { DynamicInputComponent } from '../../components/dynamic-input/dynamic-input.component';
 import { ContentFilterComponent } from '../../components/content-filter/content-filter.component';
-import { ContentCardComponent } from '../../components/content-card/content-card.component';
-import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpService } from '../../services/http.service';
@@ -111,7 +109,6 @@ export class ContractComponent {
       | 'icon'
       | 'empty';
   }[] = [
-    // { key: 'no', renderType: () => 'number', label: 'No' },
     { key: 'revision', renderType: () => 'text', label: 'Revision' },
     { key: 'addendum_date', renderType: () => 'text', label: 'Addendum Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
@@ -166,7 +163,8 @@ export class ContractComponent {
   formConfig!: any;
   formArrayConfig!: any;
   dropdownOptionsActiveProject: Array<{ value: any; label: any }> = [];
-  dropdownOptionsPartner: Array<{ value: any; label: any; listDetail: any }> = [];
+  dropdownOptionsPartner: Array<{ value: any; label: any; listDetail: any }> =
+    [];
   constructor(
     private fb: FormBuilder,
     private httpService: HttpService,
@@ -200,10 +198,8 @@ export class ContractComponent {
       formPartnerName: ['', Validators.required],
       formActiveProject: ['', Validators.required],
       formContractDate: ['', Validators.required],
-      formAddendumDate: ['', Validators.required],
       formRevision: [''],
       formItemDetailList: this.fb.array([]),
-      contractNo: [''],
     });
     this.formConfig = [
       {
@@ -235,17 +231,31 @@ export class ContractComponent {
         type: 'datepicker',
       },
       {
-        key: 'formAddendumDate',
-        label: 'Addendum Date',
-        type: 'datepicker',
-      },
-      {
         key: 'formRevision',
         label: 'Revision',
         type: 'number',
         width: 'w-[30%]',
       },
     ];
+
+    this.contractForm
+      .get('formPartnerName')
+      ?.valueChanges.subscribe((partnerValue) => {
+        const selectedPartner = this.dropdownOptionsPartner.find(
+          (option) =>
+            option?.value === partnerValue || option?.label === partnerValue
+        );
+        if (selectedPartner && selectedPartner?.listDetail) {
+          const selectedPartnerData: any = {
+            data: selectedPartner?.listDetail,
+          };
+          if (selectedPartnerData?.data?.activeProject?.toString()) {
+            this.contractForm
+              .get('formActiveProject')
+              ?.setValue(selectedPartnerData?.data?.activeProject?.toString());
+          }
+        }
+      });
   }
 
   get formItemDetailList(): FormArray {
@@ -453,9 +463,10 @@ export class ContractComponent {
         response?.info?.toLowerCase() === 'success'
       ) {
         this.dataDetailRevision = [...Revision.fromApiResponse(response?.data)];
-        const revision = response?.data?.reduce((latest, current) => {
-          return current?.revision > latest?.revision ? current : latest;
-        }, response?.data[0])?.revision ?? 0;
+        const revision =
+          response?.data?.reduce((latest, current) => {
+            return current?.revision > latest?.revision ? current : latest;
+          }, response?.data[0])?.revision ?? 0;
         this.contractForm.get('formRevision')?.setValue(revision + 1);
       } else {
         this.notificationService.show(response?.info, 'info');
@@ -471,8 +482,9 @@ export class ContractComponent {
 
     try {
       await Promise.all([
-        this.fetchContractDetail(contractNo, contractName),
+        this.fetchActiveProject(),
         this.fetchRevisionList(contractNo),
+        this.fetchContractDetail(contractNo, contractName),
       ]);
       this.showModalEdit = true;
     } catch (error) {
@@ -508,11 +520,11 @@ export class ContractComponent {
     }
   }
 
-  async fetchDataPartner(type: string) {
+  async fetchDataPartner() {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchPartnerList()]);
+      await Promise.all([this.fetchPartnerList(), this.fetchActiveProject()]);
       this.showModalAdd = true;
     } catch (error) {
       console.error('Error fetching data', error);
@@ -577,8 +589,26 @@ export class ContractComponent {
   handleButtonClick(row: any) {
     switch (row?.key) {
       case 'add':
-        this.fetchDataPartner(row?.row?.partner_name);
-        this.fetchActiveProject();
+        this.fetchDataPartner();
+        if (this.contractForm.get('formAddendumDate')) {
+          this.contractForm.removeControl('formAddendumDate');
+        }
+        this.formConfig = this.formConfig.filter(
+          (config: any) => config.key !== 'formAddendumDate'
+        );
+        const addContractNoConfigExists = this.formConfig.some(
+          (config: any) => config.key === 'formContractNo'
+        );
+        if (!addContractNoConfigExists) {
+          this.formConfig = [
+            {
+              key: 'formContractNo',
+              label: 'Contract No',
+              type: 'text',
+            },
+            ...this.formConfig,
+          ];
+        }
         this.formArrayConfig = [
           {
             key: 'formItemName',
@@ -589,21 +619,44 @@ export class ContractComponent {
           {
             key: 'formTotalQuantity',
             label: 'Total Value',
-            type: 'number',
+            type: 'number-only-dot',
             width: 'w-[40px]',
           },
         ];
         this.addItemDetail();
         this.contractForm.get('formRevision')?.setValue('0');
         this.contractForm.get('formRevision')?.disable();
-        this.showModalAdd = true;
         break;
       case 'action':
         this.fetchDataDetail(row?.row?.contract_no, row?.row?.contract_name);
+        this.formConfig = this.formConfig.filter(
+          (config: any) => config.key !== 'formContractNo'
+        );
         this.contractForm.get('formRevision')?.disable();
+        if (!this.contractForm.get('formAddendumDate')) {
+          this.contractForm.addControl(
+            'formAddendumDate',
+            this.fb.control('', Validators.required)
+          );
+        }
+        const addendumDateConfigExists = this.formConfig.some(
+          (config: any) => config.key === 'formAddendumDate'
+        );
+        if (!addendumDateConfigExists) {
+          this.formConfig = [
+            ...this.formConfig,
+            {
+              key: 'formAddendumDate',
+              label: 'Addendum Date',
+              type: 'datepicker',
+            },
+          ];
+        }
         this.contractForm.patchValue({
           formContractName: row?.row?.contract_name,
-          contractNo: row?.row?.contract_no,
+          formContractNo: row?.row?.contract_no,
+          formPartnerName: row?.row?.partner_name,
+          formContractDate: row?.row?.contract_date,
         });
         this.contractNo = row?.row?.contract_no;
         this.formArrayConfig = [
@@ -616,13 +669,13 @@ export class ContractComponent {
           {
             key: 'formTotalQuantity',
             label: 'Total Value',
-            type: 'number',
+            type: 'number-only-dot',
             width: 'w-[40px]',
           },
           {
             key: 'formPaidQuantity',
             label: 'Paid Value',
-            type: 'number',
+            type: 'number-only-dot',
             width: 'w-[40px]',
           },
         ];
@@ -684,7 +737,6 @@ export class ContractComponent {
         formContractDate: formValue.formContractDate,
         formAddendumDate: formValue.formAddendumDate,
         formItemDetailList: formValue.formItemDetailList,
-        contractNo: formValue.contractNo,
       });
     }
   }
@@ -814,56 +866,51 @@ export class ContractComponent {
     return activeProjectOption ? activeProjectOption.value : undefined;
   }
 
-  fetchActiveProject() {
+  async fetchActiveProject() {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('projectName', '');
-    this.loaderService.show();
-    this.httpService
-      .get<ProjectListOfValueResponse>(
-        environment.API_URL,
-        'api/project/getProjectList',
-        params,
-        new HttpHeaders({
-          Authorization: `Bearer ${this.authService.getToken()}`,
-        })
-      )
-      .subscribe({
-        next: (response) => {
-          this.loaderService.hide();
-          if (
-            response?.status === 200 &&
-            response?.info?.toLowerCase() === 'success'
-          ) {
-            this.dropdownOptionsActiveProject = response?.data.map(
-              (project) => ({
-                value: project.projectId,
-                label: project.projectName,
-              })
-            );
-            this.formConfig = this.formConfig.map((config: any) => {
-              if (config.key === 'formActiveProject') {
-                return {
-                  ...config,
-                  options: this.dropdownOptionsActiveProject,
-                };
-              }
-              return config;
-            });
-            sessionStorage.setItem(
-              'active_project_list',
-              JSON.stringify(this.dropdownOptionsActiveProject)
-            );
-          } else {
-            this.notificationService.show(response?.info, 'info');
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<ProjectListOfValueResponse>(
+          environment.API_URL,
+          'api/project/getProjectList',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        this.dropdownOptionsActiveProject = response?.data.map((project) => ({
+          value: project.projectId,
+          label: project.projectName,
+        }));
+        this.formConfig = this.formConfig.map((config: any) => {
+          if (config.key === 'formActiveProject') {
+            return {
+              ...config,
+              options: this.dropdownOptionsActiveProject,
+            };
           }
-        },
-        error: (error: any) => {
-          this.loaderService.hide();
-          this.notificationService.show(error, 'error');
-          console.error('Failed to fetch active project', error);
-        },
-      });
+          return config;
+        });
+        sessionStorage.setItem(
+          'active_project_list',
+          JSON.stringify(this.dropdownOptionsActiveProject)
+        );
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      this.notificationService.show(error, 'error');
+      console.error('Failed to fetch active project', error);
+    }
   }
 
   private mapDropdownOptionsPartner(response: PartnerListResponse) {
@@ -874,6 +921,7 @@ export class ContractComponent {
         documentTracking: data?.documentTracking,
         ppnWapu: data?.ppnWapu,
         ppnValue: data?.ppnValue,
+        activeProject: data?.activeProject,
       },
     }));
   }

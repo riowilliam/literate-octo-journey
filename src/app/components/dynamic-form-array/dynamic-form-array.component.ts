@@ -8,11 +8,12 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { AllowDotOnlyDirective } from '../../directives/only-dot.directive';
 
 @Component({
   selector: 'app-dynamic-form-array',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, AllowDotOnlyDirective],
   templateUrl: './dynamic-form-array.component.html',
   styleUrl: './dynamic-form-array.component.scss',
 })
@@ -31,12 +32,14 @@ export class DynamicFormArrayComponent implements OnChanges {
   @Output() formCancel = new EventEmitter<void>();
 
   filteredOptions: { [key: string]: any[] } = {};
+  selectedOptions: { [key: string]: any[] } = {};
   selectedOptionsText: { [key: string]: string } = {};
   showDropdown: { [key: string]: boolean } = {};
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['formValue'] && this.formValue) {
       this.dynamicForm.patchValue(this.formValue);
+      this.updateSelectedOptions();
     }
   }
 
@@ -143,6 +146,21 @@ export class DynamicFormArrayComponent implements OnChanges {
       return this.getPatternErrorMessage(fieldKey);
     }
     return '';
+  }
+
+  updateSelectedOptions(): void {
+    this.formConfig.forEach((field) => {
+      if (field.type === 'multicheckbox-dropdown') {
+        const selectedValues = this.dynamicForm
+          .get(field.key)
+          ?.value?.split(',')
+          .map(Number);
+        this.selectedOptions[field.key] = field.options
+          .filter((option: any) => selectedValues?.includes(option.value))
+          .map((option: any) => option.label);
+        this.updateSelectedOptionsText(field.key);
+      }
+    });
   }
 
   updateSelectedOptionsText(key: string): void {

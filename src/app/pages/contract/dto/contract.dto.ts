@@ -93,7 +93,7 @@ export class FormContractRequest {
     contractDate: Date,
     addendumDate: Date,
     revision: string,
-    itemDetailList: ItemDetailList[],
+    itemDetailList: ItemDetailList[]
   ) {
     this.contractNo = contractNo;
     this.contractName = contractName;
@@ -181,7 +181,6 @@ export class ContractDetailResponse {
 }
 
 export class RevisionDetail {
-  // no!: number;
   revision!: number;
   created_by!: string;
   addendum_date!: string;
@@ -194,8 +193,7 @@ export class Revision {
   itemList!: ItemDetailList[];
 
   static fromApiResponse(data: Revision[]): RevisionDetail[] {
-    return data.map((revisionDetail, index) => ({
-      // no: index + 1,
+    return data.map((revisionDetail) => ({
       revision: revisionDetail?.revision,
       addendum_date: revisionDetail?.addendumDate,
       created_by: revisionDetail?.createdBy,

@@ -9,6 +9,7 @@ export class PartnerList {
   partnerId!: number;
   partnerName!: string;
   ppnValue!: number;
+  activeProject!: string[];
 }
 
 export class PPPHList {
