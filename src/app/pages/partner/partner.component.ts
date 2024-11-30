@@ -315,8 +315,6 @@ export class PartnerComponent {
         this.partnerForm.patchValue({
           formPartnerName: row?.row?.partner_name,
           formPPNWapu: row?.row?.ppn_wapu === 'Yes' ? 'YES' : 'NO',
-          formDocumentTracking:
-            row?.row?.document_tracking === 'Yes' ? 'YES' : 'NO',
           formActiveProject: row?.row?.active_project?.toString(),
         });
         this.showModalEdit = true;

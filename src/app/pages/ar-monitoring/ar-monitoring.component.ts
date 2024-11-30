@@ -126,6 +126,9 @@ export class ArMonitoringComponent {
     { key: 'partner_name', renderType: () => 'text', label: 'Customer Name' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
     { key: 'amount', renderType: () => 'currency', label: 'DPP Amount' },
+    { key: 'progress', renderType: () => 'currency', label: 'Progress' },
+    { key: 'retention', renderType: () => 'currency', label: 'Retention' },
+    { key: 'down_payment', renderType: () => 'currency', label: 'Down Payment' },
     { key: 'paid_amount', renderType: () => 'currency', label: 'Paid Amount' },
     { key: 'ppn_amount', renderType: () => 'currency', label: 'PPN Amount' },
     { key: 'pph_amount', renderType: () => 'currency', label: 'PPH Amount' },
@@ -135,9 +138,11 @@ export class ArMonitoringComponent {
       renderType: () => 'currency',
       label: 'Total Amount',
     },
-    { key: 'contract_name', renderType: () => 'text', label: 'Contract No' },
+    { key: 'contract_no', renderType: () => 'text', label: 'Contract No' },
+    { key: 'tax_invoice_number', renderType: () => 'text', label: 'Tax Invoice Number' },
     { key: 'bapp_no', renderType: () => 'text', label: 'BAPP No' },
-    { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
+    { key: 'bapp_date', renderType: () => 'date', label: 'BAPP Date' },
+    { key: 'invoice_date', renderType: () => 'date', label: 'Invoice Date' },
     {
       key: 'invoice_status',
       renderType: (value: any) => {
@@ -288,6 +293,11 @@ export class ArMonitoringComponent {
         type: 'text',
       },
       {
+        key: 'formInvoiceDate',
+        label: 'Invoice Date',
+        type: 'datepicker',
+      },
+      {
         key: 'formPartner',
         label: 'Customer',
         type: 'searchable-dropdown',
@@ -315,6 +325,31 @@ export class ArMonitoringComponent {
         type: 'text',
       },
       {
+        key: 'formBAPPDate',
+        label: 'BAPP Date',
+        type: 'datepicker',
+      },
+      {
+        key: 'formTaxInvoiceNumber',
+        label: 'Tax Invoice Number',
+        type: 'text',
+      },
+      {
+        key: 'formProgress',
+        label: 'Progress',
+        type: 'currency',
+      },
+      {
+        key: 'formDownPayment',
+        label: 'Down Payment',
+        type: 'currency',
+      },
+      {
+        key: 'formRetention',
+        label: 'Retention',
+        type: 'currency',
+      },
+      {
         key: 'formAmount',
         label: 'Amount',
         type: 'currency',
@@ -338,30 +373,54 @@ export class ArMonitoringComponent {
         type: 'text',
       },
       {
+        key: 'formInvoiceDate',
+        label: 'Invoice Date',
+        type: 'datepicker',
+      },
+      {
         key: 'formPartner',
         label: 'Customer',
-        type: 'select',
-        options: this.dropdownOptionsPartner,
-        placeholder: 'Select an option',
+        type: 'text',
       },
       {
         key: 'formContract',
         label: 'Contract',
-        type: 'select',
-        options: this.dropdownOptionsContract,
-        placeholder: 'Select an option',
+        type: 'text',
       },
       {
         key: 'formProject',
         label: 'Project',
-        type: 'select',
-        options: this.dropdownOptionsProject,
-        placeholder: 'Select an option',
+        type: 'text',
       },
       {
         key: 'formBAPPNo',
         label: 'BAPP No.',
         type: 'text',
+      },
+      {
+        key: 'formBAPPDate',
+        label: 'BAPP Date',
+        type: 'datepicker',
+      },
+      {
+        key: 'formTaxInvoiceNumber',
+        label: 'Tax Invoice Number',
+        type: 'text',
+      },
+      {
+        key: 'formProgress',
+        label: 'Progress',
+        type: 'currency',
+      },
+      {
+        key: 'formDownPayment',
+        label: 'Down Payment',
+        type: 'currency',
+      },
+      {
+        key: 'formRetention',
+        label: 'Retention',
+        type: 'currency',
       },
       {
         key: 'formAmount',
@@ -459,10 +518,16 @@ export class ArMonitoringComponent {
 
     this.arMonitoringForm = this.fb.group({
       formInvoiceNo: ['', Validators.required],
+      formInvoiceDate: ['', Validators.required],
       formPartner: [null, Validators.required],
       formContract: [null, Validators.required],
       formProject: [null, Validators.required],
       formBAPPNo: ['', Validators.required],
+      formBAPPDate: ['', Validators.required],
+      formTaxInvoiceNumber: ['', Validators.required],
+      formProgress: ['', Validators.required],
+      formDownPayment: ['', Validators.required],
+      formRetention: ['', Validators.required],
       formAmount: ['', Validators.required],
       formPPN: ['', Validators.required],
       formPPNWAPU: [''],
@@ -524,9 +589,22 @@ export class ArMonitoringComponent {
       }
       this.isCalculating = true;
 
-      const amount = this.parseCurrency(
-        this.arMonitoringForm.get('formAmount')?.value || 0
+      const progress = this.parseCurrency(
+        this.arMonitoringForm.get('formProgress')?.value || 0
       );
+      const downPayment = this.parseCurrency(
+        this.arMonitoringForm.get('formDownPayment')?.value || 0
+      );
+      const retention = this.parseCurrency(
+        this.arMonitoringForm.get('formRetention')?.value || 0
+      );
+    
+      // Menjumlahkan formProgress, formDownPayment, dan formRetention untuk mendapatkan formAmount
+      const amount = progress - downPayment - retention;
+      this.arMonitoringForm.get('formAmount')?.setValue(this.formatWithMask(amount), {
+        emitEvent: false,
+      });
+
       const ppn = this.parseCurrency(
         this.arMonitoringForm.get('formPPN')?.value || 0
       );
@@ -545,7 +623,7 @@ export class ArMonitoringComponent {
           (option) => option?.label === pphLabel
         );
         totalPphValue += Math.ceil(
-          amount * (selectedPPH?.value ? selectedPPH?.value : 1)
+          (selectedPPH?.value != 0 ? amount * selectedPPH?.value : 0)
         );
         data
           ?.get('formPPHAmount')
@@ -588,6 +666,18 @@ export class ArMonitoringComponent {
 
       this.isCalculating = false;
     };
+
+    this.arMonitoringForm
+    .get('formProgress')
+    ?.valueChanges.subscribe(calculateNetAmount);
+
+    this.arMonitoringForm
+      .get('formDownPayment')
+      ?.valueChanges.subscribe(calculateNetAmount);
+
+    this.arMonitoringForm
+    .get('formRetention')
+    ?.valueChanges.subscribe(calculateNetAmount);
 
     this.arMonitoringForm
       .get('formAmount')
@@ -1001,11 +1091,17 @@ export class ArMonitoringComponent {
 
   async prefillPreviewForm(data: any) {
     this.arMonitoringForm.patchValue({
-      formInvoiceNo: data.invoice_no,
+      formInvoiceNo: data.invoice_no, 
+      formInvoiceDate: data.invoice_date,      
       formPartner: data.partner_name,
       formContract: data.contract_name,
       formProject: data.project_name,
       formBAPPNo: data.bapp_no,
+      formBAPPDate: data.bapp_date,
+      formTaxInvoiceNumber: data.tax_invoice_number,
+      formProgress: this.formatWithMask(data.progress),
+      formDownPayment: this.formatWithMask(data.down_payment),
+      formRetention: this.formatWithMask(data.retention),
       formAmount: this.formatWithMask(data.amount),
       formPPN: data.ppn_amount,
       formNetAmount: this.formatWithMask(data.total_amount),

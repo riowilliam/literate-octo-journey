@@ -61,7 +61,7 @@ export class HeaderComponent {
           requiredPermissions: ['manage_documents'],
         },
         {
-          name: 'Regular Mutation',
+          name: 'Mutation',
           link: '/regular-cash-out',
           isActive: false,
           requiredPermissions: ['manage_regular_mutation'],

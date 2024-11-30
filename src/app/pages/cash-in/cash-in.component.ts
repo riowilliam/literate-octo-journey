@@ -78,7 +78,7 @@ export class CashInComponent {
     { key: 'partner_name', renderType: () => 'text', label: 'Customer Name' },
     { key: 'invoice_no', renderType: () => 'text', label: 'Invoice No' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
-    { key: 'contract_name', renderType: () => 'text', label: 'Contract' },
+    { key: 'contract_no', renderType: () => 'text', label: 'Contract No' },
     {
       key: 'payment_amount',
       renderType: () => 'currency',

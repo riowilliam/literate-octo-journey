@@ -1,7 +1,7 @@
 export class ArInvoiceDetailList {
   invoiceNo!: string;
   partnerName!: string;
-  contractName!: string;
+  contractNo!: string;
   projectName!: string;
   bappNo!: string;
   amount!: number;
@@ -23,14 +23,13 @@ export class ArInvoiceDetailList {
         no: index + 1,
         invoice_no: arInvoiceDetailData.invoiceNo || '',
         partner_name: arInvoiceDetailData.partnerName || '',
-        contract_name: arInvoiceDetailData.contractName || '',
+        contract_no: arInvoiceDetailData.contractNo || '',
         project_name: arInvoiceDetailData.projectName || '',
         bapp_no: arInvoiceDetailData.bappNo || '',
         amount: arInvoiceDetailData.amount || 0,
         ppn_amount: arInvoiceDetailData.ppn || 0,
         pph_amount: arInvoiceDetailData.pph || 0,
         total_amount: arInvoiceDetailData.totalAmount || 0,
-        document_tracking: arInvoiceDetailData.documentTracking || 'Unknown',
         invoice_status: arInvoiceDetailData.invoiceStatus || 0,
         payment_status: arInvoiceDetailData.paymentStatus || null,
         created_date: arInvoiceDetailData.createdDate || 'N/A',
@@ -69,14 +68,13 @@ export class ArInvoiceDetail {
   no!: number;
   invoice_no!: string;
   partner_name!: string;
-  contract_name!: string;
+  contract_no!: string;
   project_name!: string;
   bapp_no!: string;
   amount!: number;
   ppn_amount!: number;
   pph_amount!: number;
   total_amount!: number;
-  document_tracking!: string;
   invoice_status!: number;
   payment_status!: string | null;
   created_date!: string;
@@ -130,10 +128,16 @@ export class ArInvoiceResponse {
 
 export class FormARInvoiceRequest {
   invoiceNo: string;
+  invoiceDate: Date;
   partnerName: string;
-  contractName: string;
+  contractNo: string;
   projectName: string;
   bappNo: string;
+  bappDate: Date;
+  taxInvoiceNumber: string;
+  progress: number;
+  downPayment: number;
+  retention: number;
   amount: number;
   ppn: number;
   ppnWapu: number;
@@ -144,10 +148,16 @@ export class FormARInvoiceRequest {
 
   constructor(data: any) {
     this.invoiceNo = data.formInvoiceNo;
+    this.invoiceDate = data.formInvoiceDate;
     this.partnerName = data.formPartner;
-    this.contractName = data.formContract;
+    this.contractNo = data.formContract;
     this.projectName = data.formProject;
     this.bappNo = data.formBAPPNo;
+    this.bappDate = data.formBAPPDate;
+    this.taxInvoiceNumber = data.formTaxInvoiceNumber;
+    this.progress = this.parseCurrency(data.formProgress);
+    this.downPayment = this.parseCurrency(data.formDownPayment);
+    this.retention = this.parseCurrency(data.formRetention);
     this.amount = this.parseCurrency(data.formAmount);
     this.ppn = this.parseCurrency(data.formPPN);
     this.ppnWapu = this.parseCurrency(data.formPPNWAPU);

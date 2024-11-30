@@ -4,6 +4,9 @@
   (closeModal)="closeModalAdd()"
 >
   <app-dynamic-form-array
+    [formValue]="{
+      formActiveProject: contractForm.get('formActiveProject')?.value,
+    }"
     [dynamicForm]="contractForm"
     [formConfig]="formConfig"
     [formArray]="formItemDetailList"
@@ -24,8 +27,7 @@
 >
   <app-dynamic-form-array
     [formValue]="{
-      formContractName: contractForm.get('formContractName')?.value,
-      contractNo: contractForm.get('contractNo')?.value,
+      formActiveProject: contractForm.get('formActiveProject')?.value,
     }"
     [dynamicForm]="contractForm"
     [formConfig]="formConfig"
