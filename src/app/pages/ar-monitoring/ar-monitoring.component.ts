@@ -151,7 +151,6 @@ export class ArMonitoringComponent {
     { key: 'bapp_no', renderType: () => 'text', label: 'BAPP No' },
     { key: 'bapp_date', renderType: () => 'date', label: 'BAPP Date' },
     { key: 'invoice_date', renderType: () => 'date', label: 'Invoice Date' },
-    { key: 'note', renderType: () => 'text', label: 'Note' },
     {
       key: 'invoice_status',
       renderType: (value: any) => {
@@ -441,11 +440,6 @@ export class ArMonitoringComponent {
         label: 'Net Amount',
         type: 'currency',
       },
-      {
-        key: 'formNote',
-        label: 'Note',
-        type: 'text',
-      },
     ];
 
     this.formSimpleConfig = [
@@ -547,7 +541,7 @@ export class ArMonitoringComponent {
       formPPNWAPU: [''],
       formPPH: this.fb.array([]),
       formNetAmount: ['', Validators.required],
-      formNote: ['', Validators.required],
+      formNote: [''],
       formItemDetailList: this.fb.array([], quantityValidator()),
     });
 
@@ -1120,7 +1114,6 @@ export class ArMonitoringComponent {
       formAmount: this.formatWithMask(data.amount),
       formPPN: data.ppn_amount,
       formNetAmount: this.formatWithMask(data.total_amount),
-      formNote: data.note,
     });
   }
 
