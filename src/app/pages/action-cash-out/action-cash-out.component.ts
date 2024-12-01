@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ContentFormComponent } from '../../components/content-form/content-form.component';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
@@ -23,6 +23,8 @@ import { VendorListOfValueResponse } from './dto/vendor.dto';
 import { BankListResponse } from './dto/bank.dto';
 import { firstValueFrom } from 'rxjs';
 import { ProjectListOfValueResponse } from './dto/project.dto';
+import { PaymentBankPopupComponent } from '../../components/payment-bank-popup/payment-bank-popup.component';
+import { PaymentBankListResponse } from './dto/payment-bank.dto';
 
 @Component({
   selector: 'app-action-cash-out',
@@ -32,12 +34,16 @@ import { ProjectListOfValueResponse } from './dto/project.dto';
     RouterModule,
     ContentFormComponent,
     DynamicFormComponent,
+    PaymentBankPopupComponent,
   ],
   templateUrl: './action-cash-out.component.html',
   styleUrl: './action-cash-out.component.scss',
   providers: [DatePipe],
 })
 export class ActionCashOutComponent implements OnInit {
+  @ViewChild(PaymentBankPopupComponent)
+  paymentBankPopup!: PaymentBankPopupComponent;
+
   formGroup!: FormGroup;
   fields: FieldConfig[] = [
     {
@@ -115,7 +121,14 @@ export class ActionCashOutComponent implements OnInit {
     value: string;
     label: string;
   }> = [];
+  dropdownOptionsPaymentBank: Array<{
+    bankName: string;
+    bankAccount: string;
+    bankAccountName: string;
+    bankCodeInternal: string;
+  }> = [];
   paymentAmount: number = 0;
+  selectedPaymentBank!: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -309,7 +322,8 @@ export class ActionCashOutComponent implements OnInit {
       const request = new FormCashOutDocumentRequest(
         this.name,
         this.paymentAmount,
-        formData.rows
+        formData.rows,
+        ''
       );
       this.isRequestInvalid = this.isRequestEmpty(request);
     });
@@ -488,7 +502,7 @@ export class ActionCashOutComponent implements OnInit {
     request: FormCashOutDocumentRequest,
     name: string | undefined
   ): Partial<FormCashOutDocumentRequest> {
-    const { documentName, subTotal, cashOutDetailList } = request;
+    const { documentName, subTotal, cashOutDetailList, bankCode } = request;
 
     const processedRequest: Partial<FormCashOutDocumentRequest> = {
       subTotal,
@@ -512,6 +526,7 @@ export class ActionCashOutComponent implements OnInit {
           paymentAmount,
         };
       }),
+      bankCode,
     };
 
     if (name) {
@@ -555,7 +570,8 @@ export class ActionCashOutComponent implements OnInit {
     const request = new FormCashOutDocumentRequest(
       documentName,
       paymentAmount,
-      formData.rows
+      formData.rows,
+      this.selectedPaymentBank
     );
     const payload = this.processCashOutRequest(request, this.name);
     if (this.name) {
@@ -659,5 +675,63 @@ export class ActionCashOutComponent implements OnInit {
           this.loaderService.hide();
         },
       });
+  }
+
+  async fetchBankList() {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('bankName', '');
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<PaymentBankListResponse>(
+          environment.API_URL,
+          'api/balance/getPaymentBankList?',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        if (response?.data?.length > 0) {
+          this.dropdownOptionsPaymentBank = response?.data;
+
+          sessionStorage.setItem(
+            'payment_bank_list',
+            JSON.stringify(this.dropdownOptionsPaymentBank)
+          );
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch bank list', error);
+      this.notificationService.show(error, 'error');
+    }
+  }
+
+  async openPaymentBankPopup() {
+    this.loaderService.show();
+
+    try {
+      await Promise.all([this.fetchBankList()]);
+      this.paymentBankPopup.open();
+    } catch (error) {
+      console.error('Error fetching data', error);
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  async onPaymentBankSelected(selectedPaymentBank: string | null) {
+    if (selectedPaymentBank) {
+      this.selectedPaymentBank = selectedPaymentBank;
+      this.onSubmit();
+    }
   }
 }
