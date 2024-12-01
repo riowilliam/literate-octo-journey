@@ -5,10 +5,16 @@
   [hasId]="name ? true : false"
   [id]="name"
   [isRequestInvalid]="isRequestInvalid"
-  (submitForm)="onSubmit()"
+  (submitForm)="openPaymentBankPopup()"
 >
   <app-dynamic-form
     [formGroup]="formGroup"
     [fields]="fields"
   ></app-dynamic-form>
 </app-content-form>
+
+<app-payment-bank-popup
+  #paymentBankPopup
+  [optionsPaymentBank]="dropdownOptionsPaymentBank"
+  (bankSelected)="onPaymentBankSelected($event)"
+></app-payment-bank-popup>

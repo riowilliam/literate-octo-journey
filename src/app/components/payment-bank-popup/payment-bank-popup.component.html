@@ -1,0 +1,65 @@
+<div
+  class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-100"
+  *ngIf="isOpen"
+  (click)="close()"
+>
+  <div
+    class="bg-white p-4 rounded-lg shadow-lg"
+    (click)="$event.stopPropagation()"
+  >
+    <button class="absolute top-2 right-2" (click)="close()">X</button>
+    <label for="paymentBank" class="text-sm mb-1">Payment Bank</label>
+    <div class="relative w-full">
+      <input
+        id="paymentBank"
+        type="text"
+        placeholder="Select an option"
+        (input)="filterOptions($event)"
+        (focus)="showDropdown = true; setInitialOptions()"
+        (blur)="hideDropdown()"
+        class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+        autocomplete="off"
+        [value]="selectedBank"
+      />
+      <div
+        *ngIf="showDropdown"
+        class="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1"
+      >
+        <ul>
+          <li
+            *ngFor="let option of filteredOptions"
+            (click)="selectOption(option)"
+            class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+          >
+            {{ option.bankName }}
+          </li>
+        </ul>
+      </div>
+      <div
+        class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          ></path>
+        </svg>
+      </div>
+    </div>
+    <button
+      class="mt-4 w-full h-auto text-base px-4 py-2 rounded-xl font-medium hover:bg-custom-light-yellow bg-custom-yellow cursor-pointer rounded-md p-2 disabled:bg-gray-400 disabled:text-gray-600"
+      (click)="confirmBank()"
+      [disabled]="!selectedBank"
+    >
+      Confirm
+    </button>
+  </div>
+</div>
