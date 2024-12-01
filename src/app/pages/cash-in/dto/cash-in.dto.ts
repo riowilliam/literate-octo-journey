@@ -13,6 +13,7 @@ export class CashInDetailList {
   modifiedBy!: string;
   cashInStatus!: string;
   paymentBankCode!: string;
+  fileDownloaded!: boolean;
 
   static fromApiResponse(data: CashInList[]): CashInDetail[] {
     return data.flatMap((mutationList) =>
@@ -32,6 +33,7 @@ export class CashInDetailList {
         modified_by: cashInDetailData.modifiedBy,
         cash_in_status: cashInDetailData.cashInStatus,
         payment_bank_code: cashInDetailData.paymentBankCode,
+        file_downloaded: cashInDetailData.fileDownloaded,
       }))
     );
   }
@@ -71,6 +73,7 @@ export class CashInDetail {
   modified_by!: string;
   cash_in_status!: string;
   payment_bank_code!: string;
+  file_downloaded!: boolean;
 }
 
 export class CashInList {

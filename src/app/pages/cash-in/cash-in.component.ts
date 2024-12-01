@@ -6,7 +6,7 @@ import { DynamicInputComponent } from '../../components/dynamic-input/dynamic-in
 import { ContentFilterComponent } from '../../components/content-filter/content-filter.component';
 import { ContentCardComponent } from '../../components/content-card/content-card.component';
 import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import {
   CashInDetail,
@@ -45,6 +45,7 @@ import { PaymentBankListResponse } from './dto/payment-bank.dto';
   ],
   templateUrl: './cash-in.component.html',
   styleUrl: './cash-in.component.scss',
+  providers: [DatePipe],
 })
 export class CashInComponent {
   showModalCashInStatus = false;
@@ -71,7 +72,8 @@ export class CashInComponent {
       | 'integer'
       | 'button'
       | 'icon'
-      | 'empty';
+      | 'empty'
+      | 'file';
     transform?: (value: any, row?: any) => any;
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
@@ -120,6 +122,11 @@ export class CashInComponent {
       },
       label: 'Cash In Status',
       class: 'bg-custom-light-yellow px-4 py-2 rounded hover:bg-custom-yellow',
+    },
+    {
+      key: 'file_downloaded',
+      renderType: () => 'file',
+      label: 'Download File',
     },
   ];
   cards = [
@@ -177,7 +184,8 @@ export class CashInComponent {
     private authService: AuthService,
     private loaderService: LoaderService,
     private notificationService: NotificationService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private datePipe: DatePipe
   ) {
     this.filterForm = this.fb.group({
       partnerName: [''],
@@ -454,6 +462,9 @@ export class CashInComponent {
         });
         this.fetchCashIn();
         break;
+      case 'file_downloaded':
+        this.createCashOutDocument(row?.row?.cash_in_id);
+        break;
     }
   }
 
@@ -578,6 +589,54 @@ export class CashInComponent {
 
   closeModalAdd() {
     this.showModalAdd = false;
+  }
+
+  createCashOutDocument(cashInId: any) {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('cashInId', cashInId);
+    this.loaderService.show();
+    this.httpService
+      .getDownloadFile(
+        environment.API_URL,
+        `api/cashIn/getDocumentCashInWithInvoiceDetails?`,
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (response.body) {
+            this.notificationService.show(
+              'Download document succesfully',
+              'success'
+            );
+            const url = window.URL.createObjectURL(response.body);
+            const link = document.createElement('a');
+            const date = new Date();
+            link.href = url;
+            link.download = `HK-CI-${this.datePipe.transform(
+              date,
+              'yyMMdd-hhmmss'
+            )!}.zip`;
+            link.click();
+            window.URL.revokeObjectURL(url);
+          } else {
+            this.notificationService.show('Error download document.', 'error');
+            console.error('Error download document.');
+          }
+        },
+        error: (error) => {
+          this.loaderService.hide();
+          this.notificationService.show('Error download document.', 'error');
+          console.error('Error download document', error);
+        },
+        complete: () => {
+          this.loaderService.hide();
+        },
+      });
   }
 
   private parseCurrency(value: any): number {

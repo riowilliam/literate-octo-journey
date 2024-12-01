@@ -79,6 +79,22 @@ export class HttpService {
       .pipe(catchError(this.handleError.bind(this)));
   }
 
+  getDownloadFile(
+    baseUrl: string,
+    endpoint: string,
+    params?: HttpParams,
+    headers?: HttpHeaders
+  ): Observable<HttpResponse<Blob>> {
+    return this.http
+      .get(`${baseUrl}/${endpoint}`, {
+        headers,
+        params,
+        observe: 'response',
+        responseType: 'blob',
+      })
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+
   private handleError(error: HttpErrorResponse) {
     if (error.status === 401) {
       this.authService.logout();
