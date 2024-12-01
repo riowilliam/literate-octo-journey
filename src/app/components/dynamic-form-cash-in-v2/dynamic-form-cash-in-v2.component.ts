@@ -28,11 +28,19 @@ export class DynamicFormCashInV2Component {
   @Input() paidAmount: string | null = null;
   @Input() partnerName: string | null = null;
   @Input() projectName: string | null = null;
-  @Input() deduction: string | null = null;
+  @Input() interestDeduction: string | null = null;
+  @Input() otherDeduction: string | null = null;
   @Input() netAmount: string | null = null;
   @Input() cashInStatus: string | null = null;
   @Input() paymentType: string | null = null;
   @Input() paymentAmount: string | null = null;
+  @Input() paymentBank: string | null = null;
+  @Input() optionsPaymentBank: {
+    bankName: string;
+    bankAccount: string;
+    bankAccountName: string;
+    bankCodeInternal: string;
+  }[] = [];
 
   @Output() formSubmit = new EventEmitter<any>();
   @Output() formCancel = new EventEmitter<void>();
@@ -45,6 +53,9 @@ export class DynamicFormCashInV2Component {
   filteredOptions: { [key: string]: any[] } = {};
   showDropdown: { [key: string]: boolean } = {};
 
+  filteredOptionsPaymentBank: any;
+  showDropdownPaymentBank: any;
+
   constructor(private fb: FormBuilder) {
     this.customForm = this.fb.group(
       {
@@ -53,7 +64,8 @@ export class DynamicFormCashInV2Component {
         paidAmount: [''],
         partnerName: ['', Validators.required],
         projectName: ['', Validators.required],
-        deduction: [''],
+        interestDeduction: [''],
+        otherDeduction: [''],
         netAmount: ['', Validators.required],
         cashInStatus: ['', Validators.required],
         paymentType: ['', Validators.required],
@@ -62,6 +74,7 @@ export class DynamicFormCashInV2Component {
           this.isPartiallyPayment ? 'Pending Cash In' : '',
           Validators.required,
         ],
+        paymentBank: [null, Validators.required],
       },
       { validators: amountValidation }
     );
@@ -87,12 +100,14 @@ export class DynamicFormCashInV2Component {
       paidAmount: this.formatWithMask(this.paidAmount),
       partnerName: this.partnerName,
       projectName: this.projectName,
-      deduction: this.formatWithMask(this.deduction),
+      interestDeduction: this.formatWithMask(this.interestDeduction),
+      otherDeduction: this.formatWithMask(this.otherDeduction),
       netAmount: this.formatWithMask(this.netAmount),
       cashInStatus: this.cashInStatus,
       paymentType: '1',
       contractName: '',
       paymentAmount: this.formatWithMask(this.paymentAmount),
+      paymentBank: this.paymentBank,
     });
   }
 
@@ -105,10 +120,20 @@ export class DynamicFormCashInV2Component {
       this.updateNetAmount();
     });
 
-    this.customForm.get('deduction')?.valueChanges.subscribe((value) => {
+    this.customForm
+      .get('interestDeduction')
+      ?.valueChanges.subscribe((value) => {
+        const formattedValue = this.formatWithMask(value);
+        this.customForm
+          .get('interestDeduction')
+          ?.setValue(formattedValue, { emitEvent: false });
+        this.updateNetAmount();
+      });
+
+    this.customForm.get('otherDeduction')?.valueChanges.subscribe((value) => {
       const formattedValue = this.formatWithMask(value);
       this.customForm
-        .get('deduction')
+        .get('otherDeduction')
         ?.setValue(formattedValue, { emitEvent: false });
       this.updateNetAmount();
     });
@@ -138,13 +163,21 @@ export class DynamicFormCashInV2Component {
     const paymentAmount = parseCurrency(
       this.customForm.get('paymentAmount')?.value
     );
-    const deduction = parseCurrency(this.customForm.get('deduction')?.value);
+    const interestDeduction = parseCurrency(
+      this.customForm.get('interestDeduction')?.value
+    );
+    const otherDeduction = parseCurrency(
+      this.customForm.get('otherDeduction')?.value
+    );
     const paidAmount = parseCurrency(this.customForm.get('paidAmount')?.value);
 
     const netAmount =
       (this.isPartiallyPayment
         ? paymentAmount
-        : amount - (paidAmount ? paidAmount : 0)) - (deduction ? deduction : 0);
+        : amount - (paidAmount ? paidAmount : 0)) -
+      (interestDeduction ? interestDeduction : 0) -
+      (otherDeduction ? otherDeduction : 0);
+
     this.customForm.get('netAmount')?.setValue(this.formatWithMask(netAmount));
   }
 
@@ -154,7 +187,8 @@ export class DynamicFormCashInV2Component {
     } else {
       this.isPartiallyPayment = false;
     }
-    this.customForm.get('deduction')?.setValue(null);
+    this.customForm.get('interestDeduction')?.setValue(null);
+    this.customForm.get('otherDeduction')?.setValue(null);
     this.customForm.get('netAmount')?.setValue(null);
     if (this.isPartiallyPayment) {
       this.customForm.controls['cashInStatus'].setValue('Pending Cash In');
@@ -231,6 +265,42 @@ export class DynamicFormCashInV2Component {
     }
     return '0';
   }
+
+  setInitialOptionsPaymentBank(): void {
+    this.filteredOptionsPaymentBank = this.optionsPaymentBank;
+  }
+
+  isAcronymMatch(searchTerm: string, optionLabel: string): boolean {
+    const acronym = optionLabel
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .toLowerCase();
+    return acronym.startsWith(searchTerm);
+  }
+
+  filterOptionsPaymentBank(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const searchTerm = input.value.toLowerCase();
+
+    this.filteredOptionsPaymentBank = this.optionsPaymentBank.filter(
+      (option: any) => {
+        const optionBankName = option.bankName.toLowerCase();
+        const directMatch = optionBankName.includes(searchTerm);
+        const acronymMatch = this.isAcronymMatch(searchTerm, option.bankName);
+        return directMatch || acronymMatch;
+      }
+    );
+  }
+
+  hideDropdownPaymentBank(): void {
+    setTimeout(() => (this.showDropdownPaymentBank = false), 200);
+  }
+
+  selectOptionPaymentBank(option: any): void {
+    this.customForm.get('paymentBank')?.setValue(option.bankName);
+    this.showDropdownPaymentBank = false;
+  }
 }
 
 function parseCurrency(value: any): number {
@@ -243,20 +313,30 @@ function parseCurrency(value: any): number {
 function amountValidation(group: FormGroup): ValidationErrors | null {
   const amount = parseCurrency(group.get('amount')?.value);
   const paidAmount = parseCurrency(group.get('paidAmount')?.value);
-  const deduction = parseCurrency(group.get('deduction')?.value);
+  const interestDeduction = parseCurrency(
+    group.get('interestDeduction')?.value
+  );
+  const otherDeduction = parseCurrency(group.get('otherDeduction')?.value);
   const paymentAmount = parseCurrency(group.get('paymentAmount')?.value);
   const paymentType = Number(group.get('paymentType')?.value);
 
   const errors: ValidationErrors = {};
 
   if (paymentType === 2) {
-    if (paymentAmount > amount - paidAmount) {
+    if (
+      paymentAmount - interestDeduction - otherDeduction >=
+      amount - paidAmount
+    ) {
       errors['paymentAmountGreaterThanAmountMinusAmount'] = true;
     }
   }
 
-  if (deduction >= paymentAmount) {
-    errors['deductionGreaterThanPaymentAmount'] = true;
+  if (interestDeduction >= paymentAmount) {
+    errors['interestDeductionGreaterThanPaymentAmount'] = true;
+  }
+
+  if (otherDeduction >= paymentAmount) {
+    errors['otherDeductionGreaterThanPaymentAmount'] = true;
   }
 
   return Object.keys(errors).length ? errors : null;

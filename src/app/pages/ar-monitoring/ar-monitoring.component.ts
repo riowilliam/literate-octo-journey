@@ -37,6 +37,7 @@ import {
 import { DynamicFormCashInComponent } from '../../components/dynamic-form-cash-in/dynamic-form-cash-in.component';
 import { FormCashInRequest, FormCashInResponse } from './dto/cash-in.dto';
 import { ActivatedRoute } from '@angular/router';
+import { PaymentBankListResponse } from './dto/payment-bank.dto';
 
 @Component({
   selector: 'app-ar-monitoring',
@@ -264,6 +265,13 @@ export class ArMonitoringComponent {
 
   dropdownOptionsPPH: Array<{ value: any; label: any }> = [];
 
+  dropdownOptionsPaymentBank: Array<{
+    bankName: string;
+    bankAccount: string;
+    bankAccountName: string;
+    bankCodeInternal: string;
+  }> = [];
+
   invoiceNo!: string;
 
   formConfig!: any;
@@ -279,7 +287,8 @@ export class ArMonitoringComponent {
   paidAmount!: string;
   partnerName!: string;
   projectName!: string;
-  deduction!: string;
+  interestDeduction!: string;
+  otherDeduction!: string;
   netAmount!: string;
   cashInStatus!: string;
   paymentType!: string;
@@ -1132,6 +1141,74 @@ export class ArMonitoringComponent {
     }
   }
 
+  async prefillPreviewFormCashIn(row: any) {
+    this.invoiceNo = row?.row?.invoice_no;
+    this.amount = this.formatWithMask(row?.row?.total_amount);
+    this.partnerName = row?.row?.partner_name;
+    this.projectName = row?.row?.project_name;
+    this.interestDeduction = this.formatWithMask(0);
+    this.otherDeduction = this.formatWithMask(0);
+    this.netAmount = this.formatWithMask(row?.row?.amount - 0);
+    this.contractName = row?.row?.contract_name;
+    this.paymentAmount = this.formatWithMask(
+      row?.row?.total_amount -
+        (row?.row?.paid_amount ? row?.row?.paid_amount : 0)
+    );
+    this.cashInStatus = row?.row?.payment_status;
+  }
+
+  async fetchBankList() {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('bankName', '');
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<PaymentBankListResponse>(
+          environment.API_URL,
+          'api/balance/getPaymentBankList?',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        if (response?.data?.length > 0) {
+          this.dropdownOptionsPaymentBank = response?.data;
+
+          sessionStorage.setItem(
+            'payment_bank_list',
+            JSON.stringify(this.dropdownOptionsPaymentBank)
+          );
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch bank list', error);
+      this.notificationService.show(error, 'error');
+    }
+  }
+
+  async fetchDataCashIn(data: any) {
+    this.loaderService.show();
+
+    try {
+      await Promise.all([this.prefillPreviewFormCashIn(data)]);
+      await Promise.all([this.fetchBankList()]);
+      this.showModalPayment = true;
+    } catch (error) {
+      console.error('Error fetching data', error);
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
   fetchDetailArInvoice(invoiceNo: string) {
     const params = new HttpParams().set('invoiceNo', invoiceNo);
     this.loaderService.show();
@@ -1209,21 +1286,7 @@ export class ArMonitoringComponent {
         this.fetchPreviewDataDetail(row?.row?.contract_no, row?.row);
         break;
       case 'payment_status':
-        this.invoiceNo = row?.row?.invoice_no;
-        this.amount = this.formatWithMask(row?.row?.total_amount);
-        this.partnerName = row?.row?.partner_name;
-        this.projectName = row?.row?.project_name;
-        this.deduction = this.formatWithMask(row?.row?.deduction);
-        this.netAmount = this.formatWithMask(
-          row?.row?.amount - row?.row?.deduction
-        );
-        this.contractName = row?.row?.contract_name;
-        this.paymentAmount = this.formatWithMask(
-          row?.row?.total_amount -
-            (row?.row?.paid_amount ? row?.row?.paid_amount : 0)
-        );
-        this.cashInStatus = row?.row?.payment_status;
-        this.showModalPayment = true;
+        this.fetchDataCashIn(row);
         break;
     }
   }
@@ -1238,6 +1301,10 @@ export class ArMonitoringComponent {
         this.createARInvoice(formValue);
         break;
       case 'create':
+        const selectedPaymentBank = this.dropdownOptionsPaymentBank.find(
+          (option) => option?.bankName === formValue?.paymentBank
+        );
+        formValue.paymentBank = selectedPaymentBank?.bankCodeInternal;
         this.createCashIn(formValue);
         break;
     }
@@ -1398,7 +1465,8 @@ export class ArMonitoringComponent {
     this.amount = '';
     this.partnerName = '';
     this.projectName = '';
-    this.deduction = '';
+    this.interestDeduction = '';
+    this.otherDeduction = '';
     this.netAmount = '';
     this.contractName = '';
     this.paymentAmount = '';
