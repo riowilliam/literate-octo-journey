@@ -1,0 +1,41 @@
+<div class="container">
+  <div class="max-h-[600px] overflow-y-auto flex flex-col w-full gap-4">
+    <div
+      *ngFor="let detail of balanceSummaryDetails"
+      [ngClass]="cardClass"
+      class="w-full flex flex-col gap-4 rounded-[15px] border border-custom-very-light-yellow overflow-clip"
+    >
+      <div
+        [ngClass]="headerClass"
+        class="flex items-center justify-center bg-gray-200 p-3"
+      >
+        <span [ngClass]="headerTextClass" class="text-lg font-bold">
+          {{ detail.bankName }}
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-6 p-4">
+        <div class="flex flex-col items-center">
+          <span class="text-sm font-medium text-gray-600">Total Cash In</span>
+          <span class="text-lg font-semibold text-gray-800">{{
+            detail.totalCashInValue | rupiahPipe
+          }}</span>
+        </div>
+
+        <div class="flex flex-col items-center">
+          <span class="text-sm font-medium text-gray-600">Total Cash Out</span>
+          <span class="text-lg font-semibold text-gray-800">{{
+            detail.totalCashOutValue | rupiahPipe
+          }}</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center border-t border-gray-300 py-2">
+        <span class="text-sm font-medium text-gray-600">Total Balance</span>
+        <span class="text-lg font-semibold text-gray-800">{{
+          detail.totalBalance | rupiahPipe
+        }}</span>
+      </div>
+    </div>
+  </div>
+</div>

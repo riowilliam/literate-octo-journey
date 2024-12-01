@@ -38,6 +38,7 @@ import { DynamicFormCashInV2Component } from '../../components/dynamic-form-cash
 import { FormCashInRequest, FormCashInResponse } from './dto/cash-in.dto';
 import { InvoiceListResponse } from './dto/invoice.dto';
 import { PaymentBankListResponse } from './dto/payment-bank.dto';
+import { BalanceSummaryComponent } from '../../components/balance-summary/balance-summary.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -52,6 +53,7 @@ import { PaymentBankListResponse } from './dto/payment-bank.dto';
     RupiahPipe,
     DynamicFormArrayV2Component,
     DynamicFormCashInV2Component,
+    BalanceSummaryComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -108,24 +110,24 @@ export class DashboardComponent {
     },
   ];
 
-  cardsWaitingForApproval = [
+  cardsBalanceSummary: any = [
     {
-      headerText: 'AR Invoice',
-      sections: [[{ label: 'Total Data', value: 0 }]],
-      route: '',
-      queryParams: {},
+      bankName: 'Bank',
+      totalCashInValue: 0,
+      totalCashOutValue: 0,
+      totalBalance: 0,
     },
     {
-      headerText: 'Cash In',
-      sections: [[{ label: 'Total Data', value: 0 }]],
-      route: '',
-      queryParams: {},
+      bankName: 'Bank',
+      totalCashInValue: 0,
+      totalCashOutValue: 0,
+      totalBalance: 0,
     },
     {
-      headerText: 'Cash Out Document',
-      sections: [[{ label: 'Total Data', value: 0 }]],
-      route: '',
-      queryParams: {},
+      bankName: 'Bank',
+      totalCashInValue: 0,
+      totalCashOutValue: 0,
+      totalBalance: 0,
     },
   ];
 
@@ -868,32 +870,8 @@ export class DashboardComponent {
       },
     ];
 
-    this.cardsWaitingForApproval = [
-      {
-        headerText: 'AR Invoice',
-        sections: [[{ label: 'Total Data', value: 0 }]],
-        route: '/ar-monitoring',
-        queryParams: { startDate: this.startDate, endDate: this.endDate },
-      },
-      {
-        headerText: 'Cash In',
-        sections: [[{ label: 'Total Data', value: 0 }]],
-        route: '/cash-in',
-        queryParams: { startDate: this.startDate, endDate: this.endDate },
-      },
-      {
-        headerText: 'Cash Out Document',
-        sections: [[{ label: 'Total Data', value: 0 }]],
-        route: '/document-cash-out',
-        queryParams: { startDate: this.startDate, endDate: this.endDate },
-      },
-    ];
-
     response?.data?.cardDetails?.forEach((card) => {
       const matchingCardRecent = this.cardsRecentlyUpdated.find(
-        (c) => c.headerText === card.cardTitle
-      );
-      const matchingCardApproval = this.cardsWaitingForApproval.find(
         (c) => c.headerText === card.cardTitle
       );
 
@@ -903,12 +881,9 @@ export class DashboardComponent {
         matchingCardRecent.sections[0][1].value =
           card.totalApprovedAmountCreated || 0;
       }
-
-      if (matchingCardApproval) {
-        matchingCardApproval.sections[0][0].value =
-          card.totalPendingCountCreated || 0;
-      }
     });
+
+    this.cardsBalanceSummary = response?.data?.balanceSummaryDetails;
   }
 
   async changeTimeRange(timeRange: string): Promise<void> {
