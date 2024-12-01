@@ -26,7 +26,8 @@ export class DynamicTableComponent {
       | 'integer'
       | 'button'
       | 'icon'
-      | 'empty';
+      | 'empty'
+      | 'file';
     transform?: (value: any, row?: any) => any;
   }[] = [];
   @Input() rows: any[] = [];
