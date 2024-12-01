@@ -37,6 +37,7 @@ import { ContractDetailResponse } from './dto/contract.dto';
 import { DynamicFormCashInV2Component } from '../../components/dynamic-form-cash-in-v2/dynamic-form-cash-in-v2.component';
 import { FormCashInRequest, FormCashInResponse } from './dto/cash-in.dto';
 import { InvoiceListResponse } from './dto/invoice.dto';
+import { PaymentBankListResponse } from './dto/payment-bank.dto';
 
 @Component({
   selector: 'app-dashboard',
@@ -207,7 +208,8 @@ export class DashboardComponent {
   paidAmount!: string;
   partnerName!: string;
   projectName!: string;
-  deduction!: string;
+  interestDeduction!: string;
+  otherDeduction!: string;
   netAmount!: string;
   cashInStatus!: string;
   paymentType!: string;
@@ -216,6 +218,13 @@ export class DashboardComponent {
   paymentAmount!: string;
 
   dropdownOptionsInvoice: { [key: string]: any[] } = {};
+
+  dropdownOptionsPaymentBank: Array<{
+    bankName: string;
+    bankAccount: string;
+    bankAccountName: string;
+    bankCodeInternal: string;
+  }> = [];
 
   constructor(
     private router: Router,
@@ -546,12 +555,13 @@ export class DashboardComponent {
       const retention = this.parseCurrency(
         this.arMonitoringForm.get('formRetention')?.value || 0
       );
-    
-      // Menjumlahkan formProgress, formDownPayment, dan formRetention untuk mendapatkan formAmount
+
       const amount = progress - downPayment - retention;
-      this.arMonitoringForm.get('formAmount')?.setValue(this.formatWithMask(amount), {
-        emitEvent: false,
-      });
+      this.arMonitoringForm
+        .get('formAmount')
+        ?.setValue(this.formatWithMask(amount), {
+          emitEvent: false,
+        });
 
       const ppn = this.parseCurrency(
         this.arMonitoringForm.get('formPPN')?.value || 0
@@ -571,7 +581,7 @@ export class DashboardComponent {
           (option) => option?.label === pphLabel
         );
         totalPphValue += Math.ceil(
-          (selectedPPH?.value != 0 ? amount * selectedPPH?.value : 0)
+          selectedPPH?.value != 0 ? amount * selectedPPH?.value : 0
         );
         data
           ?.get('formPPHAmount')
@@ -616,16 +626,16 @@ export class DashboardComponent {
     };
 
     this.arMonitoringForm
-    .get('formProgress')
-    ?.valueChanges.subscribe(calculateNetAmount);
+      .get('formProgress')
+      ?.valueChanges.subscribe(calculateNetAmount);
 
     this.arMonitoringForm
       .get('formDownPayment')
       ?.valueChanges.subscribe(calculateNetAmount);
 
     this.arMonitoringForm
-    .get('formRetention')
-    ?.valueChanges.subscribe(calculateNetAmount);
+      .get('formRetention')
+      ?.valueChanges.subscribe(calculateNetAmount);
 
     this.arMonitoringForm
       .get('formAmount')
@@ -1374,11 +1384,50 @@ export class DashboardComponent {
 
     try {
       await Promise.all([this.fetchInvoiceList()]);
+      await Promise.all([this.fetchBankList()]);
       this.showModalAddCashIn = true;
     } catch (error) {
       console.error('Error fetching data', error);
     } finally {
       this.loaderService.hide();
+    }
+  }
+
+  async fetchBankList() {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('bankName', '');
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<PaymentBankListResponse>(
+          environment.API_URL,
+          'api/balance/getPaymentBankList?',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        if (response?.data?.length > 0) {
+          this.dropdownOptionsPaymentBank = response?.data;
+
+          sessionStorage.setItem(
+            'payment_bank_list',
+            JSON.stringify(this.dropdownOptionsPaymentBank)
+          );
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch bank list', error);
+      this.notificationService.show(error, 'error');
     }
   }
 

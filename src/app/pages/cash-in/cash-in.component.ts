@@ -26,6 +26,7 @@ import { DynamicFormCashInV2Component } from '../../components/dynamic-form-cash
 import { firstValueFrom } from 'rxjs';
 import { InvoiceListResponse } from './dto/invoice.dto';
 import { DynamicFormCompleteCashInComponent } from '../../components/dynamic-form-complete-cash-in/dynamic-form-complete-cash-in.component';
+import { PaymentBankListResponse } from './dto/payment-bank.dto';
 
 @Component({
   selector: 'app-cash-in',
@@ -78,7 +79,7 @@ export class CashInComponent {
     { key: 'partner_name', renderType: () => 'text', label: 'Customer Name' },
     { key: 'invoice_no', renderType: () => 'text', label: 'Invoice No' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
-    { key: 'contract_no', renderType: () => 'text', label: 'Contract No' },
+    { key: 'contract_name', renderType: () => 'text', label: 'Contract No' },
     {
       key: 'payment_amount',
       renderType: () => 'currency',
@@ -86,6 +87,11 @@ export class CashInComponent {
     },
     { key: 'payment_date', renderType: () => 'date', label: 'Payment Date' },
     { key: 'payment_type', renderType: () => 'text', label: 'Payment Type' },
+    {
+      key: 'payment_bank_code',
+      renderType: () => 'date',
+      label: 'Payment Bank Code',
+    },
     { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
     { key: 'modified_date', renderType: () => 'date', label: 'Modified Date' },
@@ -142,7 +148,8 @@ export class CashInComponent {
   paidAmount!: string;
   partnerName!: string;
   projectName!: string;
-  deduction!: string;
+  interestDeduction!: string;
+  otherDeduction!: string;
   netAmount!: string;
   cashInStatus!: string;
   paymentType!: string;
@@ -156,6 +163,13 @@ export class CashInComponent {
     { value: 'Fully Payment', label: 'Fully Payment' },
     { value: 'Partially Payment', label: 'Partially Payment' },
   ];
+
+  dropdownOptionsPaymentBank: Array<{
+    bankName: string;
+    bankAccount: string;
+    bankAccountName: string;
+    bankCodeInternal: string;
+  }> = [];
 
   constructor(
     private fb: FormBuilder,
@@ -317,7 +331,74 @@ export class CashInComponent {
 
     try {
       await Promise.all([this.fetchInvoiceList()]);
+      await Promise.all([this.fetchBankList()]);
       this.showModalAdd = true;
+    } catch (error) {
+      console.error('Error fetching data', error);
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  async prefillPreviewFormCashIn(row: any) {
+    this.amount = '';
+    this.netAmount = '';
+    this.paidAmount = '';
+    this.interestDeduction = '';
+    this.otherDeduction = '';
+    this.invoiceNo = row?.row?.invoice_no;
+    this.cashInId = row?.row?.cash_in_id;
+    this.partnerName = row?.row?.partner_name;
+    this.projectName = row?.row?.project_name;
+    this.contractName = row?.row?.contract_name;
+    this.paymentAmount = this.formatWithMask(row?.row?.payment_amount);
+  }
+
+  async fetchBankList() {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('bankName', '');
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<PaymentBankListResponse>(
+          environment.API_URL,
+          'api/balance/getPaymentBankList?',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        if (response?.data?.length > 0) {
+          this.dropdownOptionsPaymentBank = response?.data;
+
+          sessionStorage.setItem(
+            'payment_bank_list',
+            JSON.stringify(this.dropdownOptionsPaymentBank)
+          );
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch bank list', error);
+      this.notificationService.show(error, 'error');
+    }
+  }
+
+  async fetchDataCashIn(data: any) {
+    this.loaderService.show();
+
+    try {
+      await Promise.all([this.prefillPreviewFormCashIn(data)]);
+      await Promise.all([this.fetchBankList()]);
+      this.showModalCashInStatus = true;
     } catch (error) {
       console.error('Error fetching data', error);
     } finally {
@@ -340,23 +421,14 @@ export class CashInComponent {
   handleButtonClick(row: any) {
     switch (row?.key) {
       case 'cash_in_status':
-        this.amount = '';
-        this.netAmount = '';
-        this.paidAmount = '';
-        this.deduction = '';
-        this.invoiceNo = row?.row?.invoice_no;
-        this.cashInId = row?.row?.cash_in_id;
-        this.partnerName = row?.row?.partner_name;
-        this.projectName = row?.row?.project_name;
-        this.contractName = row?.row?.contract_name;
-        this.paymentAmount = this.formatWithMask(row?.row?.payment_amount);
-        this.showModalCashInStatus = true;
+        this.fetchDataCashIn(row);
         break;
       case 'add':
         this.amount = '';
         this.netAmount = '';
         this.paidAmount = '';
-        this.deduction = '';
+        this.interestDeduction = '';
+        this.otherDeduction = '';
         this.invoiceNo = '';
         this.cashInId = 0;
         this.partnerName = '';
@@ -413,7 +485,8 @@ export class CashInComponent {
             this.amount = '';
             this.netAmount = '';
             this.paidAmount = '';
-            this.deduction = '';
+            this.interestDeduction = '';
+            this.otherDeduction = '';
             this.invoiceNo = '';
             this.cashInId = 0;
             this.partnerName = '';
@@ -462,7 +535,8 @@ export class CashInComponent {
             this.amount = '';
             this.netAmount = '';
             this.paidAmount = '';
-            this.deduction = '';
+            this.interestDeduction = '';
+            this.otherDeduction = '';
             this.invoiceNo = '';
             this.cashInId = 0;
             this.partnerName = '';
@@ -486,6 +560,10 @@ export class CashInComponent {
   handleFormSubmit(formValue: any, type: string): void {
     switch (type) {
       case 'add':
+        const selectedPaymentBank = this.dropdownOptionsPaymentBank.find(
+          (option) => option?.bankName === formValue?.paymentBank
+        );
+        formValue.paymentBank = selectedPaymentBank?.bankCodeInternal;
         this.createCashIn(formValue);
         break;
       case 'complete':

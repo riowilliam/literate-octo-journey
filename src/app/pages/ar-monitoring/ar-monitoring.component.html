@@ -85,8 +85,10 @@
     [amount]="amount"
     [netAmount]="netAmount"
     [paidAmount]="paidAmount"
-    [deduction]="deduction"
+    [interestDeduction]="interestDeduction"
+    [otherDeduction]="otherDeduction"
     [paymentAmount]="paymentAmount"
+    [optionsPaymentBank]="dropdownOptionsPaymentBank"
     (formSubmit)="handleFormSubmit($event, 'create')"
     (formCancel)="closeModalPayment()"
   ></app-dynamic-form-cash-in>

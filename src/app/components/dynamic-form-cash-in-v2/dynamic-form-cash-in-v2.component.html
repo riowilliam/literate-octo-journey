@@ -140,13 +140,82 @@
           "
         />
 
-        <label for="deduction" class="text-sm mb-1">Deduction</label>
+        <label for="interestDeduction" class="text-sm mb-1"
+          >Interest Deduction</label
+        >
         <input
-          id="deduction"
+          id="interestDeduction"
           type="text"
-          formControlName="deduction"
+          formControlName="interestDeduction"
           class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
         />
+
+        <label for="otherDeduction" class="text-sm mb-1">Other Deduction</label>
+        <input
+          id="otherDeduction"
+          type="text"
+          formControlName="otherDeduction"
+          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+        />
+
+        <label for="netAmount" class="text-sm mb-1">Net Amount</label>
+        <input
+          id="netAmount"
+          type="text"
+          formControlName="netAmount"
+          class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none cursor-not-allowed"
+          [attr.disabled]="true"
+          [readonly]="true"
+        />
+
+        <label for="paymentBank" class="text-sm mb-1">Payment Bank</label>
+        <div class="relative w-full">
+          <input
+            id="paymentBank"
+            type="text"
+            formControlName="paymentBank"
+            placeholder="Select an option"
+            (input)="filterOptionsPaymentBank($event)"
+            (focus)="
+              showDropdownPaymentBank = true; setInitialOptionsPaymentBank()
+            "
+            (blur)="hideDropdownPaymentBank()"
+            class="w-full form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]"
+            autocomplete="off"
+          />
+          <div
+            *ngIf="showDropdownPaymentBank"
+            class="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1"
+          >
+            <ul>
+              <li
+                *ngFor="let option of filteredOptionsPaymentBank"
+                (click)="selectOptionPaymentBank(option)"
+                class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+              >
+                {{ option.bankName }}
+              </li>
+            </ul>
+          </div>
+          <div
+            class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-700"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              ></path>
+            </svg>
+          </div>
+        </div>
       </div>
 
       <div

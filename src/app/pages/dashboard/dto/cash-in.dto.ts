@@ -120,8 +120,10 @@ export class FormCashInRequest {
   invoiceAmount: number;
   paymentAmount: number;
   paymentType: number;
-  deduction: number;
+  interestDeduction: number;
+  otherDeduction: number;
   cashInStatus: string;
+  paymentBank: string;
 
   constructor(data: any) {
     this.invoiceNo = data.invoiceNo;
@@ -131,11 +133,13 @@ export class FormCashInRequest {
     this.invoiceAmount = this.parseCurrency(data.amount);
     this.paymentAmount = this.parseCurrency(data.netAmount);
     this.paymentType = Number(data.paymentType);
-    this.deduction = this.parseCurrency(data.deduction);
+    this.interestDeduction = this.parseCurrency(data.interestDeduction);
+    this.otherDeduction = this.parseCurrency(data.otherDeduction);
     this.cashInStatus =
       Number(data.paymentType) === 2
         ? 'Incompleted'
         : this.determineCashInStatus(data.cashInStatus);
+    this.paymentBank = data.paymentBank;
   }
 
   private parseCurrency(value: string | number): number {
