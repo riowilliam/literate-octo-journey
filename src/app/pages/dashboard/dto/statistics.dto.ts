@@ -17,6 +17,13 @@ export interface CardDetail {
   totalPendingCountCreated: number | null;
 }
 
+export interface BalanceSummaryDetail {
+  bankName: string;
+  totalBalance: number | null;
+  totalCashInValue: number | null;
+  totalCashOutValue: number | null;
+}
+
 export interface StatisticsSummary {
   totalOverallCashIn: number;
   totalOverallCashOut: number;
@@ -27,4 +34,5 @@ export interface StatisticsSummary {
 export interface StatisticsData extends StatisticsSummary {
   statisticsDetailsDtoList: StatisticsDetail[];
   cardDetails: CardDetail[];
+  balanceSummaryDetails: BalanceSummaryDetail[];
 }

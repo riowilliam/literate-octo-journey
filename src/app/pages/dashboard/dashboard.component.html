@@ -441,6 +441,15 @@
           </div>
         </div>
       </div>
+
+      <div class="flex flex-col w-full h-auto">
+        <span class="text-xl font-semibold mb-2">Summary</span>
+        <app-balance-summary
+          class="flex flex-col items-center rounded-[15px] w-full bg-white p-4 gap-4 h-full"
+          [balanceSummaryDetails]="cardsBalanceSummary"
+        ></app-balance-summary>
+      </div>
+
       <div class="flex flex-col w-full h-auto">
         <span class="text-xl font-semibold mb-2">Recently Updated</span>
         <div
@@ -449,24 +458,6 @@
           <div
             class="w-full cursor-pointer hover:brightness-50"
             *ngFor="let card of cardsRecentlyUpdated"
-            (click)="navigateToPage(card.route, card?.queryParams)"
-          >
-            <app-dynamic-card
-              [headerText]="card.headerText"
-              [sections]="card.sections"
-            >
-            </app-dynamic-card>
-          </div>
-        </div>
-      </div>
-      <div class="flex flex-col w-full h-auto">
-        <span class="text-xl font-semibold mb-2">Waiting For Approval</span>
-        <div
-          class="flex flex-col items-center rounded-[15px] w-full bg-white p-4 gap-4 h-full"
-        >
-          <div
-            class="w-full cursor-pointer hover:brightness-50"
-            *ngFor="let card of cardsWaitingForApproval"
             (click)="navigateToPage(card.route, card?.queryParams)"
           >
             <app-dynamic-card
