@@ -91,7 +91,7 @@ export class CashInComponent {
     { key: 'payment_type', renderType: () => 'text', label: 'Payment Type' },
     {
       key: 'payment_bank_code',
-      renderType: () => 'date',
+      renderType: () => 'text',
       label: 'Payment Bank Code',
     },
     { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
@@ -178,6 +178,8 @@ export class CashInComponent {
     bankCodeInternal: string;
   }> = [];
 
+  dropdownOptionsPaymentBankCode: Array<{ value: string; label: string }> = [];
+
   constructor(
     private fb: FormBuilder,
     private httpService: HttpService,
@@ -191,6 +193,7 @@ export class CashInComponent {
       partnerName: [''],
       projectName: [''],
       paymentType: [''],
+      bankCode: [''],
       startDate: [''],
       endDate: [''],
     });
@@ -201,6 +204,64 @@ export class CashInComponent {
 
   ngOnInit() {
     this.fetchCashIn();
+    const storedPaymentBankCodeList = sessionStorage.getItem(
+      'payment_bank_code_list'
+    );
+    if (storedPaymentBankCodeList) {
+      try {
+        this.dropdownOptionsPaymentBankCode = JSON.parse(
+          storedPaymentBankCodeList
+        );
+      } catch (error) {
+        this.fetchPaymentBankCodeList();
+      }
+    } else {
+      this.fetchPaymentBankCodeList();
+    }
+  }
+
+  fetchPaymentBankCodeList() {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('bankName', '');
+    this.loaderService.show();
+    this.httpService
+      .get<PaymentBankListResponse>(
+        environment.API_URL,
+        'api/balance/getPaymentBankList?',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.dropdownOptionsPaymentBankCode = response?.data.map(
+              (item) => ({
+                value: item.bankCodeInternal,
+                label: item.bankName,
+              })
+            );
+
+            sessionStorage.setItem(
+              'payment_bank_code_list',
+              JSON.stringify(this.dropdownOptionsPaymentBankCode)
+            );
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch payment bank code', error);
+        },
+      });
   }
 
   fetchCashIn() {
@@ -211,6 +272,7 @@ export class CashInComponent {
       .set('sortOrder', this.sortOrder)
       .set('partnerName', this.filterForm.get('partnerName')?.value || '')
       .set('projectName', this.filterForm.get('projectName')?.value || '')
+      .set('bankCode', this.filterForm.get('bankCode')?.value || '')
       .set(
         'paymentType',
         this.filterForm.get('paymentType')?.value === 'Fully Payment'
@@ -457,6 +519,7 @@ export class CashInComponent {
           partnerName: '',
           projectName: '',
           paymentType: '',
+          bankCode: '',
           startDate: '',
           endDate: '',
         });
