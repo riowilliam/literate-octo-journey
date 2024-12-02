@@ -15,6 +15,7 @@ export class ProjectListOfValueResponse {
 }
 
 export class PartnerList {
+  partnerId!: number;
   partnerName!: string;
   documentTracking!: string;
   ppnWapu!: string;
@@ -27,6 +28,7 @@ export class PartnerList {
   static fromApiResponse(data: PartnerList[]): Partner[] {
     return data.map((partnerData, index) => ({
       no: index + 1,
+      partner_id: partnerData?.partnerId,
       partner_name: partnerData?.partnerName,
       ppn_wapu: partnerData?.ppnWapu === 'YES' ? 'Yes' : 'No',
       active_project: partnerData?.activeProject,
@@ -41,6 +43,7 @@ export class PartnerList {
 
 export class Partner {
   no!: number;
+  partner_id!: number;
   partner_name!: string;
   ppn_wapu!: string;
   active_project!: string[];
@@ -91,13 +94,19 @@ export class PartnerResponse {
 export class FormPartnerRequest {
   partnerName!: string;
   ppnWapu!: number;
-  documentTracking!: number;
   activeProject!: string;
+  partnerId?: number;
 
-  constructor(partnerName: string, ppnWapu: string, activeProject: string) {
+  constructor(
+    partnerName: string,
+    ppnWapu: string,
+    activeProject: string,
+    partnerId?: number
+  ) {
     this.partnerName = partnerName;
     this.ppnWapu = ppnWapu === 'YES' ? 1 : 0;
     this.activeProject = activeProject?.toString();
+    this.partnerId = partnerId;
   }
 }
 

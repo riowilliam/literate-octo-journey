@@ -129,7 +129,7 @@ export class FormCashInRequest {
   interestDeduction: number;
   otherDeduction: number;
   cashInStatus: string;
-  paymentBank: string;
+  paymentBankCode: string;
 
   constructor(data: any) {
     this.invoiceNo = data.invoiceNo;
@@ -145,7 +145,7 @@ export class FormCashInRequest {
       Number(data.paymentType) === 2
         ? 'Incompleted'
         : this.determineCashInStatus(data.cashInStatus);
-    this.paymentBank = data.paymentBank;
+    this.paymentBankCode = data.paymentBank;
   }
 
   private parseCurrency(value: string | number): number {

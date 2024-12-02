@@ -4,8 +4,6 @@ import { DynamicInputComponent } from '../../components/dynamic-input/dynamic-in
 import { ContentTableComponent } from '../../components/content-table/content-table.component';
 import { DynamicTableComponent } from '../../components/dynamic-table/dynamic-table.component';
 import { DynamicModalComponent } from '../../components/dynamic-modal/dynamic-modal.component';
-import { ContentCardComponent } from '../../components/content-card/content-card.component';
-import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -93,17 +91,8 @@ export class PartnerComponent {
       | 'empty';
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
+    { key: 'partner_id', renderType: () => 'number', label: 'ID' },
     { key: 'partner_name', renderType: () => 'text', label: 'Customer Name' },
-    // {
-    //   key: 'valid_contract_date',
-    //   renderType: () => 'date',
-    //   label: 'Valid Contract Date',
-    // },
-    // {
-    //   key: 'invalid_contract_date',
-    //   renderType: () => 'date',
-    //   label: 'Invalid Contract Date',
-    // },
     { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
     { key: 'modified_date', renderType: () => 'date', label: 'Modified Date' },
@@ -162,6 +151,7 @@ export class PartnerComponent {
       this.fetchActiveProject();
     }
     this.partnerForm = this.fb.group({
+      formPartnerId: [''],
       formPartnerName: ['', Validators.required],
       formPPNWapu: [null, Validators.required],
       formActiveProject: [null, Validators.required],
@@ -312,6 +302,7 @@ export class PartnerComponent {
         break;
       case 'action':
         this.partnerForm.patchValue({
+          formPartnerId: row?.row?.partner_id,
           formPartnerName: row?.row?.partner_name,
           formPPNWapu: row?.row?.ppn_wapu === 'Yes' ? 'YES' : 'NO',
           formActiveProject: row?.row?.active_project?.toString(),
@@ -351,6 +342,7 @@ export class PartnerComponent {
 
   closeModalAdd() {
     this.partnerForm.reset({
+      formPartnerId: '',
       formPartnerName: '',
       formPPNWapu: null,
       formActiveProject: null,
@@ -360,6 +352,7 @@ export class PartnerComponent {
 
   closeModalEdit() {
     this.partnerForm.reset({
+      formPartnerId: '',
       formPartnerName: '',
       formPPNWapu: null,
       formActiveProject: null,
@@ -376,6 +369,7 @@ export class PartnerComponent {
       this.createPartner(formValue);
     } else {
       this.editPartner({
+        formPartnerId: this.partnerForm.get('formPartnerId')?.value,
         formPartnerName: this.partnerForm.get('formPartnerName')?.value,
         formPPNWapu: this.partnerForm.get('formPPNWapu')?.value,
         formActiveProject: this.partnerForm.get('formActiveProject')?.value,
@@ -433,7 +427,8 @@ export class PartnerComponent {
         new FormPartnerRequest(
           formValue.formPartnerName,
           formValue.formPPNWapu,
-          formValue.formActiveProject
+          formValue.formActiveProject,
+          formValue.formPartnerId
         ),
         new HttpHeaders({
           Authorization: `Bearer ${this.authService.getToken()}`,
