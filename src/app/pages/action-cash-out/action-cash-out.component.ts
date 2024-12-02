@@ -502,7 +502,8 @@ export class ActionCashOutComponent implements OnInit {
     request: FormCashOutDocumentRequest,
     name: string | undefined
   ): Partial<FormCashOutDocumentRequest> {
-    const { documentName, subTotal, cashOutDetailList, bankCode } = request;
+    const { documentName, subTotal, cashOutDetailList, bankInternalCode } =
+      request;
 
     const processedRequest: Partial<FormCashOutDocumentRequest> = {
       subTotal,
@@ -515,7 +516,9 @@ export class ActionCashOutComponent implements OnInit {
           transferAmount = parseFloat(details?.transferAmount) || 0;
         }
         const transferFee =
-          parseFloat(details?.transferFee?.replace(/\./g, '')) || 0;
+          parseFloat(
+            details?.transferFee ? details?.transferFee?.replace(/\./g, '') : 0
+          ) || 0;
         const paymentAmount =
           parseFloat(details?.paymentAmount?.replace(/\./g, '')) || 0;
 
@@ -526,7 +529,7 @@ export class ActionCashOutComponent implements OnInit {
           paymentAmount,
         };
       }),
-      bankCode,
+      bankInternalCode,
     };
 
     if (name) {

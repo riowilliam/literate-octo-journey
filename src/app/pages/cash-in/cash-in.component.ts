@@ -683,9 +683,14 @@ export class CashInComponent {
             link.download = `HK-CI-${this.datePipe.transform(
               date,
               'yyMMdd-hhmmss'
-            )!}.zip`;
+            )!}.pdf`;
             link.click();
             window.URL.revokeObjectURL(url);
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.fetchCashIn();
           } else {
             this.notificationService.show('Error download document.', 'error');
             console.error('Error download document.');

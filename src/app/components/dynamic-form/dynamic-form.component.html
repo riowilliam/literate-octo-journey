@@ -1,5 +1,5 @@
 <form [formGroup]="formGroup">
-  <div formArrayName="rows" class="overflow-x-auto">
+  <div formArrayName="rows" class="contents overflow-x-auto">
     <div
       *ngFor="let row of rows.controls; let i = index"
       [formGroupName]="i"
@@ -173,7 +173,7 @@
 
                   <div
                     *ngIf="showDropdown[field.name + '-' + i]"
-                    class="bg-white border border-gray-300 rounded-md max-h-80 overflow-auto mt-1"
+                    class="absolute left-0 w-full bg-white border border-gray-300 rounded-md max-h-80 overflow-auto mt-1 z-50"
                   >
                     <ul>
                       <li
