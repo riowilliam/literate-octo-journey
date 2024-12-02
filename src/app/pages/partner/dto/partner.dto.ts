@@ -94,15 +94,9 @@ export class FormPartnerRequest {
   documentTracking!: number;
   activeProject!: string;
 
-  constructor(
-    partnerName: string,
-    ppnWapu: string,
-    documentTracking: string,
-    activeProject: string
-  ) {
+  constructor(partnerName: string, ppnWapu: string, activeProject: string) {
     this.partnerName = partnerName;
     this.ppnWapu = ppnWapu === 'YES' ? 1 : 0;
-    this.documentTracking = documentTracking === 'YES' ? 1 : 0;
     this.activeProject = activeProject?.toString();
   }
 }

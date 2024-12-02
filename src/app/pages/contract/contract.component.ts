@@ -477,15 +477,18 @@ export class ContractComponent {
     }
   }
 
-  async fetchDataDetail(contractNo: string, contractName: string) {
+  async fetchDataDetail(
+    contractNo: string,
+    contractName: string,
+    partnerName: string
+  ) {
     this.loaderService.show();
 
     try {
-      await Promise.all([
-        this.fetchActiveProject(),
-        this.fetchRevisionList(contractNo),
-        this.fetchContractDetail(contractNo, contractName),
-      ]);
+      await Promise.all([this.fetchPartnerList()]);
+      await Promise.all([this.fetchActiveProjectPrefill(partnerName)]);
+      await Promise.all([this.fetchRevisionList(contractNo)]);
+      await Promise.all([this.fetchContractDetail(contractNo, contractName)]);
       this.showModalEdit = true;
     } catch (error) {
       console.error('Error fetching data', error);
@@ -524,7 +527,8 @@ export class ContractComponent {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchPartnerList(), this.fetchActiveProject()]);
+      await Promise.all([this.fetchPartnerList()]);
+      await Promise.all([this.fetchActiveProject()]);
       this.showModalAdd = true;
     } catch (error) {
       console.error('Error fetching data', error);
@@ -628,7 +632,11 @@ export class ContractComponent {
         this.contractForm.get('formRevision')?.disable();
         break;
       case 'action':
-        this.fetchDataDetail(row?.row?.contract_no, row?.row?.contract_name);
+        this.fetchDataDetail(
+          row?.row?.contract_no,
+          row?.row?.contract_name,
+          row?.row?.partner_name
+        );
         this.formConfig = this.formConfig.filter(
           (config: any) => config.key !== 'formContractNo'
         );
@@ -737,6 +745,7 @@ export class ContractComponent {
         formContractDate: formValue.formContractDate,
         formAddendumDate: formValue.formAddendumDate,
         formItemDetailList: formValue.formItemDetailList,
+        formActiveProject: this.cleanActiveProject(formValue.formActiveProject),
       });
     }
   }
@@ -751,7 +760,7 @@ export class ContractComponent {
           formValue.formContractNo,
           formValue.formContractName,
           formValue.formPartnerName,
-          formValue.formActiveProject,
+          this.cleanActiveProject(formValue.formActiveProject),
           formValue.formContractDate,
           formValue.formAddendumDate,
           this.contractForm.getRawValue()?.formRevision,
@@ -913,6 +922,71 @@ export class ContractComponent {
     }
   }
 
+  async fetchActiveProjectPrefill(partnerName: string) {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('projectName', '');
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<ProjectListOfValueResponse>(
+          environment.API_URL,
+          'api/project/getProjectList',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        this.dropdownOptionsActiveProject = response?.data.map((project) => ({
+          value: project.projectId,
+          label: project.projectName,
+        }));
+        this.formConfig = this.formConfig.map((config: any) => {
+          if (config.key === 'formActiveProject') {
+            return {
+              ...config,
+              options: this.dropdownOptionsActiveProject,
+            };
+          }
+          return config;
+        });
+        sessionStorage.setItem(
+          'active_project_list',
+          JSON.stringify(this.dropdownOptionsActiveProject)
+        );
+        if (partnerName) {
+          const selectedPartner = this.dropdownOptionsPartner.find(
+            (option) =>
+              option?.value === partnerName || option?.label === partnerName
+          );
+          if (selectedPartner && selectedPartner?.listDetail) {
+            const selectedPartnerData: any = {
+              data: selectedPartner?.listDetail,
+            };
+            if (selectedPartnerData?.data?.activeProject?.toString()) {
+              this.contractForm
+                .get('formActiveProject')
+                ?.setValue(
+                  selectedPartnerData?.data?.activeProject?.toString()
+                );
+            }
+          }
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      this.notificationService.show(error, 'error');
+      console.error('Failed to fetch active project', error);
+    }
+  }
+
   private mapDropdownOptionsPartner(response: PartnerListResponse) {
     return response?.data?.partnerList?.map((data) => ({
       value: data?.partnerName,
@@ -924,5 +998,13 @@ export class ContractComponent {
         activeProject: data?.activeProject,
       },
     }));
+  }
+
+  private cleanActiveProject(activeProject: string): string {
+    return activeProject
+      .split(',')
+      .map((project) => project.trim())
+      .filter((project) => project !== '')
+      .join(',');
   }
 }
