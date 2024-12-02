@@ -28,6 +28,7 @@ import {
   FieldConfig,
 } from '../../components/dynamic-preview-form/dynamic-preview-form.component';
 import { firstValueFrom } from 'rxjs';
+import { PaymentBankListResponse } from './dto/payment-bank.dto';
 
 @Component({
   selector: 'app-document-cash-out',
@@ -85,6 +86,11 @@ export class DocumentCashOutComponent {
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
     { key: 'modified_tm', renderType: () => 'date', label: 'Modified Date' },
     { key: 'modified_by', renderType: () => 'text', label: 'Modified By' },
+    {
+      key: 'payment_bank_code',
+      renderType: () => 'text',
+      label: 'Payment Bank Code',
+    },
     {
       key: 'status',
       renderType: (value: any) => {
@@ -224,6 +230,8 @@ export class DocumentCashOutComponent {
   ];
   hasAction: boolean = false;
 
+  dropdownOptionsPaymentBankCode: Array<{ value: string; label: string }> = [];
+
   constructor(
     private fb: FormBuilder,
     private httpService: HttpService,
@@ -236,6 +244,7 @@ export class DocumentCashOutComponent {
     this.filterForm = this.fb.group({
       documentName: [''],
       status: [''],
+      bankCode: [''],
       startDate: [''],
       endDate: [''],
     });
@@ -252,6 +261,65 @@ export class DocumentCashOutComponent {
     });
 
     this.addInitialRow();
+
+    const storedPaymentBankCodeList = sessionStorage.getItem(
+      'payment_bank_code_list'
+    );
+    if (storedPaymentBankCodeList) {
+      try {
+        this.dropdownOptionsPaymentBankCode = JSON.parse(
+          storedPaymentBankCodeList
+        );
+      } catch (error) {
+        this.fetchPaymentBankCodeList();
+      }
+    } else {
+      this.fetchPaymentBankCodeList();
+    }
+  }
+
+  fetchPaymentBankCodeList() {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('bankName', '');
+    this.loaderService.show();
+    this.httpService
+      .get<PaymentBankListResponse>(
+        environment.API_URL,
+        'api/balance/getPaymentBankList?',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.dropdownOptionsPaymentBankCode = response?.data.map(
+              (item) => ({
+                value: item.bankCodeInternal,
+                label: item.bankName,
+              })
+            );
+
+            sessionStorage.setItem(
+              'payment_bank_code_list',
+              JSON.stringify(this.dropdownOptionsPaymentBankCode)
+            );
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch payment bank code', error);
+        },
+      });
   }
 
   private addInitialRow() {
@@ -273,6 +341,7 @@ export class DocumentCashOutComponent {
       .set('sortOrder', this.sortOrder)
       .set('documentName', this.filterForm.get('documentName')?.value || '')
       .set('status', this.filterForm.get('status')?.value || '')
+      .set('bankCode', this.filterForm.get('bankCode')?.value || '')
       .set('startDate', this.filterForm.get('startDate')?.value || '')
       .set('endDate', this.filterForm.get('endDate')?.value || '');
     this.loaderService.show();
@@ -495,6 +564,7 @@ export class DocumentCashOutComponent {
         this.filterForm.reset({
           documentName: '',
           status: '',
+          bankCode: '',
           startDate: '',
           endDate: '',
         });

@@ -7,6 +7,7 @@ export class DocumentCashOutList {
   createdBy!: string;
   modifiedTm!: string;
   modifiedBy!: string;
+  paymentBankCode!: string;
 
   static fromApiResponse(data: DocumentList[]): DocumentCashOutDetail[] {
     return data.flatMap((mutationList) =>
@@ -20,6 +21,7 @@ export class DocumentCashOutList {
         created_by: cashOutDetailData.createdBy,
         modified_tm: cashOutDetailData.modifiedTm,
         modified_by: cashOutDetailData.modifiedBy,
+        payment_bank_code: cashOutDetailData.paymentBankCode,
       }))
     );
   }
@@ -59,6 +61,7 @@ export class DocumentCashOutDetail {
   created_by!: string;
   modified_tm!: string;
   modified_by!: string;
+  payment_bank_code!: string;
 }
 
 export class DocumentList {
