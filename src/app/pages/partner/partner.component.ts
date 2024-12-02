@@ -164,7 +164,6 @@ export class PartnerComponent {
     this.partnerForm = this.fb.group({
       formPartnerName: ['', Validators.required],
       formPPNWapu: [null, Validators.required],
-      formDocumentTracking: [null, Validators.required],
       formActiveProject: [null, Validators.required],
     });
     this.formConfig = [
@@ -354,7 +353,6 @@ export class PartnerComponent {
     this.partnerForm.reset({
       formPartnerName: '',
       formPPNWapu: null,
-      formDocumentTracking: null,
       formActiveProject: null,
     });
     this.showModalAdd = false;
@@ -364,7 +362,6 @@ export class PartnerComponent {
     this.partnerForm.reset({
       formPartnerName: '',
       formPPNWapu: null,
-      formDocumentTracking: null,
       formActiveProject: null,
     });
     this.showModalEdit = false;
@@ -381,8 +378,6 @@ export class PartnerComponent {
       this.editPartner({
         formPartnerName: this.partnerForm.get('formPartnerName')?.value,
         formPPNWapu: this.partnerForm.get('formPPNWapu')?.value,
-        formDocumentTracking: this.partnerForm.get('formDocumentTracking')
-          ?.value,
         formActiveProject: this.partnerForm.get('formActiveProject')?.value,
       });
     }
@@ -397,7 +392,6 @@ export class PartnerComponent {
         new FormPartnerRequest(
           formValue.formPartnerName,
           formValue.formPPNWapu,
-          formValue.formDocumentTracking,
           formValue.formActiveProject
         ),
         new HttpHeaders({
@@ -439,7 +433,6 @@ export class PartnerComponent {
         new FormPartnerRequest(
           formValue.formPartnerName,
           formValue.formPPNWapu,
-          formValue.formDocumentTracking,
           formValue.formActiveProject
         ),
         new HttpHeaders({
