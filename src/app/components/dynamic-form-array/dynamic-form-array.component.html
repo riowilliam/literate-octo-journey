@@ -1,7 +1,7 @@
 <form [formGroup]="dynamicForm" (ngSubmit)="onSubmit()">
   <div class="w-full flex flex-col items-center justify-center">
     <div
-      class="w-full flex flex-col items-center p-5 sm:min-w-[400px] sm:max-w-[400px] max-h-[400px] overflow-y-auto"
+      class="w-full flex flex-col items-center p-5 sm:min-w-[500px] sm:max-w-[500px] max-h-[400px] overflow-y-auto"
     >
       <ng-container *ngFor="let field of formConfig">
         <div class="w-full flex flex-col" [ngClass]="{ hidden: field.hidden }">
@@ -319,8 +319,8 @@
                     [class]="
                       field.width
                         ? field.width +
-                          ' mb-1 form-input text-left border border-[#A4A4A4] px-1 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]'
-                        : 'mb-1 form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]'
+                          ' w-[75px] mb-1 form-input text-left border border-[#A4A4A4] px-1 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]'
+                        : 'w-[75px] mb-1 form-input text-left border border-[#A4A4A4] px-3 py-2 text-sm font-medium placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow disabled:bg-[#ECECEC]'
                     "
                     [readonly]="field.key === 'formPaidQuantity' ? true : false"
                     [ngClass]="{
@@ -434,7 +434,7 @@
     </div>
 
     <div
-      class="w-full flex flex-col sm:flex-row gap-4 items-center justify-between p-5 sm:min-w-[400px] sm:max-w-[400px]"
+      class="w-full flex flex-col sm:flex-row gap-4 items-center justify-between p-5 sm:min-w-[500px] sm:max-w-[500px]"
     >
       <button
         type="submit"

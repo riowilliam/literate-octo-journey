@@ -22,7 +22,7 @@ export class FormCashOutDocumentRequest {
   documentName!: string;
   subTotal!: number;
   cashOutDetailList!: CashOutDetail[];
-  bankInternalCode!: string;
+  bankCode!: string;
 
   constructor(
     documentName: string,
@@ -33,7 +33,7 @@ export class FormCashOutDocumentRequest {
     this.documentName = documentName;
     this.subTotal = subTotal;
     this.cashOutDetailList = cashOutDetailList;
-    this.bankInternalCode = bankCode;
+    this.bankCode = bankCode;
   }
 }
 
