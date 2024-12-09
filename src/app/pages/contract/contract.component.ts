@@ -228,7 +228,7 @@ export class ContractComponent {
       {
         key: 'formContractDate',
         label: 'Contract Date',
-        type: 'datepicker',
+        type: 'date',
       },
       {
         key: 'formRevision',
@@ -656,7 +656,7 @@ export class ContractComponent {
             {
               key: 'formAddendumDate',
               label: 'Addendum Date',
-              type: 'datepicker',
+              type: 'date',
             },
           ];
         }

@@ -53,8 +53,8 @@ export class DynamicFormCashInV2Component {
   filteredOptions: { [key: string]: any[] } = {};
   showDropdown: { [key: string]: boolean } = {};
 
-  filteredOptionsPaymentBank: any;
-  showDropdownPaymentBank: any;
+  filteredOptionsPaymentBank: any[] = [];
+  showDropdownPaymentBank: boolean = false;
 
   constructor(private fb: FormBuilder) {
     this.customForm = this.fb.group(
@@ -225,9 +225,15 @@ export class DynamicFormCashInV2Component {
     const searchTerm = input.value.toLowerCase();
     this.showDropdown[name] = !!searchTerm;
 
-    this.filteredOptions[name] = this.options[name].filter((option) =>
+    const results = this.options[name].filter((option) =>
       option.label.toLowerCase().includes(searchTerm)
     );
+
+    this.filteredOptions[name] = results;
+
+    if (!results.length) {
+      this.customForm.get(name)?.setErrors({ notFound: true });
+    }
   }
 
   setInitialOptions(name: string): void {
@@ -236,6 +242,7 @@ export class DynamicFormCashInV2Component {
   }
 
   selectOption(option: any, name: string): void {
+    if (!option) return;
     this.customForm.patchValue({
       invoiceNo: option.value,
       amount: this.formatWithMask(option?.listDetail?.amount),
@@ -252,6 +259,15 @@ export class DynamicFormCashInV2Component {
   hideDropdown(name: string): void {
     setTimeout(() => {
       this.showDropdown[name] = false;
+
+      const inputValue = this.customForm.get(name)?.value;
+      const isValid = this.options[name]?.some(
+        (option) => option.label === inputValue
+      );
+
+      if (!isValid) {
+        this.customForm.get(name)?.setValue('');
+      }
     }, 150);
   }
 
@@ -291,15 +307,31 @@ export class DynamicFormCashInV2Component {
         return directMatch || acronymMatch;
       }
     );
+
+    this.showDropdownPaymentBank =
+      this.filteredOptionsPaymentBank.length > 0 || searchTerm.length > 0;
   }
 
   hideDropdownPaymentBank(): void {
-    setTimeout(() => (this.showDropdownPaymentBank = false), 200);
+    setTimeout(() => {
+      this.showDropdownPaymentBank = false;
+
+      const inputValue = this.customForm.get('paymentBank')?.value;
+      const isValid = this.optionsPaymentBank.some(
+        (option) => option.bankName === inputValue
+      );
+
+      if (!isValid) {
+        this.customForm.get('paymentBank')?.setValue('');
+      }
+    }, 150);
   }
 
   selectOptionPaymentBank(option: any): void {
-    this.customForm.get('paymentBank')?.setValue(option.bankName);
-    this.showDropdownPaymentBank = false;
+    if (this.filteredOptionsPaymentBank.length > 0) {
+      this.customForm.get('paymentBank')?.setValue(option.bankName);
+      this.showDropdownPaymentBank = false;
+    }
   }
 }
 

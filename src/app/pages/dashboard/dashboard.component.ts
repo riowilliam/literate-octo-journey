@@ -245,7 +245,7 @@ export class DashboardComponent {
       {
         key: 'formInvoiceDate',
         label: 'Invoice Date',
-        type: 'datepicker',
+        type: 'date',
       },
       {
         key: 'formPartner',
@@ -277,7 +277,7 @@ export class DashboardComponent {
       {
         key: 'formBAPPDate',
         label: 'BAPP Date',
-        type: 'datepicker',
+        type: 'date',
       },
       {
         key: 'formTaxInvoiceNumber',
@@ -374,7 +374,12 @@ export class DashboardComponent {
         formatter: (params: any) => {
           let tooltipContent = `<strong>Date: ${params[0].name}</strong><br/>`;
           params.forEach((param: any) => {
-            tooltipContent += `${param.seriesName}: ${param.data}<br/>`;
+            if (param?.data !== undefined && param?.data !== null) {
+              const formattedData = param.data
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+              tooltipContent += `${param.seriesName}: ${formattedData}<br/>`;
+            }
           });
           return tooltipContent;
         },
@@ -985,10 +990,6 @@ export class DashboardComponent {
   handleFormSubmit(formValue: any, type: string): void {
     switch (type) {
       case 'new-invoice':
-        const selectedContract = this.dropdownOptionsContract.find(
-          (option) => option?.label === formValue?.formContract
-        );
-        formValue.formContract = selectedContract?.value;
         this.createARInvoice(formValue);
         break;
       case 'new-cash-in':
@@ -1240,8 +1241,8 @@ export class DashboardComponent {
 
   private mapDropdownOptionsContract(response: ContractDetailResponse) {
     return response?.data?.map((data) => ({
-      value: data?.contractNo,
-      label: data?.contractName,
+      value: data?.contractName,
+      label: data?.contractNo,
       listDetail: data?.itemList,
     }));
   }

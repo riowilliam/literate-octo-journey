@@ -48,7 +48,12 @@ export class ProjectMonitoringComponent {
         formatter: (params: any) => {
           let tooltipContent = `<strong>Project: ${params[0].name}</strong><br/>`;
           params.forEach((param: any) => {
-            tooltipContent += `${param.seriesName}: ${param.data}<br/>`;
+            if (param?.data !== undefined && param?.data !== null) {
+              const formattedData = param.data
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+              tooltipContent += `${param.seriesName}: ${formattedData}<br/>`;
+            }
           });
           return tooltipContent;
         },

@@ -732,7 +732,14 @@ export class ActionCashOutComponent implements OnInit {
 
   async onPaymentBankSelected(selectedPaymentBank: string | null) {
     if (selectedPaymentBank) {
-      this.selectedPaymentBank = selectedPaymentBank;
+      const selected = this.dropdownOptionsPaymentBank.find(
+        (option) => option?.bankName === selectedPaymentBank
+      );
+      if (selected?.bankCodeInternal) {
+        this.selectedPaymentBank = selected.bankCodeInternal;
+      } else {
+        this.selectedPaymentBank = '';
+      }
       this.onSubmit();
     }
   }

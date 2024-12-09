@@ -22,7 +22,7 @@ import {
 import { HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { DynamicFormArrayV2Component } from '../../components/dynamic-form-array-v2/dynamic-form-array-v2.component';
-import { firstValueFrom } from 'rxjs';
+import { combineLatest, filter, firstValueFrom, of } from 'rxjs';
 import { ContractDetailResponse } from './dto/contract.dto';
 import { PartnerListResponse } from './dto/partner.dto';
 import { ProjectListResponse } from './dto/project.dto';
@@ -312,7 +312,7 @@ export class ArMonitoringComponent {
       {
         key: 'formInvoiceDate',
         label: 'Invoice Date',
-        type: 'datepicker',
+        type: 'date',
       },
       {
         key: 'formPartner',
@@ -344,7 +344,7 @@ export class ArMonitoringComponent {
       {
         key: 'formBAPPDate',
         label: 'BAPP Date',
-        type: 'datepicker',
+        type: 'date',
       },
       {
         key: 'formTaxInvoiceNumber',
@@ -392,7 +392,7 @@ export class ArMonitoringComponent {
       {
         key: 'formInvoiceDate',
         label: 'Invoice Date',
-        type: 'datepicker',
+        type: 'date',
       },
       {
         key: 'formPartner',
@@ -417,7 +417,7 @@ export class ArMonitoringComponent {
       {
         key: 'formBAPPDate',
         label: 'BAPP Date',
-        type: 'datepicker',
+        type: 'date',
       },
       {
         key: 'formTaxInvoiceNumber',
@@ -558,47 +558,58 @@ export class ArMonitoringComponent {
 
     this.formItemDetailList.push(this.createFormGroupItemDetail());
 
-    this.arMonitoringForm
-      .get('formContract')
-      ?.valueChanges.subscribe((contractValue) => {
-        const selectedContract = this.dropdownOptionsContract.find(
-          (option) =>
-            option?.value === contractValue || option?.label === contractValue
-        );
-        if (selectedContract && selectedContract?.listDetail) {
-          const selectedContractData: any = {
-            data: selectedContract?.listDetail,
-          };
-          this.dropdownOptionsItem =
-            this.mapDropdownOptionsItem(selectedContractData);
-          this.formArrayConfig = this.formArrayConfig.map((config: any) => {
-            if (config.key === 'formItemName') {
-              return { ...config, options: this.dropdownOptionsItem };
-            }
-            return config;
-          });
-          if (this.showModalAdd) {
-            this.updateItemDetails(selectedContract?.listDetail);
-          }
-        }
-      });
+    const formContractControl = this.arMonitoringForm.get('formContract');
+    const formPartnerControl = this.arMonitoringForm.get('formPartner');
 
-    this.arMonitoringForm
-      .get('formPartner')
-      ?.valueChanges.subscribe((partnerValue) => {
-        if (partnerValue) {
-          this.arMonitoringForm.get('formPPN')?.setValue(0);
-          const amount = this.parseCurrency(
-            this.arMonitoringForm.get('formAmount')?.value || 0
+    if (formContractControl && formPartnerControl) {
+      combineLatest([
+        formContractControl.valueChanges || of(null),
+        formPartnerControl.valueChanges || of(null),
+      ])
+        .pipe(
+          filter(
+            ([contractValue, partnerValue]) => !!contractValue && !!partnerValue
+          )
+        )
+        .subscribe(([contractValue, partnerValue]) => {
+          const selectedContract = this.dropdownOptionsContract.find(
+            (option) =>
+              option?.value === contractValue || option?.label === contractValue
           );
-          let totalPpnValue = 0;
-          totalPpnValue = Math.ceil(amount * 0.11);
-          this.arMonitoringForm
-            .get('formPPN')
-            ?.setValue(this.formatWithMask(totalPpnValue));
-          this.fetchProjectList(partnerValue);
-        }
-      });
+
+          if (selectedContract && selectedContract?.listDetail) {
+            const selectedContractData: any = {
+              data: selectedContract?.listDetail,
+            };
+            this.dropdownOptionsItem =
+              this.mapDropdownOptionsItem(selectedContractData);
+
+            this.formArrayConfig = this.formArrayConfig.map((config: any) => {
+              if (config.key === 'formItemName') {
+                return { ...config, options: this.dropdownOptionsItem };
+              }
+              return config;
+            });
+
+            if (this.showModalAdd) {
+              this.updateItemDetails(selectedContract?.listDetail);
+            }
+          }
+
+          if (partnerValue) {
+            this.arMonitoringForm.get('formPPN')?.setValue(0);
+            const amount = this.parseCurrency(
+              this.arMonitoringForm.get('formAmount')?.value || 0
+            );
+            let totalPpnValue = 0;
+            totalPpnValue = Math.ceil(amount * 0.11);
+            this.arMonitoringForm
+              .get('formPPN')
+              ?.setValue(this.formatWithMask(totalPpnValue));
+            this.fetchProjectList(partnerValue);
+          }
+        });
+    }
 
     const calculateNetAmount = () => {
       if (this.isCalculating) {
@@ -1294,10 +1305,6 @@ export class ArMonitoringComponent {
   handleFormSubmit(formValue: any, type: string): void {
     switch (type) {
       case 'add':
-        const selectedContract = this.dropdownOptionsContract.find(
-          (option) => option?.label === formValue?.formContract
-        );
-        formValue.formContract = selectedContract?.value;
         this.createARInvoice(formValue);
         break;
       case 'create':
@@ -1514,8 +1521,8 @@ export class ArMonitoringComponent {
 
   private mapDropdownOptionsContract(response: ContractDetailResponse) {
     return response?.data?.map((data) => ({
-      value: data?.contractNo,
-      label: data?.contractName,
+      value: data?.contractName,
+      label: data?.contractNo,
       listDetail: data?.itemList,
     }));
   }
