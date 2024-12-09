@@ -29,7 +29,7 @@ import {
   FormARInvoiceRequest,
   FormARInvoiceResponse,
 } from './dto/ar-monitoring.dto';
-import { firstValueFrom } from 'rxjs';
+import { combineLatest, filter, firstValueFrom, of } from 'rxjs';
 import { ItemListResponse } from './dto/item.dto';
 import { ProjectListResponse } from './dto/project.dto';
 import { PartnerListResponse } from './dto/partner.dto';
@@ -507,45 +507,63 @@ export class DashboardComponent {
 
     this.formItemDetailList.push(this.createFormGroupItemDetail());
 
-    this.arMonitoringForm
-      .get('formContract')
-      ?.valueChanges.subscribe((contractValue) => {
-        const selectedContract = this.dropdownOptionsContract.find(
-          (option) =>
-            option?.value === contractValue || option?.label === contractValue
-        );
-        if (selectedContract && selectedContract?.listDetail) {
-          const selectedContractData: any = {
-            data: selectedContract?.listDetail,
-          };
-          this.dropdownOptionsItem =
-            this.mapDropdownOptionsItem(selectedContractData);
-          this.formArrayConfig = this.formArrayConfig.map((config: any) => {
-            if (config.key === 'formItemName') {
-              return { ...config, options: this.dropdownOptionsItem };
-            }
-            return config;
-          });
-          this.updateItemDetails(selectedContract?.listDetail);
-        }
-      });
+    const formContractControl = this.arMonitoringForm.get('formContract');
+    const formPartnerControl = this.arMonitoringForm.get('formPartner');
 
-    this.arMonitoringForm
-      .get('formPartner')
-      ?.valueChanges.subscribe((partnerValue) => {
-        if (partnerValue) {
-          this.arMonitoringForm.get('formPPN')?.setValue(0);
-          const amount = this.parseCurrency(
-            this.arMonitoringForm.get('formAmount')?.value || 0
+    if (formContractControl && formPartnerControl) {
+      combineLatest([
+        formContractControl.valueChanges || of(null),
+        formPartnerControl.valueChanges || of(null),
+      ])
+        .pipe(
+          filter(
+            ([contractValue, partnerValue]) => !!contractValue && !!partnerValue
+          )
+        )
+        .subscribe(([contractValue, partnerValue]) => {
+          const selectedContract = this.dropdownOptionsContract.find(
+            (option) =>
+              option?.value === contractValue || option?.label === contractValue
           );
-          let totalPpnValue = 0;
-          totalPpnValue = Math.ceil(amount * 0.11);
-          this.arMonitoringForm
-            .get('formPPN')
-            ?.setValue(this.formatWithMask(totalPpnValue));
-          this.fetchProjectList(partnerValue);
-        }
-      });
+
+          if (selectedContract && selectedContract?.listDetail) {
+            const selectedContractData: any = {
+              data: selectedContract?.listDetail,
+            };
+            this.dropdownOptionsItem =
+              this.mapDropdownOptionsItem(selectedContractData);
+
+            this.formArrayConfig = this.formArrayConfig.map((config: any) => {
+              if (config.key === 'formItemName') {
+                return { ...config, options: this.dropdownOptionsItem };
+              }
+              return config;
+            });
+            this.updateItemDetails(selectedContract?.listDetail);
+          }
+
+          if (partnerValue) {
+            const selectedPartner = this.dropdownOptionsPartner.find(
+              (option) =>
+                option?.value === partnerValue || option?.label === partnerValue
+            );
+            this.arMonitoringForm.get('formPPN')?.setValue(0);
+            const amount = this.parseCurrency(
+              this.arMonitoringForm.get('formAmount')?.value || 0
+            );
+            let totalPpnValue = 0;
+            totalPpnValue = Math.ceil(
+              amount * selectedPartner?.listDetail?.ppnValue
+                ? selectedPartner?.listDetail?.ppnValue
+                : 1
+            );
+            this.arMonitoringForm
+              .get('formPPN')
+              ?.setValue(this.formatWithMask(totalPpnValue));
+            this.fetchProjectList(partnerValue);
+          }
+        });
+    }
 
     const calculateNetAmount = () => {
       if (this.isCalculating) {

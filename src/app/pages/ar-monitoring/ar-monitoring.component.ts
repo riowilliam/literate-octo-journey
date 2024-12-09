@@ -597,12 +597,20 @@ export class ArMonitoringComponent {
           }
 
           if (partnerValue) {
+            const selectedPartner = this.dropdownOptionsPartner.find(
+              (option) =>
+                option?.value === partnerValue || option?.label === partnerValue
+            );
             this.arMonitoringForm.get('formPPN')?.setValue(0);
             const amount = this.parseCurrency(
               this.arMonitoringForm.get('formAmount')?.value || 0
             );
             let totalPpnValue = 0;
-            totalPpnValue = Math.ceil(amount * 0.11);
+            totalPpnValue = Math.ceil(
+              amount * selectedPartner?.listDetail?.ppnValue
+                ? selectedPartner?.listDetail?.ppnValue
+                : 1
+            );
             this.arMonitoringForm
               .get('formPPN')
               ?.setValue(this.formatWithMask(totalPpnValue));
