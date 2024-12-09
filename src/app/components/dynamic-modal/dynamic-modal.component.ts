@@ -27,14 +27,6 @@ export class DynamicModalComponent implements OnChanges, OnDestroy {
     this.closeModal.emit();
   }
 
-  onBackdropClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    if (target.closest('.modal-content')) {
-      return;
-    }
-    this.close();
-  }
-
   ngOnChanges(changes: SimpleChanges) {
     if (changes['showModal']) {
       if (this.showModal) {

@@ -30,6 +30,8 @@ export class DynamicFormComponent {
   showDropdown: { [key: string]: boolean } = {};
   filteredOptions: { [key: string]: any[] } = {};
 
+  lastValidValue: { [key: string]: string } = {};
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as Node;
@@ -133,9 +135,12 @@ export class DynamicFormComponent {
   }
 
   selectOption(option: any, name: string, i: number): void {
+    const fieldKey = name + '-' + i;
     this.rows?.controls[i]?.get(name)?.setValue(option?.label);
-    this.showDropdown[name] = false;
-    this.filteredOptions[name] = [];
+    this.showDropdown[fieldKey] = false;
+    this.filteredOptions[fieldKey] = [];
+
+    this.lastValidValue[fieldKey] = option?.label;
 
     if (name === 'vendorName') {
       this.rows?.controls[i]
@@ -201,6 +206,15 @@ export class DynamicFormComponent {
         const optionLabel = option.label.toLowerCase();
         return optionLabel.includes(searchTerm);
       });
+    }
+  }
+
+  validateInput(name: string, i: number): void {
+    const fieldKey = name;
+    const currentControl = this.rows?.controls[i]?.get(name.split('-')[0]);
+
+    if (this.filteredOptions[fieldKey]?.length === 0) {
+      currentControl?.setValue(this.lastValidValue[fieldKey] || '');
     }
   }
 }

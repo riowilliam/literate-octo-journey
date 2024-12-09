@@ -160,6 +160,8 @@
                     placeholder="{{ field.placeholder }}"
                     (input)="filterOptions($event, field.name + '-' + i)"
                     (focus)="setInitialOptions(field.name + '-' + i)"
+                    (blur)="validateInput(field.name + '-' + i, i)"
+                    (keydown.enter)="validateInput(field.name + '-' + i, i)"
                     class="w-full pr-8 appearance-none form-input text-center border border-black px-3 py-2 text-sm placeholder:text-black"
                     autocomplete="off"
                     [ngClass]="

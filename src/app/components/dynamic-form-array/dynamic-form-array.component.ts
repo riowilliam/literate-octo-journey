@@ -36,6 +36,8 @@ export class DynamicFormArrayComponent implements OnChanges {
   selectedOptionsText: { [key: string]: string } = {};
   showDropdown: { [key: string]: boolean } = {};
 
+  searchTerm!: string;
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['formValue'] && this.formValue) {
       this.dynamicForm.patchValue(this.formValue);
@@ -80,6 +82,8 @@ export class DynamicFormArrayComponent implements OnChanges {
     const field = this.formConfig.find((f) => f.key === key);
     if (field && field.options) {
       this.filteredOptions[key] = field.options.filter((option: any) => {
+        console.log(option);
+        console.log(searchTerm);
         const optionLabel = option.label.toLowerCase();
         const directMatch = optionLabel.includes(searchTerm);
         const acronymMatch = this.isAcronymMatch(searchTerm, option.label);
@@ -109,6 +113,8 @@ export class DynamicFormArrayComponent implements OnChanges {
 
   toggleDropdown(key: string): void {
     this.showDropdown[key] = !this.showDropdown[key];
+    if (this.searchTerm) {
+    }
     if (this.showDropdown[key]) {
       this.setInitialOptions(key);
     }
