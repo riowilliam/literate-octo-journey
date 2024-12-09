@@ -1,7 +1,6 @@
 <div
   class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-100"
   *ngIf="isOpen"
-  (click)="close()"
 >
   <div
     class="bg-white p-4 rounded-lg shadow-lg"
@@ -60,6 +59,12 @@
       [disabled]="!selectedBank"
     >
       Confirm
+    </button>
+    <button
+      class="mt-4 w-full h-auto text-base px-4 py-2 rounded-xl font-medium hover:bg-custom-light-red bg-custom-red cursor-pointer rounded-md p-2"
+      (click)="close()"
+    >
+      Cancel
     </button>
   </div>
 </div>
