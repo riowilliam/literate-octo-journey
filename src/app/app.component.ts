@@ -35,9 +35,8 @@ export class AppComponent {
         this.showHeader = !(
           url === '/login' ||
           url === '/forgot-password' ||
-          url === '/change-contact' ||
-          url === '/change-email' ||
-          url === '/change-username'
+          url === '/change-password' ||
+          url === '/change-full-name'
         );
         this.removeListKeysFromSessionStorage();
       });

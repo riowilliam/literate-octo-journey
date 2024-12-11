@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ContentAccountComponent } from '../../components/content-account/content-account.component';
-import { DynamicAccountComponent } from '../../components/dynamic-account/dynamic-account.component';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { HttpService } from '../../services/http.service';
@@ -11,11 +10,12 @@ import { LoaderService } from '../../services/loader.service';
 import { NotificationService } from '../../services/notification.service';
 import { HttpHeaders, HttpParams } from '@angular/common/http';
 import { ProfileService } from '../../services/profile.service';
+import { DynamicAccountV2Component } from '../../components/dynamic-account-v2/dynamic-account-v2.component';
 
 @Component({
   selector: 'app-account-information',
   standalone: true,
-  imports: [CommonModule, ContentAccountComponent, DynamicAccountComponent],
+  imports: [CommonModule, ContentAccountComponent, DynamicAccountV2Component],
   templateUrl: './account-information.component.html',
   styleUrl: './account-information.component.scss',
 })
@@ -24,6 +24,7 @@ export class AccountInformationComponent {
   email!: string;
   contact!: string;
   roleCode!: string;
+  username!: string;
 
   constructor(
     private router: Router,
@@ -40,6 +41,7 @@ export class AccountInformationComponent {
       this.loaderService.show();
       this.fullName = this.authService.getFullName();
       this.loadProfile(username);
+      this.username = username;
     }
   }
 

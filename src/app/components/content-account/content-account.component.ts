@@ -23,9 +23,8 @@ export class ContentAccountComponent {
         this.contentAccount = !(
           url === '/login' ||
           url === '/forgot-password' ||
-          url === '/change-contact' ||
-          url === '/change-email' ||
-          url === '/change-username'
+          url === '/change-password' ||
+          url === '/change-full-name'
         );
       });
   }

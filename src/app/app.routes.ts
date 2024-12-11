@@ -14,9 +14,8 @@ import { ItemsComponent } from './pages/items/items.component';
 import { RegularCashOutComponent } from './pages/regular-cash-out/regular-cash-out.component';
 import { DocumentCashOutComponent } from './pages/document-cash-out/document-cash-out.component';
 import { ActionCashOutComponent } from './pages/action-cash-out/action-cash-out.component';
-import { ChangeContactComponent } from './pages/change-contact/change-contact.component';
-import { ChangeEmailComponent } from './pages/change-email/change-email.component';
-import { ChangeUsernameComponent } from './pages/change-username/change-username.component';
+import { ChangePasswordComponent } from './pages/change-password/change-password.component';
+import { ChangeFullNameComponent } from './pages/change-full-name/change-full-name.component';
 import { authRedirectGuard } from './guards/auth-redirect.guard';
 import { authGuard } from './guards/auth.guard';
 import { AccountInformationComponent } from './pages/account-information/account-information.component';
@@ -87,18 +86,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'change-contact',
-    component: ChangeContactComponent,
+    path: 'change-password',
+    component: ChangePasswordComponent,
     canActivate: [authGuard],
   },
   {
-    path: 'change-email',
-    component: ChangeEmailComponent,
-    canActivate: [authGuard],
-  },
-  {
-    path: 'change-username',
-    component: ChangeUsernameComponent,
+    path: 'change-full-name',
+    component: ChangeFullNameComponent,
     canActivate: [authGuard],
   },
 ];
