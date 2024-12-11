@@ -13,15 +13,15 @@ import { NotificationService } from '../../services/notification.service';
 import { LoaderService } from '../../services/loader.service';
 import { HttpService } from '../../services/http.service';
 import {
-  ChangeUsernameRequest,
-  ChangeUsernameResponse,
-} from './dto/change-username.dto';
+  ChangeFullNameRequest,
+  ChangeFullNameResponse,
+} from './dto/change-full-name.dto';
 import { environment } from '../../../environments/environment';
 import { HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-change-username',
+  selector: 'app-change-full-name',
   standalone: true,
   imports: [
     CommonModule,
@@ -29,11 +29,12 @@ import { AuthService } from '../../services/auth.service';
     ContentAccountComponent,
     DynamicAccountComponent,
   ],
-  templateUrl: './change-username.component.html',
-  styleUrl: './change-username.component.scss',
+  templateUrl: './change-full-name.component.html',
+  styleUrl: './change-full-name.component.scss',
 })
-export class ChangeUsernameComponent {
-  changeUsernameForm: FormGroup;
+export class ChangeFullNameComponent {
+  changeFullNameForm: FormGroup;
+  showPassword: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -43,10 +44,14 @@ export class ChangeUsernameComponent {
     private notificationService: NotificationService,
     private authService: AuthService
   ) {
-    this.changeUsernameForm = this.fb.group({
-      username: ['', Validators.required],
+    this.changeFullNameForm = this.fb.group({
+      newFullName: ['', Validators.required],
       password: ['', Validators.required],
     });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   navigateToAccountInformation() {
@@ -54,17 +59,16 @@ export class ChangeUsernameComponent {
   }
 
   onSubmit() {
-    if (this.changeUsernameForm.valid) {
-      const { username, password } = this.changeUsernameForm.value;
+    if (this.changeFullNameForm.valid) {
+      const { newFullName, password } = this.changeFullNameForm.value;
       this.loaderService.show();
       this.httpService
-        .post<ChangeUsernameResponse>(
+        .post<ChangeFullNameResponse>(
           environment.API_URL,
-          'api/user/changeUsername',
-          new ChangeUsernameRequest(
+          'api/user/changeFullName',
+          new ChangeFullNameRequest(
             this.authService.getUsername(),
-            username,
-            this.authService.getFullName(),
+            newFullName,
             password
           ),
           new HttpHeaders({
@@ -76,8 +80,7 @@ export class ChangeUsernameComponent {
             this.loaderService.hide();
             if (
               response?.status === 200 &&
-              response?.info?.toLowerCase() ===
-                'username has changed. please re login using your new username.'
+              response?.info?.toLowerCase() === 'full name has changed.'
             ) {
               this.notificationService.show(response?.info, 'success');
               this.authService.flush();
@@ -88,8 +91,8 @@ export class ChangeUsernameComponent {
           },
           error: (error) => {
             this.loaderService.hide();
-            this.notificationService.show('Error changing username.', 'error');
-            console.error('Change username error:', error);
+            this.notificationService.show('Error changing full name.', 'error');
+            console.error('Change full name error:', error);
           },
         });
     } else {

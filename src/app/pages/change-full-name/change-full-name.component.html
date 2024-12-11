@@ -1,25 +1,27 @@
 <app-content-account [hasTrademark]="true">
   <app-dynamic-account [imageSrc]="true">
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <div class="mb-2 w-full sm:min-w-[500px] sm:max-w-[500px]">
-        <label for="username" class="block font-semibold mb-2 text-left text-sm"
-          >Username</label
+    <form [formGroup]="changeFullNameForm" (ngSubmit)="onSubmit()">
+      <div class="mb-6 w-full sm:min-w-[500px] sm:max-w-[500px]">
+        <label
+          for="newFullName"
+          class="block font-semibold mb-2 text-left text-sm"
+          >New Full Name</label
         >
         <input
-          id="username"
-          formControlName="username"
+          id="newFullName"
+          formControlName="newFullName"
           type="text"
           class="shadow-drop w-full px-4 py-2 text-sm bg-custom-thin-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-custom-light-yellow h-[40px]"
         />
       </div>
 
-      <div class="mb-4 w-full sm:min-w-[500px] sm:max-w-[500px]">
+      <div class="mb-6 w-full sm:min-w-[500px] sm:max-w-[500px]">
         <div class="relative">
           <label
             for="password"
             class="block font-semibold mb-2 text-left text-sm"
           >
-            Password
+            Password Confirmation
           </label>
           <input
             id="password"
@@ -68,16 +70,19 @@
       <div class="flex flex-col justify-center items-center gap-2">
         <button
           type="submit"
-          class="w-full min-w-[140px] max-w-[140px] py-2 px-4 bg-custom-light-yellow text-xs font-semibold rounded-lg hover:bg-custom-yellow focus:outline-none focus:ring-2 focus:ring-custom-light-yellow focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
-          [disabled]="loginForm.invalid"
+          class="w-full min-w-[180px] max-w-[180px] py-2 px-4 bg-custom-light-yellow text-xs font-semibold rounded-lg hover:bg-custom-yellow focus:outline-none focus:ring-2 focus:ring-custom-light-yellow focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+          [disabled]="changeFullNameForm.invalid"
         >
-          Sign In
+          Change Full Name
         </button>
-        <a
-          href="/forgot-password"
-          class="text-xs underline underline-offset-2 font-semibold shadow-md"
-          >Forgot Password ?</a
+
+        <button
+          type="submit"
+          class="w-full min-w-[180px] max-w-[180px] py-2 px-4 bg-custom-light-red text-xs font-semibold rounded-lg hover:bg-custom-red focus:outline-none focus:ring-2 focus:ring-custom-light-red focus:ring-opacity-50 disabled:bg-gray-400 disabled:text-gray-600"
+          (click)="navigateToAccountInformation()"
         >
+          cancel
+        </button>
       </div>
     </form>
   </app-dynamic-account>
