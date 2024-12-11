@@ -63,11 +63,6 @@ export class FacilityAssetComponent {
     { key: 'no', renderType: () => 'number', label: 'No' },
     { key: 'vendor_name', renderType: () => 'text', label: 'Vendor Name' },
     {
-      key: 'transaction_no',
-      renderType: () => 'text',
-      label: 'Transaction No',
-    },
-    {
       key: 'transaction_date',
       renderType: () => 'date',
       label: 'Transaction Date',
