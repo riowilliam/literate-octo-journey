@@ -327,6 +327,7 @@ export class ArMonitoringComponent {
         type: 'searchable-dropdown',
         options: this.dropdownOptionsContract,
         placeholder: 'Select an option',
+        hidden: true,
       },
       {
         key: 'formProject',
@@ -560,6 +561,12 @@ export class ArMonitoringComponent {
 
     const formContractControl = this.arMonitoringForm.get('formContract');
     const formPartnerControl = this.arMonitoringForm.get('formPartner');
+
+    formPartnerControl?.valueChanges.subscribe((partnerValue) => {
+      if (partnerValue) {
+        this.fetchContractList('', '', '', partnerValue);
+      }
+    });
 
     if (formContractControl && formPartnerControl) {
       combineLatest([
@@ -850,11 +857,17 @@ export class ArMonitoringComponent {
       });
   }
 
-  async fetchContractList(type: string, contractName?: string, data?: any) {
+  async fetchContractList(
+    type: string,
+    contractName?: string,
+    data?: any,
+    partnerName?: string
+  ) {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', '')
-      .set('contractNo', contractName ? contractName : '');
+      .set('contractNo', contractName ? contractName : '')
+      .set('partnerName', partnerName ? partnerName : '');
 
     try {
       const response = await firstValueFrom(
@@ -867,6 +880,13 @@ export class ArMonitoringComponent {
           })
         )
       );
+
+      this.formConfig = this.formConfig.map((config: any) => {
+        if (config.key === 'formContract') {
+          return { ...config, hidden: false };
+        }
+        return config;
+      });
 
       if (
         response?.status === 200 &&
@@ -932,11 +952,16 @@ export class ArMonitoringComponent {
     }
   }
 
-  async fetchPreviewContractList(contractNo?: string, tmpData?: any) {
+  async fetchPreviewContractList(
+    contractNo?: string,
+    tmpData?: any,
+    partnerName?: string
+  ) {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', '')
-      .set('contractNo', contractNo ? contractNo : '');
+      .set('contractNo', contractNo ? contractNo : '')
+      .set('partnerName', partnerName ? partnerName : '');
 
     try {
       const response = await firstValueFrom(
@@ -1116,7 +1141,6 @@ export class ArMonitoringComponent {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchContractList(type)]);
       await Promise.all([this.fetchPartnerList()]);
       this.showModalAdd = true;
     } catch (error) {
@@ -1145,11 +1169,17 @@ export class ArMonitoringComponent {
     });
   }
 
-  async fetchPreviewDataDetail(contractNo: string, data: any) {
+  async fetchPreviewDataDetail(
+    contractNo: string,
+    data: any,
+    partnerName: string
+  ) {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchPreviewContractList(contractNo, data)]);
+      await Promise.all([
+        this.fetchPreviewContractList(contractNo, data, partnerName),
+      ]);
       await Promise.all([this.fetchPartnerList()]);
       await Promise.all([this.prefillPreviewForm(data)]);
       this.showModalInvoiceStatus = true;
@@ -1302,7 +1332,11 @@ export class ArMonitoringComponent {
         this.fetchArMonitoring();
         break;
       case 'invoice_status':
-        this.fetchPreviewDataDetail(row?.row?.contract_no, row?.row);
+        this.fetchPreviewDataDetail(
+          row?.row?.contract_no,
+          row?.row,
+          row?.row?.partner_name
+        );
         break;
       case 'payment_status':
         this.fetchDataCashIn(row);

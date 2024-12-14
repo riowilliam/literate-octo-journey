@@ -260,6 +260,7 @@ export class DashboardComponent {
         type: 'searchable-dropdown',
         options: this.dropdownOptionsContract,
         placeholder: 'Select an option',
+        hidden: true,
       },
       {
         key: 'formProject',
@@ -509,6 +510,12 @@ export class DashboardComponent {
 
     const formContractControl = this.arMonitoringForm.get('formContract');
     const formPartnerControl = this.arMonitoringForm.get('formPartner');
+
+    formPartnerControl?.valueChanges.subscribe((partnerValue) => {
+      if (partnerValue) {
+        this.fetchContractList(partnerValue);
+      }
+    });
 
     if (formContractControl && formPartnerControl) {
       combineLatest([
@@ -1090,11 +1097,12 @@ export class DashboardComponent {
     return itemOption ? itemOption?.label : undefined;
   }
 
-  async fetchContractList() {
+  async fetchContractList(partnerName?: string) {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', '')
-      .set('contractNo', '');
+      .set('contractNo', '')
+      .set('partnerName', partnerName ? partnerName : '');
 
     try {
       const response = await firstValueFrom(
@@ -1107,6 +1115,13 @@ export class DashboardComponent {
           })
         )
       );
+
+      this.formConfig = this.formConfig.map((config: any) => {
+        if (config.key === 'formContract') {
+          return { ...config, hidden: false };
+        }
+        return config;
+      });
 
       if (
         response?.status === 200 &&
@@ -1328,7 +1343,6 @@ export class DashboardComponent {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchContractList()]);
       await Promise.all([this.fetchPartnerList()]);
       this.showModalAddInvoice = true;
     } catch (error) {

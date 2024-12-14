@@ -1,13 +1,26 @@
 <div class="m-4 p-4 bg-gray-200 rounded-[20px]">
   <div class="flex items-center justify-between mb-4">
     <span class="font-semibold text-xl">{{ title }}</span>
+
     <button
-      *ngIf="hasButton"
-      class="bg-custom-light-yellow text-xs px-4 py-2 rounded rounded-xl font-semibold hover:bg-custom-yellow"
+      *ngIf="hasButton && !buttons?.length"
+      class="bg-custom-light-yellow text-xs px-4 py-2 rounded-xl font-semibold hover:bg-custom-yellow"
       (click)="onButtonClick()"
     >
       {{ label }}
     </button>
+
+    <div *ngIf="buttons?.length" class="flex items-center space-x-2">
+      <button
+        *ngFor="let button of buttons"
+        class="bg-custom-light-yellow text-xs px-4 py-2 rounded-xl font-semibold hover:bg-custom-yellow"
+        [ngClass]="button.class"
+        (click)="button.onClick()"
+      >
+        {{ button.label }}
+      </button>
+    </div>
+
     <span *ngIf="hasValue" class="font-semibold text-xl">
       {{ value }}
     </span>

@@ -86,10 +86,7 @@ export class FacilityAssetComponent {
     {
       headerText: 'Total Amount',
       sections: [
-        [
-          { label: 'Payment', value: 0, type: 'currency' },
-          { label: 'Return', value: 0, type: 'currency' },
-        ],
+        [{ label: 'Facility Transaction', value: 0, type: 'currency' }],
       ],
     },
     {
@@ -197,18 +194,10 @@ export class FacilityAssetComponent {
                   sections: [
                     [
                       {
-                        label: 'Payment',
+                        label: 'Facility Transaction',
                         value: response?.data?.content[0]?.facilitySummary
                           ?.Payment
                           ? response?.data?.content[0]?.facilitySummary?.Payment
-                          : 0,
-                        type: 'currency',
-                      },
-                      {
-                        label: 'Return',
-                        value: response?.data?.content[0]?.facilitySummary
-                          ?.Return
-                          ? response?.data?.content[0]?.facilitySummary?.Return
                           : 0,
                         type: 'currency',
                       },

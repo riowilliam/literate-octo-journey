@@ -38,6 +38,30 @@
   ></app-dynamic-form-cash-in-v2>
 </app-dynamic-modal>
 
+<app-dynamic-modal
+  [title]="'Add new Cash In Without Invoice'"
+  [showModal]="showModalAddWithoutInvoice"
+  (closeModal)="closeModalAddWithoutInvoice()"
+>
+  <app-dynamic-form-cash-in-without-invoice
+    [invoiceNo]="invoiceNo"
+    [partnerName]="partnerName"
+    [projectName]="projectName"
+    [amount]="amount"
+    [netAmount]="netAmount"
+    [paidAmount]="paidAmount"
+    [interestDeduction]="interestDeduction"
+    [otherDeduction]="otherDeduction"
+    [paymentAmount]="paymentAmount"
+    [optionsPaymentBank]="dropdownOptionsPaymentBank"
+    (formSubmit)="handleFormSubmit($event, 'add-without-invoice')"
+    (formCancel)="closeModalAddWithoutInvoice()"
+    [optionsPartnerName]="dropdownOptionsPartner"
+    [optionsProjectName]="dropdownOptionsProject"
+    (selectedPartnerName)="selectedPartnerName($event)"
+  ></app-dynamic-form-cash-in-without-invoice>
+</app-dynamic-modal>
+
 <app-content-card>
   <div class="flex gap-4" *ngFor="let card of cards">
     <app-dynamic-card [headerText]="card.headerText" [sections]="card.sections">
@@ -132,12 +156,7 @@
   </div>
 </app-content-filter>
 
-<app-content-table
-  [title]="'Cash In Payment List'"
-  [label]="'Add New Cash In'"
-  [hasButton]="true"
-  (buttonClick)="handleButtonClick({ key: 'add' })"
->
+<app-content-table [title]="'Cash In Payment List'" [buttons]="buttonsTable">
   <app-dynamic-table
     [headers]="headers"
     [rows]="data"

@@ -156,7 +156,9 @@ export class DynamicFormComponent {
         const selectedBank = bankList.find(
           (data: any) => data?.shortLabel === option?.listDetail?.bankName
         );
-        this.rows?.controls[i]?.get('bankName')?.setValue(selectedBank?.label);
+        this.rows?.controls[i]
+          ?.get('bankName')
+          ?.setValue(selectedBank?.shortLabel);
       }
     }
   }

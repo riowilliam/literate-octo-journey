@@ -27,6 +27,9 @@ import { firstValueFrom } from 'rxjs';
 import { InvoiceListResponse } from './dto/invoice.dto';
 import { DynamicFormCompleteCashInComponent } from '../../components/dynamic-form-complete-cash-in/dynamic-form-complete-cash-in.component';
 import { PaymentBankListResponse } from './dto/payment-bank.dto';
+import { DynamicFormCashInWithoutInvoiceComponent } from '../../components/dynamic-form-cash-in-without-invoice/dynamic-form-cash-in-without-invoice.component';
+import { PartnerListResponse } from './dto/partner.dto';
+import { ProjectListResponse } from './dto/project.dto';
 
 @Component({
   selector: 'app-cash-in',
@@ -42,6 +45,7 @@ import { PaymentBankListResponse } from './dto/payment-bank.dto';
     CommonModule,
     DynamicFormCashInV2Component,
     DynamicFormCompleteCashInComponent,
+    DynamicFormCashInWithoutInvoiceComponent,
   ],
   templateUrl: './cash-in.component.html',
   styleUrl: './cash-in.component.scss',
@@ -50,6 +54,7 @@ import { PaymentBankListResponse } from './dto/payment-bank.dto';
 export class CashInComponent {
   showModalCashInStatus = false;
   showModalAdd = false;
+  showModalAddWithoutInvoice = false;
   filterForm!: FormGroup;
   data: CashInDetail[] = [];
   totalPages!: number;
@@ -90,9 +95,9 @@ export class CashInComponent {
     { key: 'payment_date', renderType: () => 'date', label: 'Payment Date' },
     { key: 'payment_type', renderType: () => 'text', label: 'Payment Type' },
     {
-      key: 'payment_bank_code',
+      key: 'payment_bank',
       renderType: () => 'text',
-      label: 'Payment Bank Code',
+      label: 'Payment Bank',
     },
     { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
@@ -171,6 +176,10 @@ export class CashInComponent {
     { value: 'Partially Payment', label: 'Partially Payment' },
   ];
 
+  dropdownOptionsPartner: Array<{ value: string; label: string }> = [];
+
+  dropdownOptionsProject: Array<{ value: string; label: string }> = [];
+
   dropdownOptionsPaymentBank: Array<{
     bankName: string;
     bankAccount: string;
@@ -179,6 +188,17 @@ export class CashInComponent {
   }> = [];
 
   dropdownOptionsPaymentBankCode: Array<{ value: string; label: string }> = [];
+
+  buttonsTable = [
+    {
+      label: 'Add New Cash In Without Invoice',
+      onClick: () => this.handleButtonClick({ key: 'add-without-invoice' }),
+    },
+    {
+      label: 'Add New Cash In',
+      onClick: () => this.handleButtonClick({ key: 'add' }),
+    },
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -396,6 +416,81 @@ export class CashInComponent {
     }
   }
 
+  async fetchPartnerList() {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('partnerName', '');
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<PartnerListResponse>(
+          environment.API_URL,
+          'api/partner/getPartnerList',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        if (response?.data?.partnerList.length > 0) {
+          this.dropdownOptionsPartner =
+            this.mapDropdownOptionsPartner(response);
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch partner list', error);
+      this.notificationService.show(error, 'error');
+    }
+  }
+
+  selectedPartnerName(partnerValue: string) {
+    if (partnerValue) {
+      this.fetchProjectList(partnerValue);
+    }
+  }
+
+  async fetchProjectList(partnerName: string) {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('projectName', '')
+      .set('partnerName', partnerName);
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<ProjectListResponse>(
+          environment.API_URL,
+          'api/project/getProjectList',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        if (response?.data?.length > 0) {
+          this.dropdownOptionsProject =
+            this.mapDropdownOptionsProject(response);
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch project list', error);
+      this.notificationService.show(error, 'error');
+    }
+  }
+
   async fetchUtilCashIn() {
     this.loaderService.show();
 
@@ -403,6 +498,20 @@ export class CashInComponent {
       await Promise.all([this.fetchInvoiceList()]);
       await Promise.all([this.fetchBankList()]);
       this.showModalAdd = true;
+    } catch (error) {
+      console.error('Error fetching data', error);
+    } finally {
+      this.loaderService.hide();
+    }
+  }
+
+  async fetchUtilCashInWithoutInvoice() {
+    this.loaderService.show();
+
+    try {
+      await Promise.all([this.fetchPartnerList()]);
+      await Promise.all([this.fetchBankList()]);
+      this.showModalAddWithoutInvoice = true;
     } catch (error) {
       console.error('Error fetching data', error);
     } finally {
@@ -528,6 +637,20 @@ export class CashInComponent {
       case 'file_downloaded':
         this.createCashOutDocument(row?.row?.cash_in_id);
         break;
+      case 'add-without-invoice':
+        this.amount = '';
+        this.netAmount = '';
+        this.paidAmount = '';
+        this.interestDeduction = '';
+        this.otherDeduction = '';
+        this.invoiceNo = '';
+        this.cashInId = 0;
+        this.partnerName = '';
+        this.projectName = '';
+        this.contractName = '';
+        this.paymentAmount = '';
+        this.fetchUtilCashInWithoutInvoice();
+        break;
     }
   }
 
@@ -547,6 +670,56 @@ export class CashInComponent {
       .subscribe({
         next: (response) => {
           this.closeModalAdd();
+          this.loaderService.hide();
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.pageNo = 0;
+            this.pageSize = 10;
+            this.sortBy = '';
+            this.sortOrder = '';
+            this.amount = '';
+            this.netAmount = '';
+            this.paidAmount = '';
+            this.interestDeduction = '';
+            this.otherDeduction = '';
+            this.invoiceNo = '';
+            this.cashInId = 0;
+            this.partnerName = '';
+            this.projectName = '';
+            this.contractName = '';
+            this.paymentAmount = '';
+            this.fetchCashIn();
+            this.notificationService.show(response?.info, 'success');
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error) => {
+          this.loaderService.hide();
+          this.notificationService.show('Error creating cash in.', 'error');
+          console.error('Error creating cash in', error);
+        },
+      });
+  }
+
+  createCashInWithoutInvoice(formValue: any) {
+    this.loaderService.show();
+    this.httpService
+      .post<FormCashInResponse>(
+        environment.API_URL,
+        `api/cashIn/createCashInWithoutInvoice?username=${this.authService.getUsername()}`,
+        new FormCashInRequest({
+          ...formValue,
+        }),
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.closeModalAddWithoutInvoice();
           this.loaderService.hide();
           if (
             response?.status === 200 &&
@@ -634,14 +807,24 @@ export class CashInComponent {
   handleFormSubmit(formValue: any, type: string): void {
     switch (type) {
       case 'add':
-        const selectedPaymentBank = this.dropdownOptionsPaymentBank.find(
+        const selectedPaymentBankAdd = this.dropdownOptionsPaymentBank.find(
           (option) => option?.bankName === formValue?.paymentBank
         );
-        formValue.paymentBank = selectedPaymentBank?.bankCodeInternal;
+        formValue.paymentBank = selectedPaymentBankAdd?.bankCodeInternal;
         this.createCashIn(formValue);
         break;
       case 'complete':
         this.completeCashIn(this.cashInId);
+        break;
+      case 'add-without-invoice':
+        const selectedPaymentBankAddWithoutInvoice =
+          this.dropdownOptionsPaymentBank.find(
+            (option) => option?.bankName === formValue?.paymentBank
+          );
+        formValue.paymentBank =
+          selectedPaymentBankAddWithoutInvoice?.bankCodeInternal;
+        formValue.invoiceNo = '-';
+        this.createCashInWithoutInvoice(formValue);
         break;
     }
   }
@@ -652,6 +835,11 @@ export class CashInComponent {
 
   closeModalAdd() {
     this.showModalAdd = false;
+  }
+
+  closeModalAddWithoutInvoice() {
+    this.partnerName = '';
+    this.showModalAddWithoutInvoice = false;
   }
 
   createCashOutDocument(cashInId: any) {
@@ -739,5 +927,19 @@ export class CashInComponent {
         },
       })),
     };
+  }
+
+  private mapDropdownOptionsPartner(response: PartnerListResponse) {
+    return response?.data?.partnerList?.map((data) => ({
+      value: data?.partnerName,
+      label: data?.partnerName,
+    }));
+  }
+
+  private mapDropdownOptionsProject(response: ProjectListResponse) {
+    return response?.data?.map((data) => ({
+      value: data?.projectName,
+      label: data?.projectName,
+    }));
   }
 }

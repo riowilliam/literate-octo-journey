@@ -12,7 +12,7 @@ export class CashInDetailList {
   modifiedDate!: string;
   modifiedBy!: string;
   cashInStatus!: string;
-  paymentBankCode!: string;
+  paymentBank!: string;
   fileDownloaded!: boolean;
 
   static fromApiResponse(data: CashInList[]): CashInDetail[] {
@@ -32,7 +32,7 @@ export class CashInDetailList {
         modified_date: cashInDetailData.modifiedDate,
         modified_by: cashInDetailData.modifiedBy,
         cash_in_status: cashInDetailData.cashInStatus,
-        payment_bank_code: cashInDetailData.paymentBankCode,
+        payment_bank: cashInDetailData.paymentBank,
         file_downloaded: cashInDetailData.fileDownloaded,
       }))
     );
@@ -72,7 +72,7 @@ export class CashInDetail {
   modified_date!: string;
   modified_by!: string;
   cash_in_status!: string;
-  payment_bank_code!: string;
+  payment_bank!: string;
   file_downloaded!: boolean;
 }
 

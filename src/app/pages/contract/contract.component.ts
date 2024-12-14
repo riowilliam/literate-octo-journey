@@ -80,7 +80,11 @@ export class ContractComponent {
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
     { key: 'item_name', renderType: () => 'text', label: 'Item Name' },
-    { key: 'paid_quantity', renderType: () => 'text', label: 'Paid Quantity' },
+    {
+      key: 'paid_quantity',
+      renderType: () => 'text',
+      label: 'Billed Quantity',
+    },
     {
       key: 'remaining_quantity',
       renderType: () => 'text',
@@ -135,6 +139,11 @@ export class ContractComponent {
     { key: 'contract_name', renderType: () => 'text', label: 'Contract Name' },
     { key: 'partner_name', renderType: () => 'text', label: 'Customer Name' },
     { key: 'contract_date', renderType: () => 'text', label: 'Contract Date' },
+    {
+      key: 'end_contract_date',
+      renderType: () => 'text',
+      label: 'End Contract Date',
+    },
     { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
     { key: 'modified_date', renderType: () => 'date', label: 'Modified Date' },
@@ -198,6 +207,7 @@ export class ContractComponent {
       formPartnerName: ['', Validators.required],
       formActiveProject: ['', Validators.required],
       formContractDate: ['', Validators.required],
+      formEndContractDate: ['', Validators.required],
       formRevision: [''],
       formItemDetailList: this.fb.array([]),
     });
@@ -228,6 +238,11 @@ export class ContractComponent {
       {
         key: 'formContractDate',
         label: 'Contract Date',
+        type: 'date',
+      },
+      {
+        key: 'formEndContractDate',
+        label: 'End Contract Date',
         type: 'date',
       },
       {
@@ -387,11 +402,16 @@ export class ContractComponent {
       });
   }
 
-  async fetchContractDetail(contractNo: string, contractName: string) {
+  async fetchContractDetail(
+    contractNo: string,
+    contractName: string,
+    partnerName?: string
+  ) {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('contractName', contractName)
-      .set('contractNo', contractNo);
+      .set('contractNo', contractNo)
+      .set('partnerName', partnerName ? partnerName : '');
 
     try {
       const response = await firstValueFrom(
@@ -488,7 +508,9 @@ export class ContractComponent {
       await Promise.all([this.fetchPartnerList()]);
       await Promise.all([this.fetchActiveProjectPrefill(partnerName)]);
       await Promise.all([this.fetchRevisionList(contractNo)]);
-      await Promise.all([this.fetchContractDetail(contractNo, contractName)]);
+      await Promise.all([
+        this.fetchContractDetail(contractNo, contractName, partnerName),
+      ]);
       this.showModalEdit = true;
     } catch (error) {
       console.error('Error fetching data', error);
@@ -497,11 +519,17 @@ export class ContractComponent {
     }
   }
 
-  async fetchItemDetails(contractNo: string, contractName: string) {
+  async fetchItemDetails(
+    contractNo: string,
+    contractName: string,
+    partnerName: string
+  ) {
     this.loaderService.show();
 
     try {
-      await Promise.all([this.fetchContractDetail(contractNo, contractName)]);
+      await Promise.all([
+        this.fetchContractDetail(contractNo, contractName, partnerName),
+      ]);
       this.showModalItemDetails = true;
     } catch (error) {
       console.error('Error fetching data', error);
@@ -665,6 +693,7 @@ export class ContractComponent {
           formContractNo: row?.row?.contract_no,
           formPartnerName: row?.row?.partner_name,
           formContractDate: row?.row?.contract_date,
+          formEndContractDate: row?.row?.end_contract_date,
         });
         this.contractNo = row?.row?.contract_no;
         this.formArrayConfig = [
@@ -689,7 +718,11 @@ export class ContractComponent {
         ];
         break;
       case 'item_details':
-        this.fetchItemDetails(row?.row?.contract_no, row?.row?.contract_name);
+        this.fetchItemDetails(
+          row?.row?.contract_no,
+          row?.row?.contract_name,
+          row?.row?.partner_name
+        );
         this.contractNo = row?.row?.contract_no;
         break;
       case 'revision':
@@ -743,6 +776,7 @@ export class ContractComponent {
         formContractName: formValue.formContractName,
         formPartnerName: formValue.formPartnerName,
         formContractDate: formValue.formContractDate,
+        formEndContractDate: formValue.formEndContractDate,
         formAddendumDate: formValue.formAddendumDate,
         formItemDetailList: formValue.formItemDetailList,
         formActiveProject: this.cleanActiveProject(formValue.formActiveProject),
@@ -762,6 +796,7 @@ export class ContractComponent {
           formValue.formPartnerName,
           this.cleanActiveProject(formValue.formActiveProject),
           formValue.formContractDate,
+          formValue.formEndContractDate,
           formValue.formAddendumDate,
           this.contractForm.getRawValue()?.formRevision,
           formValue.formItemDetailList.map(
@@ -811,6 +846,7 @@ export class ContractComponent {
           formValue.formPartnerName,
           formValue.formActiveProject,
           formValue.formContractDate,
+          formValue.formEndContractDate,
           formValue.formAddendumDate,
           this.contractForm.getRawValue()?.formRevision,
           formValue.formItemDetailList.map(

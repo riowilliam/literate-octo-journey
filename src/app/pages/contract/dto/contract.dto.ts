@@ -3,6 +3,7 @@ export class ContractList {
   contractName!: string;
   partnerName!: string;
   contractDate!: string;
+  endContractDate!: string;
   createdDate!: string;
   createdBy!: string;
   modifiedDate!: string;
@@ -15,6 +16,7 @@ export class ContractList {
       contract_name: contractData?.contractName,
       partner_name: contractData?.partnerName,
       contract_date: contractData?.contractDate,
+      end_contract_date: contractData?.endContractDate,
       created_date: contractData?.createdDate,
       created_by: contractData?.createdBy,
       modified_date: contractData?.modifiedDate,
@@ -81,6 +83,7 @@ export class FormContractRequest {
   partnerName!: string;
   activeProject!: string;
   contractDate!: Date;
+  endContractDate!: Date;
   addendumDate!: Date;
   revision!: number;
   itemDetailList!: ItemDetailList[];
@@ -91,6 +94,7 @@ export class FormContractRequest {
     partnerName: string,
     activeProject: string,
     contractDate: Date,
+    endContractDate: Date,
     addendumDate: Date,
     revision: string,
     itemDetailList: ItemDetailList[]
@@ -100,6 +104,7 @@ export class FormContractRequest {
     this.partnerName = partnerName;
     this.activeProject = activeProject?.toString();
     this.contractDate = contractDate;
+    this.endContractDate = endContractDate;
     this.addendumDate = addendumDate;
     this.revision = +revision;
     this.itemDetailList = itemDetailList;

@@ -10,10 +10,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class ContentTableComponent {
   @Input() title: string = '';
-  @Input() label: string = '';
-  @Input() hasButton: boolean = false;
   @Input() value: string = '';
   @Input() hasValue: boolean = false;
+  @Input() hasButton: boolean = false;
+  @Input() label: string = '';
+  @Input() buttons: { label: string; onClick: () => void; class?: string }[] =
+    [];
   @Output() buttonClick = new EventEmitter<any>();
 
   onButtonClick() {

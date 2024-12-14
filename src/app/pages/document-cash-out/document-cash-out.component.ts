@@ -87,9 +87,9 @@ export class DocumentCashOutComponent {
     { key: 'modified_tm', renderType: () => 'date', label: 'Modified Date' },
     { key: 'modified_by', renderType: () => 'text', label: 'Modified By' },
     {
-      key: 'payment_bank_code',
+      key: 'payment_bank',
       renderType: () => 'text',
-      label: 'Payment Bank Code',
+      label: 'Payment Bank',
     },
     {
       key: 'status',
