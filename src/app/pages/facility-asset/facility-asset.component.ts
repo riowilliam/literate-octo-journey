@@ -251,11 +251,6 @@ export class FacilityAssetComponent {
         label: 'Amount',
         type: 'number',
       },
-      {
-        key: 'formBankApprovalDate',
-        label: 'Bank Approval Date',
-        type: 'date',
-      },
       { key: 'formTenorDate', label: 'Tenor Date', type: 'date' },
       { key: 'formDebitAdvice', label: 'Debit Advice', type: 'text' },
       {
