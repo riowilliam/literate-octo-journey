@@ -4,8 +4,6 @@ import { DynamicTableComponent } from '../../components/dynamic-table/dynamic-ta
 import { ContentTableComponent } from '../../components/content-table/content-table.component';
 import { DynamicInputComponent } from '../../components/dynamic-input/dynamic-input.component';
 import { ContentFilterComponent } from '../../components/content-filter/content-filter.component';
-import { ContentCardComponent } from '../../components/content-card/content-card.component';
-import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
 import { CommonModule } from '@angular/common';
 import { DynamicFormOnPopUpComponent } from '../../components/dynamic-form-on-pop-up/dynamic-form-on-pop-up.component';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';

@@ -32,7 +32,7 @@ export function parseCurrency(value: any): number {
 export function formatWithMask(value: any): string {
   const parsedValue = parseCurrency(value);
   if (!isNaN(parsedValue)) {
-    let formattedValue = parsedValue.toString().replace(/\D/g, '');
+    let formattedValue = parsedValue?.toString()?.replace(/\D/g, '');
     return formattedValue
       ? formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
       : '0';

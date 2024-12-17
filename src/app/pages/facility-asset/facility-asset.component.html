@@ -1,9 +1,40 @@
 <app-content-card>
   <div class="flex gap-4" *ngFor="let card of cards">
-    <app-dynamic-card [headerText]="card.headerText" [sections]="card.sections">
-    </app-dynamic-card>
+    <app-dynamic-card-v2
+      [headerText]="card.headerText"
+      [sections]="card.sections"
+    >
+    </app-dynamic-card-v2>
   </div>
 </app-content-card>
+
+<app-dynamic-modal
+  [title]="'Add New Facility Asset Transaction'"
+  [showModal]="showModalAdd"
+  (closeModal)="closeModalAdd()"
+>
+  <app-dynamic-form-on-pop-up
+    [dynamicForm]="facilityAssetForm"
+    [formConfig]="formConfig"
+    (formSubmit)="handleFormSubmit($event, 'add')"
+    (formCancel)="handleFormCancel()"
+  >
+  </app-dynamic-form-on-pop-up>
+</app-dynamic-modal>
+
+<app-dynamic-modal
+  [title]="'Edit Facility Asset Transaction'"
+  [showModal]="showModalEdit"
+  (closeModal)="closeModalEdit()"
+>
+  <app-dynamic-form-on-pop-up
+    [dynamicForm]="facilityAssetForm"
+    [formConfig]="formConfigV2"
+    (formSubmit)="handleFormSubmit($event, 'edit')"
+    (formCancel)="handleFormCancel()"
+  >
+  </app-dynamic-form-on-pop-up>
+</app-dynamic-modal>
 
 <app-content-filter
   [title]="'Filter'"
@@ -11,26 +42,42 @@
   (buttonClickClear)="handleButtonClick({ key: 'clear' })"
 >
   <app-dynamic-input
-    type="text"
+    type="searchable-dropdown"
     [value]="filterForm.get('vendorName')?.value"
-    placeholder="Enter text"
+    placeholder="Select an option"
+    [options]="dropdownOptionsVendor"
     label="Vendor Name"
     formControlName="vendorName"
     [inputClass]="
-      'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+      'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
     (valueChange)="handleValueChange($event, 'vendorName')"
   ></app-dynamic-input>
 
   <app-dynamic-input
-    type="text"
-    [value]="filterForm.get('facilityType')?.value"
-    placeholder="Enter text"
-    label="Facility Type"
-    formControlName="facilityType"
+    type="searchable-dropdown"
+    [value]="filterForm.get('projectName')?.value"
+    placeholder="Select an option"
+    [options]="dropdownOptionsProject"
+    label="Project Name"
+    formControlName="projectName"
     [inputClass]="
-      'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+      'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+    "
+    [labelClass]="'font-medium text-sm mb-1'"
+    (valueChange)="handleValueChange($event, 'projectName')"
+  ></app-dynamic-input>
+
+  <app-dynamic-input
+    type="searchable-dropdown"
+    [value]="filterForm.get('facilityType')?.value"
+    placeholder="Select an option"
+    [options]="dropdownFacilityTypeOptions"
+    label="Facility Type"
+    formControlName="bankName"
+    [inputClass]="
+      'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
     (valueChange)="handleValueChange($event, 'facilityType')"
@@ -50,7 +97,7 @@
     (valueChange)="handleValueChange($event, 'transactionType')"
   ></app-dynamic-input>
 
-  <div class="flex flex-wrap items-end content-center gap-4">
+  <div class="flex flex-wrap items-end content-center gap-2">
     <app-dynamic-input
       type="datepicker"
       [value]="filterForm.get('startDate')?.value"
@@ -92,7 +139,12 @@
   ></app-dynamic-input>
 </app-content-filter>
 
-<app-content-table [title]="'Facility Asset Transaction List'">
+<app-content-table
+  [title]="'Facility Asset Transaction List'"
+  [label]="'Add New Facility Asset Transaction'"
+  [hasButton]="true"
+  (buttonClick)="handleButtonClick({ key: 'add' })"
+>
   <app-dynamic-table
     [headers]="headers"
     [rows]="data"

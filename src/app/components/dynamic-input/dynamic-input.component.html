@@ -90,7 +90,7 @@
         [id]="label"
         [name]="label"
         placeholder="{{ placeholder }}"
-        (input)="filterOptions($event)"
+        (input)="onInputChange($event)"
         (focus)="showDropdown = true"
         (blur)="hideDropdown()"
         [ngClass]="inputClass"

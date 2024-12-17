@@ -119,13 +119,28 @@ export class DynamicFormOnPopUpComponent implements OnChanges {
   }
 
   selectOption(option: any, key: string): void {
-    this.dynamicForm.get(key)?.setValue(option.label);
-    this.showDropdown[key] = false;
-    this.filteredOptions[key] = [];
+    if (this.filteredOptions[key]?.length) {
+      this.dynamicForm.get(key)?.setValue(option.label);
+      this.showDropdown[key] = false;
+      this.filteredOptions[key] = [];
+    }
   }
 
   hideDropdown(key: string): void {
     setTimeout(() => {
+      const currentValue = this.dynamicForm.get(key)?.value;
+      const field = this.formConfig.find((f) => f.key === key);
+
+      if (field && field.options) {
+        const isValid = field.options.some(
+          (option: any) => option.label === currentValue
+        );
+
+        if (!isValid) {
+          this.dynamicForm.get(key)?.setValue('');
+        }
+      }
+
       this.showDropdown[key] = false;
     }, 200);
   }
@@ -184,6 +199,13 @@ export class DynamicFormOnPopUpComponent implements OnChanges {
         .filter((option: any) => selected?.includes(option.value))
         .map((option: any) => option.label)
         .join(', ');
+    }
+  }
+
+  allowOnlyNumeric(event: KeyboardEvent): void {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
     }
   }
 

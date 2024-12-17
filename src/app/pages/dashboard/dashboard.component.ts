@@ -1018,6 +1018,10 @@ export class DashboardComponent {
         this.createARInvoice(formValue);
         break;
       case 'new-cash-in':
+        const selectedPaymentBank = this.dropdownOptionsPaymentBank.find(
+          (option) => option?.bankName === formValue?.paymentBank
+        );
+        formValue.paymentBank = selectedPaymentBank?.bankCodeInternal;
         this.createCashIn(formValue);
         break;
     }
@@ -1323,7 +1327,7 @@ export class DashboardComponent {
   private formatWithMask(value: any): string {
     const parsedValue = this.parseCurrency(value);
     if (!isNaN(parsedValue)) {
-      let formattedValue = parsedValue.toString().replace(/\D/g, '');
+      let formattedValue = parsedValue?.toString()?.replace(/\D/g, '');
       return formattedValue
         ? formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
         : '0';

@@ -53,6 +53,13 @@ export class DynamicInputComponent {
     this.valueChange.emit(this.value);
   }
 
+  onInputChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.value = input.value;
+    this.filterOptions(event);
+    this.valueChange.emit(this.value);
+  }
+
   filterOptions(event: Event) {
     const input = event.target as HTMLInputElement;
     const searchTerm = input.value.toLowerCase();
@@ -63,6 +70,8 @@ export class DynamicInputComponent {
       const acronymMatch = this.isAcronymMatch(searchTerm, option.label);
       return directMatch || acronymMatch;
     });
+
+    this.showDropdown = this.filteredOptions.length > 0;
   }
 
   isAcronymMatch(searchTerm: string, optionLabel: string): boolean {
@@ -84,7 +93,15 @@ export class DynamicInputComponent {
 
   hideDropdown() {
     setTimeout(() => {
-      this.showDropdown = false;
+      const isValid = this.filteredOptions.some(
+        (option) => option.label.toLowerCase() === this.value.toLowerCase()
+      );
+
+      if (!isValid) {
+        this.value = '';
+        this.valueChange.emit(this.value);
+        this.showDropdown = false;
+      }
     }, 200);
   }
 }

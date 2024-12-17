@@ -838,7 +838,6 @@ export class CashInComponent {
   }
 
   closeModalAddWithoutInvoice() {
-    this.partnerName = '';
     this.showModalAddWithoutInvoice = false;
   }
 
@@ -905,7 +904,7 @@ export class CashInComponent {
   private formatWithMask(value: any): string {
     const parsedValue = this.parseCurrency(value);
     if (!isNaN(parsedValue)) {
-      let formattedValue = parsedValue.toString().replace(/\D/g, '');
+      let formattedValue = parsedValue?.toString()?.replace(/\D/g, '');
       return formattedValue
         ? formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
         : '0';

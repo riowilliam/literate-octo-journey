@@ -564,7 +564,7 @@ export class ArMonitoringComponent {
 
     formPartnerControl?.valueChanges.subscribe((partnerValue) => {
       if (partnerValue) {
-        this.fetchContractList('', '', '', partnerValue);
+        this.fetchContractListOnSelectPartner('', '', '', partnerValue);
       }
     });
 
@@ -855,6 +855,71 @@ export class ArMonitoringComponent {
           console.error('Failed to fetch ar monitoring', error);
         },
       });
+  }
+
+  async fetchContractListOnSelectPartner(
+    type: string,
+    contractName?: string,
+    data?: any,
+    partnerName?: string
+  ) {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('contractName', '')
+      .set('contractNo', contractName ? contractName : '')
+      .set('partnerName', partnerName ? partnerName : '');
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<ContractDetailResponse>(
+          environment.API_URL,
+          'api/contract/getContractList',
+          params,
+          new HttpHeaders({
+            Authorization: `Bearer ${this.authService.getToken()}`,
+          })
+        )
+      );
+
+      this.formConfig = this.formConfig.map((config: any) => {
+        if (config.key === 'formContract') {
+          return { ...config, hidden: false };
+        }
+        return config;
+      });
+
+      if (
+        response?.status === 200 &&
+        response?.info?.toLowerCase() === 'success'
+      ) {
+        if (response?.data?.length > 0) {
+          this.dropdownOptionsContract =
+            this.mapDropdownOptionsContract(response);
+
+          this.formConfig = this.formConfig.map((config: any) => {
+            if (config.key === 'formContract') {
+              return { ...config, options: this.dropdownOptionsContract };
+            }
+            return config;
+          });
+          this.formPreviewConfig = this.formPreviewConfig.map((config: any) => {
+            if (config.key === 'formContract') {
+              return { ...config, options: this.dropdownOptionsContract };
+            }
+            return config;
+          });
+          sessionStorage.setItem(
+            'contract_list',
+            JSON.stringify(this.dropdownOptionsContract)
+          );
+        }
+      } else {
+        this.notificationService.show(response?.info, 'info');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch contract list', error);
+      this.notificationService.show(error, 'error');
+    }
   }
 
   async fetchContractList(
@@ -1612,7 +1677,7 @@ export class ArMonitoringComponent {
   private formatWithMask(value: any): string {
     const parsedValue = this.parseCurrency(value);
     if (!isNaN(parsedValue)) {
-      let formattedValue = parsedValue.toString().replace(/\D/g, '');
+      let formattedValue = parsedValue?.toString()?.replace(/\D/g, '');
       return formattedValue
         ? formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
         : '0';
