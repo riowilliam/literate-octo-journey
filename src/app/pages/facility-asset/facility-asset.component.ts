@@ -171,7 +171,7 @@ export class FacilityAssetComponent {
   ngOnInit() {
     this.fetchFacilityAsset();
     const storedFacilityTransaction = sessionStorage.getItem(
-      'FACILITY_TRANSACTION_TYPE'
+      'FACILITY_TYPE'
     );
     if (storedFacilityTransaction) {
       try {
@@ -179,10 +179,10 @@ export class FacilityAssetComponent {
           storedFacilityTransaction
         );
       } catch (error) {
-        this.fetchUtility('FACILITY_TRANSACTION_TYPE');
+        this.fetchUtility('FACILITY_TYPE');
       }
     } else {
-      this.fetchUtility('FACILITY_TRANSACTION_TYPE');
+      this.fetchUtility('FACILITY_TYPE');
     }
 
     const storedFacilityType = sessionStorage.getItem('facility_type_list');
@@ -250,11 +250,6 @@ export class FacilityAssetComponent {
         key: 'formAmount',
         label: 'Amount',
         type: 'number',
-      },
-      {
-        key: 'formBankApprovalDate',
-        label: 'Bank Approval Date',
-        type: 'date',
       },
       { key: 'formTenorDate', label: 'Tenor Date', type: 'date' },
       { key: 'formDebitAdvice', label: 'Debit Advice', type: 'text' },
