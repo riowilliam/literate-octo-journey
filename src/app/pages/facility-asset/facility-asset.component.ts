@@ -160,11 +160,11 @@ export class FacilityAssetComponent {
     this.filterForm = this.fb.group({
       vendorName: [''],
       facilityType: [''],
-      transactionType: [''],
       startDate: [''],
       endDate: [''],
       tenorDateOnWeekend: [''],
       projectName: [''],
+      debitAdvice: [''],
     });
   }
 
@@ -289,11 +289,8 @@ export class FacilityAssetComponent {
       .set('sortOrder', this.sortOrder)
       .set('vendorName', this.filterForm.get('vendorName')?.value || '')
       .set('projectName', this.filterForm.get('projectName')?.value || '')
+      .set('debitAdvice', this.filterForm.get('debitAdvice')?.value || '')
       .set('facilityType', this.filterForm.get('facilityType')?.value || '')
-      .set(
-        'transactionType',
-        this.filterForm.get('transactionType')?.value || ''
-      )
       .set('tenorDate', this.filterForm.get('tenorDate')?.value || '')
       .set('startDate', this.filterForm.get('startDate')?.value || '')
       .set('endDate', this.filterForm.get('endDate')?.value || '');
@@ -618,11 +615,11 @@ export class FacilityAssetComponent {
         this.filterForm.reset({
           vendorName: '',
           facilityType: '',
-          transactionType: '',
           startDate: '',
           endDate: '',
           tenorDateOnWeekend: '',
           projectName: '',
+          debitAdvice: '',
         });
         this.fetchFacilityAsset();
         break;
@@ -678,7 +675,7 @@ export class FacilityAssetComponent {
     this.httpService
       .post<FormFacilityTransactionResponse>(
         environment.API_URL,
-        `api/facilityBalance/editTenorDate?username=${this.authService.getUsername()}`,
+        `api/facilityBalance/createFacilityTransaction?username=${this.authService.getUsername()}`,
         new FormFacilityTransactionRequest(
           this.parseCurrency(formValue.formAmount),
           formValue.formBankApprovalDate,
@@ -733,7 +730,7 @@ export class FacilityAssetComponent {
     this.httpService
       .post<FormFacilityTransactionResponse>(
         environment.API_URL,
-        `api/vendor/editVendor?username=${this.authService.getUsername()}`,
+        `api/facilityBalance/editTenorDate?username=${this.authService.getUsername()}`,
         new FormFacilityTransactionRequest(
           this.parseCurrency(formValue.formAmount),
           formValue.formBankApprovalDate,
