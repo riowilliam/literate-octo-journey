@@ -223,7 +223,6 @@ export class FacilityAssetComponent {
       formProjectName: ['', Validators.required],
       formTransactionDate: ['', Validators.required],
       formAmount: ['', Validators.required],
-      formBankApprovalDate: ['', Validators.required],
       formTenorDate: ['', Validators.required],
       formDebitAdvice: ['', Validators.required],
       formFacilityType: [null, Validators.required],
@@ -589,7 +588,6 @@ export class FacilityAssetComponent {
         this.isWantToEdit = true;
         this.facilityAssetForm.patchValue({
           formAmount: row?.row?.amount,
-          formBankApprovalDate: row?.row?.approval_date,
           formDebitAdvice: row?.row?.debit_advice,
           formFacilityType: row?.row?.facility_type,
           formProjectName: row?.row?.project_name,
@@ -640,7 +638,6 @@ export class FacilityAssetComponent {
       formProjectName: '',
       formTransactionDate: '',
       formAmount: '',
-      formBankApprovalDate: '',
       formTenorDate: '',
       formDebitAdvice: '',
       formFacilityType: null,
@@ -657,8 +654,6 @@ export class FacilityAssetComponent {
         formAmount: this.parseCurrency(
           this.facilityAssetForm.get('formAmount')?.value
         ),
-        formBankApprovalDate: this.facilityAssetForm.get('formBankApprovalDate')
-          ?.value,
         formDebitAdvice: this.facilityAssetForm.get('formDebitAdvice')?.value,
         formFacilityType: this.facilityAssetForm.get('formFacilityType')?.value,
         formProjectName: this.facilityAssetForm.get('formProjectName')?.value,
@@ -678,7 +673,6 @@ export class FacilityAssetComponent {
         `api/facilityBalance/createFacilityTransaction?username=${this.authService.getUsername()}`,
         new FormFacilityTransactionRequest(
           this.parseCurrency(formValue.formAmount),
-          formValue.formBankApprovalDate,
           formValue.formDebitAdvice,
           formValue.formFacilityType,
           formValue.formProjectName,
@@ -733,7 +727,6 @@ export class FacilityAssetComponent {
         `api/facilityBalance/editTenorDate?username=${this.authService.getUsername()}`,
         new FormFacilityTransactionRequest(
           this.parseCurrency(formValue.formAmount),
-          formValue.formBankApprovalDate,
           formValue.formDebitAdvice,
           formValue.formFacilityType,
           formValue.formProjectName,

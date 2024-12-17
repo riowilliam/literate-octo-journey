@@ -116,7 +116,6 @@ export class FacilityTypeResponse {
 
 export class FormFacilityTransactionRequest {
   amount!: number;
-  bankApprovalDate!: string;
   debitAdvice!: string;
   facilityType!: string;
   projectName!: string;
@@ -126,7 +125,6 @@ export class FormFacilityTransactionRequest {
 
   constructor(
     amount: number,
-    bankApprovalDate: string,
     debitAdvice: string,
     facilityType: string,
     projectName: string,
@@ -135,7 +133,6 @@ export class FormFacilityTransactionRequest {
     vendorName: string
   ) {
     this.amount = amount;
-    this.bankApprovalDate = bankApprovalDate;
     this.debitAdvice = debitAdvice;
     this.facilityType = facilityType;
     this.projectName = projectName;
