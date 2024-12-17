@@ -84,17 +84,16 @@
   ></app-dynamic-input>
 
   <app-dynamic-input
-    type="dropdown"
-    [value]="filterForm.get('transactionType')?.value"
-    placeholder="Select an option"
-    [options]="dropdownTransactionTypeOptions"
-    label="Transaction Type"
-    formControlName="transactionType"
+    type="text"
+    [value]="filterForm.get('debitAdvice')?.value"
+    placeholder="Enter text"
+    label="Debit Advice"
+    formControlName="debitAdvice"
     [inputClass]="
-      'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+      'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event, 'transactionType')"
+    (valueChange)="handleValueChange($event, 'debitAdvice')"
   ></app-dynamic-input>
 
   <div class="flex flex-wrap items-end content-center gap-2">
