@@ -1,0 +1,46 @@
+<div
+  [ngClass]="cardClass"
+  class="flex flex-col gap-2 rounded-[15px] border border-custom-very-light-yellow overflow-hidden shadow-md bg-white"
+>
+  <div
+    [ngClass]="headerClass"
+    class="flex items-center justify-center bg-gray-200 p-2"
+  >
+    <span [ngClass]="headerTextClass" class="text-xl font-semibold">
+      {{ headerText }}
+    </span>
+  </div>
+
+  <div
+    *ngFor="let section of sections"
+    [ngClass]="{
+      'overflow-y-auto sm:whitespace-nowrap w-full sm:w-[500px]': section.scrollable,
+      'overflow-hidden': !section.scrollable,
+    }"
+    class="flex gap-1 p-2 flex-col sm:flex-row w-full justify-center h-full"
+  >
+    <div
+      *ngFor="let item of section.items"
+      class="flex flex-col items-center justify-center"
+    >
+      <span
+        class="text-sm font-medium invisible"
+        *ngIf="item.label === 'hidden'; else show"
+        >{{ item.label }}</span
+      >
+      <ng-template #show>
+        <span class="text-sm font-medium">{{ item.label }}</span>
+      </ng-template>
+
+      <ng-container *ngIf="item.type === 'currency'">
+        <span class="text-xl font-semibold text-center">
+          {{ item.value | rupiahPipe }}
+        </span>
+      </ng-container>
+
+      <ng-container *ngIf="!item.type">
+        <span class="text-xl font-semibold text-center">{{ item.value }}</span>
+      </ng-container>
+    </div>
+  </div>
+</div>

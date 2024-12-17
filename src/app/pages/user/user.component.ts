@@ -145,9 +145,7 @@ export class UserComponent {
       {
         key: 'formContact',
         label: 'Contact',
-        type: 'tel',
-        pattern: /^[0-9]*$/,
-        inputmode: 'numeric',
+        type: 'number',
       },
       {
         key: 'formRole',
