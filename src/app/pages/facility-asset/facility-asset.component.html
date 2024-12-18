@@ -42,24 +42,23 @@
   (buttonClickClear)="handleButtonClick({ key: 'clear' })"
 >
   <app-dynamic-input
-    type="searchable-dropdown"
-    [value]="filterForm.get('vendorName')?.value"
-    placeholder="Select an option"
-    [options]="dropdownOptionsVendor"
-    label="Vendor Name"
-    formControlName="vendorName"
+    type="text"
+    [value]="filterForm.get('companyName')?.value"
+    placeholder="Enter text"
+    label="Company Name"
+    formControlName="companyName"
     [inputClass]="
       'w-full px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
     "
     [labelClass]="'font-medium text-sm mb-1'"
-    (valueChange)="handleValueChange($event, 'vendorName')"
+    (valueChange)="handleValueChange($event, 'companyName')"
   ></app-dynamic-input>
 
   <app-dynamic-input
     type="searchable-dropdown"
     [value]="filterForm.get('projectName')?.value"
     placeholder="Select an option"
-    [options]="dropdownOptionsProject"
+    [options]="dropdownOptionsProjectFilter"
     label="Project Name"
     formControlName="projectName"
     [inputClass]="

@@ -90,16 +90,26 @@
                     >
                       {{ row[header.key] }}
                     </button>
-                    <span *ngSwitchCase="'number'">{{ row[header.key] }}</span>
-                    <span *ngSwitchCase="'text'">{{ row[header.key] }}</span>
+                    <span *ngSwitchCase="'number'">{{
+                      row[header.key] ? row[header.key] : "0"
+                    }}</span>
+                    <span *ngSwitchCase="'text'">{{
+                      row[header.key] ? row[header.key] : "-"
+                    }}</span>
                     <span *ngSwitchCase="'currency'">
-                      {{ row[header.key] | rupiahPipe }}
+                      {{
+                        row[header.key]
+                          ? (row[header.key] | rupiahPipe)
+                          : "Rp 0"
+                      }}
                     </span>
                     <span *ngSwitchCase="'date'">{{
-                      row[header.key] | date : "yyyy-MM-dd"
+                      row[header.key]
+                        ? (row[header.key] | date : "yyyy-MM-dd")
+                        : "-"
                     }}</span>
                     <span *ngSwitchCase="'integer'">{{
-                      row[header.key] | number
+                      row[header.key] ? (row[header.key] | number) : "-"
                     }}</span>
                     <svg
                       *ngSwitchCase="'icon'"

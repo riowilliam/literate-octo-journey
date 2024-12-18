@@ -1,6 +1,6 @@
 export class FacilityTransactionList {
   id!: number;
-  vendorName!: string;
+  companyName!: string;
   transactionDate!: string;
   amount!: number;
   facilityType!: string;
@@ -16,7 +16,7 @@ export class FacilityTransactionList {
         (facilityTransactionDetailData, index) => ({
           no: index + 1,
           id: facilityTransactionDetailData.id,
-          vendor_name: facilityTransactionDetailData.vendorName,
+          company_name: facilityTransactionDetailData.companyName,
           transaction_date: facilityTransactionDetailData.transactionDate,
           amount: facilityTransactionDetailData.amount,
           facility_type: facilityTransactionDetailData.facilityType,
@@ -54,7 +54,7 @@ export class FacilityBalanceList {
 export class FaicilityDetail {
   no!: number;
   id!: number;
-  vendor_name!: string;
+  company_name!: string;
   transaction_date!: string;
   amount!: number;
   facility_type!: string;
@@ -119,26 +119,41 @@ export class FormFacilityTransactionRequest {
   debitAdvice!: string;
   facilityType!: string;
   projectName!: string;
-  tenorDate!: string;
   transactionDate!: string;
-  vendorName!: string;
+  companyName!: string;
+  coverStartDate!: string;
+  coverEndDate!: string;
+  downPayment!: number;
+  quote!: number;
+  implementation!: number;
+  maintenance!: number;
 
   constructor(
     amount: number,
     debitAdvice: string,
     facilityType: string,
     projectName: string,
-    tenorDate: string,
     transactionDate: string,
-    vendorName: string
+    companyName: string,
+    coverStartDate: string,
+    coverEndDate: string,
+    downPayment: number,
+    quote: number,
+    implementation: number,
+    maintenance: number
   ) {
     this.amount = amount;
     this.debitAdvice = debitAdvice;
     this.facilityType = facilityType;
     this.projectName = projectName;
-    this.tenorDate = tenorDate;
     this.transactionDate = transactionDate;
-    this.vendorName = vendorName;
+    this.companyName = companyName;
+    this.coverStartDate = coverStartDate;
+    this.coverEndDate = coverEndDate;
+    this.downPayment = downPayment;
+    this.quote = quote;
+    this.implementation = implementation;
+    this.maintenance = maintenance;
   }
 }
 

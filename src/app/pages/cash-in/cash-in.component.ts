@@ -97,7 +97,7 @@ export class CashInComponent {
     {
       key: 'payment_bank',
       renderType: () => 'text',
-      label: 'Payment Bank',
+      label: 'Bank Received',
     },
     { key: 'created_date', renderType: () => 'date', label: 'Created Date' },
     { key: 'created_by', renderType: () => 'text', label: 'Created By' },
@@ -279,7 +279,7 @@ export class CashInComponent {
         error: (error: any) => {
           this.loaderService.hide();
           this.notificationService.show(error, 'error');
-          console.error('Failed to fetch payment bank code', error);
+          console.error('Failed to fetch bank received code', error);
         },
       });
   }

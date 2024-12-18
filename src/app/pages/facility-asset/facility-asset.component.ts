@@ -23,9 +23,9 @@ import { environment } from '../../../environments/environment';
 import { UtilityListResponse } from './dto/utility.dto';
 import { DynamicFormOnPopUpComponent } from '../../components/dynamic-form-on-pop-up/dynamic-form-on-pop-up.component';
 import { DynamicModalComponent } from '../../components/dynamic-modal/dynamic-modal.component';
-import { VendorListOfValueResponse } from './dto/vendor.dto';
 import { ProjectListOfValueResponse } from './dto/project.dto';
 import { DynamicCardV2Component } from '../../components/dynamic-card-v2/dynamic-card-v2.component';
+import { PartnerListResponse } from './dto/partner.dto';
 
 @Component({
   selector: 'app-facility-asset',
@@ -73,7 +73,7 @@ export class FacilityAssetComponent {
       | 'empty';
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
-    { key: 'vendor_name', renderType: () => 'text', label: 'Vendor Name' },
+    { key: 'company_name', renderType: () => 'text', label: 'Customer Name' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
     {
       key: 'transaction_date',
@@ -135,14 +135,11 @@ export class FacilityAssetComponent {
     { value: 'FALSE', label: 'No' },
   ];
 
-  dropdownOptionsVendor: Array<{
-    value: string;
-    label: string;
-    shortLabel: string;
-    listDetail: any;
-  }> = [];
+  dropdownOptionsPartner: Array<{ value: string; label: string }> = [];
 
   dropdownOptionsProject: Array<{ value: string; label: string }> = [];
+
+  dropdownOptionsProjectFilter: Array<{ value: string; label: string }> = [];
 
   formConfig!: any;
 
@@ -158,7 +155,7 @@ export class FacilityAssetComponent {
     private notificationService: NotificationService
   ) {
     this.filterForm = this.fb.group({
-      vendorName: [''],
+      companyName: [''],
       facilityType: [''],
       startDate: [''],
       endDate: [''],
@@ -196,46 +193,53 @@ export class FacilityAssetComponent {
       this.fetchFacilityType();
     }
 
-    const storedVendorList = sessionStorage.getItem('vendor_list');
-    if (storedVendorList) {
+    const storedPartnerList = sessionStorage.getItem('partner_list');
+    if (storedPartnerList) {
       try {
-        this.dropdownOptionsVendor = JSON.parse(storedVendorList);
+        this.dropdownOptionsPartner = JSON.parse(storedPartnerList);
       } catch (error) {
-        this.fetchVendorList();
+        this.fetchPartnerList();
       }
     } else {
-      this.fetchVendorList();
+      this.fetchPartnerList();
     }
 
-    const storedProjectList = sessionStorage.getItem('project_list');
-    if (storedProjectList) {
+    const storedProjectFilterList = sessionStorage.getItem(
+      'project_filter_list'
+    );
+    if (storedProjectFilterList) {
       try {
-        this.dropdownOptionsProject = JSON.parse(storedProjectList);
+        this.dropdownOptionsProjectFilter = JSON.parse(storedProjectFilterList);
       } catch (error) {
-        this.fetchProjectList();
+        this.fetchProjectFilterList();
       }
     } else {
-      this.fetchProjectList();
+      this.fetchProjectFilterList();
     }
 
     this.facilityAssetForm = this.fb.group({
-      formVendorName: ['', Validators.required],
+      formCompanyName: ['', Validators.required],
       formProjectName: ['', Validators.required],
       formTransactionDate: ['', Validators.required],
       formAmount: ['', Validators.required],
-      formTenorDate: ['', Validators.required],
+      formCoverStartDate: ['', Validators.required],
+      formCoverEndDate: ['', Validators.required],
       formDebitAdvice: ['', Validators.required],
       formFacilityType: [null, Validators.required],
       id: [''],
       formNewTenorDate: [''],
+      formDownPayment: ['', Validators.required],
+      formQuote: ['', Validators.required],
+      formImplementation: ['', Validators.required],
+      formMaintenance: ['', Validators.required],
     });
 
     this.formConfig = [
       {
-        key: 'formVendorName',
-        label: 'Vendor Name',
+        key: 'formCompanyName',
+        label: 'Customer Name',
         type: 'searchable-dropdown',
-        options: this.dropdownOptionsVendor,
+        options: this.dropdownOptionsPartner,
         placeholder: 'Select an option',
       },
       {
@@ -244,6 +248,7 @@ export class FacilityAssetComponent {
         type: 'searchable-dropdown',
         options: this.dropdownOptionsProject,
         placeholder: 'Select an option',
+        hidden: true,
       },
       { key: 'formTransactionDate', label: 'Transaction Date', type: 'date' },
       {
@@ -251,7 +256,8 @@ export class FacilityAssetComponent {
         label: 'Amount',
         type: 'number',
       },
-      { key: 'formTenorDate', label: 'Tenor Date', type: 'date' },
+      { key: 'formCoverStartDate', label: 'Cover Start Date', type: 'date' },
+      { key: 'formCoverEndDate', label: 'Cover End Date', type: 'date' },
       { key: 'formDebitAdvice', label: 'Debit Advice', type: 'text' },
       {
         key: 'formFacilityType',
@@ -259,6 +265,26 @@ export class FacilityAssetComponent {
         type: 'searchable-dropdown',
         options: this.dropdownFacilityTypeOptions,
         placeholder: 'Select an option',
+      },
+      {
+        key: 'formDownPayment',
+        label: 'Down Payment',
+        type: 'number',
+      },
+      {
+        key: 'formQuote',
+        label: 'Quote',
+        type: 'number',
+      },
+      {
+        key: 'formImplementation',
+        label: 'Implementation',
+        type: 'number',
+      },
+      {
+        key: 'formMaintenance',
+        label: 'Maintenance',
+        type: 'number',
       },
     ];
 
@@ -273,6 +299,52 @@ export class FacilityAssetComponent {
           emitEvent: false,
         });
     });
+
+    this.facilityAssetForm
+      .get('formCompanyName')
+      ?.valueChanges.subscribe((partnerValue) => {
+        if (partnerValue) {
+          this.fetchProjectList(partnerValue);
+        }
+      });
+
+    this.facilityAssetForm
+      .get('formDownPayment')
+      ?.valueChanges.subscribe((v) => {
+        this.facilityAssetForm
+          .get('formDownPayment')
+          ?.setValue(this.formatWithMask(v), {
+            emitEvent: false,
+          });
+      });
+
+    this.facilityAssetForm.get('formQuote')?.valueChanges.subscribe((v) => {
+      this.facilityAssetForm
+        .get('formQuote')
+        ?.setValue(this.formatWithMask(v), {
+          emitEvent: false,
+        });
+    });
+
+    this.facilityAssetForm
+      .get('formImplementation')
+      ?.valueChanges.subscribe((v) => {
+        this.facilityAssetForm
+          .get('formImplementation')
+          ?.setValue(this.formatWithMask(v), {
+            emitEvent: false,
+          });
+      });
+
+    this.facilityAssetForm
+      .get('formMaintenance')
+      ?.valueChanges.subscribe((v) => {
+        this.facilityAssetForm
+          .get('formMaintenance')
+          ?.setValue(this.formatWithMask(v), {
+            emitEvent: false,
+          });
+      });
   }
 
   fetchFacilityAsset() {
@@ -281,7 +353,7 @@ export class FacilityAssetComponent {
       .set('pageSize', this.pageSize)
       .set('sortBy', this.sortBy)
       .set('sortOrder', this.sortOrder)
-      .set('vendorName', this.filterForm.get('vendorName')?.value || '')
+      .set('companyName', this.filterForm.get('companyName')?.value || '')
       .set('projectName', this.filterForm.get('projectName')?.value || '')
       .set('debitAdvice', this.filterForm.get('debitAdvice')?.value || '')
       .set('facilityType', this.filterForm.get('facilityType')?.value || '')
@@ -463,15 +535,15 @@ export class FacilityAssetComponent {
       });
   }
 
-  fetchVendorList() {
+  fetchPartnerList() {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
-      .set('vendorName', '');
+      .set('partnerName', '');
     this.loaderService.show();
     this.httpService
-      .get<VendorListOfValueResponse>(
+      .get<PartnerListResponse>(
         environment.API_URL,
-        'api/vendor/getVendorList',
+        'api/partner/getPartnerList',
         params,
         new HttpHeaders({
           Authorization: `Bearer ${this.authService.getToken()}`,
@@ -484,27 +556,23 @@ export class FacilityAssetComponent {
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'success'
           ) {
-            this.dropdownOptionsVendor = response?.data.map((data) => ({
-              value: data.vendorName,
-              label: data.vendorName,
-              shortLabel: data.vendorName,
-              listDetail: {
-                bankAccount: data.bankAccount,
-                bankAccountName: data.bankAccountName,
-                bankName: data.bankName,
-              },
-            }));
+            this.dropdownOptionsPartner = response?.data?.partnerList?.map(
+              (data) => ({
+                value: data?.partnerName,
+                label: data?.partnerName,
+              })
+            );
 
             this.formConfig = this.formConfig.map((config: any) => {
-              if (config.key === 'formVendorName') {
-                return { ...config, options: this.dropdownOptionsVendor };
+              if (config.key === 'formCompanyName') {
+                return { ...config, options: this.dropdownOptionsPartner };
               }
               return config;
             });
 
             sessionStorage.setItem(
-              'vendor_list',
-              JSON.stringify(this.dropdownOptionsVendor)
+              'partner_list',
+              JSON.stringify(this.dropdownOptionsPartner)
             );
           } else {
             this.notificationService.show(response?.info, 'info');
@@ -513,12 +581,63 @@ export class FacilityAssetComponent {
         error: (error: any) => {
           this.loaderService.hide();
           this.notificationService.show(error, 'error');
-          console.error('Failed to fetch vendor', error);
+          console.error('Failed to fetch partner', error);
         },
       });
   }
 
-  fetchProjectList() {
+  fetchProjectList(partnerName: string) {
+    const params = new HttpParams()
+      .set('username', this.authService.getUsername())
+      .set('projectName', '')
+      .set('partnerName', partnerName);
+    this.httpService
+      .get<ProjectListOfValueResponse>(
+        environment.API_URL,
+        'api/project/getProjectList',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.dropdownOptionsProject = response?.data.map((data) => ({
+              value: data.projectName,
+              label: data.projectName,
+            }));
+
+            this.formConfig = this.formConfig.map((config: any) => {
+              if (config.key === 'formProjectName') {
+                return {
+                  ...config,
+                  options: this.dropdownOptionsProject,
+                  hidden: false,
+                };
+              }
+              return config;
+            });
+
+            sessionStorage.setItem(
+              'project_list',
+              JSON.stringify(this.dropdownOptionsProject)
+            );
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.notificationService.show(error, 'error');
+          console.error('Failed to fetch project', error);
+        },
+      });
+  }
+
+  fetchProjectFilterList() {
     const params = new HttpParams()
       .set('username', this.authService.getUsername())
       .set('projectName', '');
@@ -539,20 +658,13 @@ export class FacilityAssetComponent {
             response?.status === 200 &&
             response?.info?.toLowerCase() === 'success'
           ) {
-            this.dropdownOptionsProject = response?.data.map((data) => ({
+            this.dropdownOptionsProjectFilter = response?.data.map((data) => ({
               value: data.projectName,
               label: data.projectName,
             }));
 
-            this.formConfig = this.formConfig.map((config: any) => {
-              if (config.key === 'formProjectName') {
-                return { ...config, options: this.dropdownOptionsProject };
-              }
-              return config;
-            });
-
             sessionStorage.setItem(
-              'project_list',
+              'project_filter_list',
               JSON.stringify(this.dropdownOptionsProject)
             );
           } else {
@@ -586,11 +698,33 @@ export class FacilityAssetComponent {
           formDebitAdvice: row?.row?.debit_advice,
           formFacilityType: row?.row?.facility_type,
           formProjectName: row?.row?.project_name,
-          formTenorDate: row?.row?.tenor_date,
           formTransactionDate: row?.row?.transaction_date,
-          formVendorName: row?.row?.vendor_name,
+          formCompanyName: row?.row?.company_name,
           id: row?.row?.id,
         });
+        const formCoverStartDateControl =
+          this.facilityAssetForm.get('formCoverStartDate');
+        formCoverStartDateControl?.clearValidators();
+        formCoverStartDateControl?.updateValueAndValidity();
+        const formCoverEndDateControl =
+          this.facilityAssetForm.get('formCoverEndDate');
+        formCoverEndDateControl?.clearValidators();
+        formCoverEndDateControl?.updateValueAndValidity();
+        const formDownPaymentControl =
+          this.facilityAssetForm.get('formDownPayment');
+        formDownPaymentControl?.clearValidators();
+        formDownPaymentControl?.updateValueAndValidity();
+        const formQuoteControl = this.facilityAssetForm.get('formQuote');
+        formQuoteControl?.clearValidators();
+        formQuoteControl?.updateValueAndValidity();
+        const formImplementationControl =
+          this.facilityAssetForm.get('formImplementation');
+        formImplementationControl?.clearValidators();
+        formImplementationControl?.updateValueAndValidity();
+        const formMaintenanceControl =
+          this.facilityAssetForm.get('formMaintenance');
+        formMaintenanceControl?.clearValidators();
+        formMaintenanceControl?.updateValueAndValidity();
         const formNewTenorDateControl =
           this.facilityAssetForm.get('formNewTenorDate');
         formNewTenorDateControl?.setValidators([Validators.required]);
@@ -606,7 +740,7 @@ export class FacilityAssetComponent {
         break;
       case 'clear':
         this.filterForm.reset({
-          vendorName: '',
+          companyName: '',
           facilityType: '',
           startDate: '',
           endDate: '',
@@ -629,14 +763,19 @@ export class FacilityAssetComponent {
     formNewTenorDateControl?.clearValidators();
     formNewTenorDateControl?.updateValueAndValidity();
     this.facilityAssetForm.reset({
-      formVendorName: '',
+      formCompanyName: '',
       formProjectName: '',
       formTransactionDate: '',
       formAmount: '',
-      formTenorDate: '',
       formDebitAdvice: '',
       formFacilityType: null,
       formNewTenorDate: '',
+      formCoverStartDate: '',
+      formCoverEndDate: '',
+      formDownPayment: '',
+      formQuote: '',
+      formImplementation: '',
+      formMaintenance: '',
     });
     this.showModalEdit = false;
   }
@@ -652,10 +791,9 @@ export class FacilityAssetComponent {
         formDebitAdvice: this.facilityAssetForm.get('formDebitAdvice')?.value,
         formFacilityType: this.facilityAssetForm.get('formFacilityType')?.value,
         formProjectName: this.facilityAssetForm.get('formProjectName')?.value,
-        formTenorDate: this.facilityAssetForm.get('formTenorDate')?.value,
         formTransactionDate: this.facilityAssetForm.get('formTransactionDate')
           ?.value,
-        formVendorName: this.facilityAssetForm.get('formVendorName')?.value,
+        formCompanyName: this.facilityAssetForm.get('formCompanyName')?.value,
       });
     }
   }
@@ -671,9 +809,14 @@ export class FacilityAssetComponent {
           formValue.formDebitAdvice,
           formValue.formFacilityType,
           formValue.formProjectName,
-          formValue.formTenorDate,
           formValue.formTransactionDate,
-          formValue.formVendorName
+          formValue.formCompanyName,
+          formValue.formCoverStartDate,
+          formValue.formCoverEndDate,
+          this.parseCurrency(formValue.formDownPayment),
+          this.parseCurrency(formValue.formQuote),
+          this.parseCurrency(formValue.formImplementation),
+          this.parseCurrency(formValue.formMaintenance)
         ),
         new HttpHeaders({
           Authorization: `Bearer ${this.authService.getToken()}`,
@@ -708,7 +851,7 @@ export class FacilityAssetComponent {
       });
   }
 
-  editFacilityTransaction(formValue: any) {
+  editFacilityTransaction(formValue?: any) {
     const params = new HttpParams()
       .set(
         'newTenorDate',
@@ -720,15 +863,7 @@ export class FacilityAssetComponent {
       .post<FormFacilityTransactionResponse>(
         environment.API_URL,
         `api/facilityBalance/editTenorDate?username=${this.authService.getUsername()}`,
-        new FormFacilityTransactionRequest(
-          this.parseCurrency(formValue.formAmount),
-          formValue.formDebitAdvice,
-          formValue.formFacilityType,
-          formValue.formProjectName,
-          formValue.formTenorDate,
-          formValue.formTransactionDate,
-          formValue.formVendorName
-        ),
+        undefined,
         new HttpHeaders({
           Authorization: `Bearer ${this.authService.getToken()}`,
         }),
@@ -768,6 +903,29 @@ export class FacilityAssetComponent {
       this.facilityAssetForm.get('formNewTenorDate');
     formNewTenorDateControl?.clearValidators();
     formNewTenorDateControl?.updateValueAndValidity();
+    const formCoverStartDateControl =
+      this.facilityAssetForm.get('formCoverStartDate');
+    formCoverStartDateControl?.setValidators([Validators.required]);
+    formCoverStartDateControl?.updateValueAndValidity();
+    const formCoverEndDateControl =
+      this.facilityAssetForm.get('formCoverEndDate');
+    formCoverEndDateControl?.setValidators([Validators.required]);
+    formCoverEndDateControl?.updateValueAndValidity();
+    const formDownPaymentControl =
+      this.facilityAssetForm.get('formDownPayment');
+    formDownPaymentControl?.setValidators([Validators.required]);
+    formDownPaymentControl?.updateValueAndValidity();
+    const formQuoteControl = this.facilityAssetForm.get('formQuote');
+    formQuoteControl?.setValidators([Validators.required]);
+    formQuoteControl?.updateValueAndValidity();
+    const formImplementationControl =
+      this.facilityAssetForm.get('formImplementation');
+    formImplementationControl?.setValidators([Validators.required]);
+    formImplementationControl?.updateValueAndValidity();
+    const formMaintenanceControl =
+      this.facilityAssetForm.get('formMaintenance');
+    formMaintenanceControl?.setValidators([Validators.required]);
+    formMaintenanceControl?.updateValueAndValidity();
     this.showModalAdd = false;
     this.showModalEdit = false;
   }

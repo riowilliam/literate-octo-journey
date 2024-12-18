@@ -89,7 +89,7 @@ export class DocumentCashOutComponent {
     {
       key: 'payment_bank',
       renderType: () => 'text',
-      label: 'Payment Bank',
+      label: 'Bank Payment',
     },
     {
       key: 'status',
@@ -317,7 +317,7 @@ export class DocumentCashOutComponent {
         error: (error: any) => {
           this.loaderService.hide();
           this.notificationService.show(error, 'error');
-          console.error('Failed to fetch payment bank code', error);
+          console.error('Failed to fetch bank payment code', error);
         },
       });
   }
