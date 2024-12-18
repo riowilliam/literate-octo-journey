@@ -1,7 +1,7 @@
 <form [formGroup]="dynamicForm" (ngSubmit)="onSubmit()">
   <div class="w-full flex flex-col items-center justify-center">
     <div
-      class="w-full flex flex-col items-center justify-center p-5 sm:min-w-[500px] sm:max-w-[500px]"
+      class="w-full flex flex-col items-center p-5 sm:min-w-[500px] sm:max-w-[500px] max-h-[500px] overflow-y-auto"
     >
       <ng-container *ngFor="let field of formConfig">
         <div class="w-full" [ngClass]="{ hidden: field.hidden }">
