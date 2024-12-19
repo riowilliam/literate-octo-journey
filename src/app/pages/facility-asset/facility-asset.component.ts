@@ -73,7 +73,7 @@ export class FacilityAssetComponent {
       | 'empty';
   }[] = [
     { key: 'no', renderType: () => 'number', label: 'No' },
-    { key: 'company_name', renderType: () => 'text', label: 'Customer Name' },
+    { key: 'company_name', renderType: () => 'text', label: 'Company Name' },
     { key: 'project_name', renderType: () => 'text', label: 'Project Name' },
     {
       key: 'transaction_date',
