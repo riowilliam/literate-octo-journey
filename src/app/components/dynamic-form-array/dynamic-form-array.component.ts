@@ -82,8 +82,6 @@ export class DynamicFormArrayComponent implements OnChanges {
     const field = this.formConfig.find((f) => f.key === key);
     if (field && field.options) {
       this.filteredOptions[key] = field.options.filter((option: any) => {
-        console.log(option);
-        console.log(searchTerm);
         const optionLabel = option.label.toLowerCase();
         const directMatch = optionLabel.includes(searchTerm);
         const acronymMatch = this.isAcronymMatch(searchTerm, option.label);
