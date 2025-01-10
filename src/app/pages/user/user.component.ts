@@ -332,7 +332,7 @@ export class UserComponent {
     this.httpService
       .post<FormUserResponse>(
         environment.API_URL,
-        `api/user/createUser?username=${formValue.formUsername}`,
+        `api/user/createUser?username=${this.authService.getUsername()}`,
         new FormUserRequest(
           formValue.formUsername,
           formValue.formFullName,
@@ -375,7 +375,7 @@ export class UserComponent {
     this.httpService
       .post<FormUserResponse>(
         environment.API_URL,
-        `api/user/editUser?username=${formValue.formUsername}`,
+        `api/user/editUser?username=${this.authService.getUsername()}`,
         new FormUserRequest(
           formValue.formUsername,
           formValue.formFullName,
