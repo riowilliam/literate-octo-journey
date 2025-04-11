@@ -182,7 +182,7 @@
                         *ngFor="
                           let option of filteredOptions[field.name + '-' + i]
                         "
-                        (click)="selectOption(option, field.name, i)"
+                        (mousedown)="selectOption(option, field.name, i)"
                         class="px-4 py-2 cursor-pointer hover:bg-gray-100"
                       >
                         {{ option.label }}

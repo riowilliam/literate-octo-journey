@@ -183,7 +183,7 @@ export class ContractComponent {
   ) {
     this.filterForm = this.fb.group({
       partnerName: [''],
-      contractName: [''],
+      contractNo: [''],
       startDate: [''],
       endDate: [''],
     });
@@ -310,7 +310,7 @@ export class ContractComponent {
       .set('pageSize', this.pageSize)
       .set('sortBy', this.sortBy)
       .set('sortOrder', this.sortOrder)
-      .set('contractName', this.filterForm.get('contractName')?.value || '')
+      .set('contractNo', this.filterForm.get('contractNo')?.value || '')
       .set('partnerName', this.filterForm.get('partnerName')?.value || '')
       .set('startDate', this.filterForm.get('startDate')?.value || '')
       .set('endDate', this.filterForm.get('endDate')?.value || '');
@@ -739,6 +739,7 @@ export class ContractComponent {
       case 'clear':
         this.filterForm.reset({
           contractName: '',
+          contractNo: '',
           startDate: '',
           endDate: '',
         });

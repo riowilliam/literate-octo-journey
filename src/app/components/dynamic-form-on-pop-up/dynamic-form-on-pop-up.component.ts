@@ -31,6 +31,8 @@ export class DynamicFormOnPopUpComponent implements OnChanges {
   selectedOptions: { [key: string]: any[] } = {};
   selectedOptionsText: { [key: string]: string } = {};
 
+  private validAutocompleteSelection: { [key: string]: boolean } = {};
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as Node;
@@ -90,6 +92,7 @@ export class DynamicFormOnPopUpComponent implements OnChanges {
   filterOptions(event: Event, key: string): void {
     const input = event.target as HTMLInputElement;
     const searchTerm = input.value.toLowerCase();
+    this.validAutocompleteSelection[key] = false;
 
     const field = this.formConfig.find((f) => f.key === key);
     if (field && field.options) {
@@ -121,6 +124,7 @@ export class DynamicFormOnPopUpComponent implements OnChanges {
   selectOption(option: any, key: string): void {
     if (this.filteredOptions[key]?.length) {
       this.dynamicForm.get(key)?.setValue(option.label);
+      this.validAutocompleteSelection[key] = true;
       this.showDropdown[key] = false;
       this.filteredOptions[key] = [];
     }
@@ -139,6 +143,10 @@ export class DynamicFormOnPopUpComponent implements OnChanges {
         if (!isValid) {
           this.dynamicForm.get(key)?.setValue('');
         }
+      }
+
+      if (!this.validAutocompleteSelection[key]) {
+        this.dynamicForm.get(key)?.setValue(null);
       }
 
       this.showDropdown[key] = false;

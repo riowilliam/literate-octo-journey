@@ -32,6 +32,8 @@ export class DynamicFormComponent {
 
   lastValidValue: { [key: string]: string } = {};
 
+  private validAutocompleteSelection: { [key: string]: boolean } = {};
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as Node;
@@ -137,6 +139,7 @@ export class DynamicFormComponent {
   selectOption(option: any, name: string, i: number): void {
     const fieldKey = name + '-' + i;
     this.rows?.controls[i]?.get(name)?.setValue(option?.label);
+    this.validAutocompleteSelection[fieldKey] = true;
     this.showDropdown[fieldKey] = false;
     this.filteredOptions[fieldKey] = [];
 
@@ -199,6 +202,7 @@ export class DynamicFormComponent {
   filterOptions(event: Event, name: string): void {
     const input = event.target as HTMLInputElement;
     const searchTerm = input.value.toLowerCase();
+    this.validAutocompleteSelection[name] = false;
 
     const fieldName = name.split('-')[0];
     const field = this.fields.find((f) => f.name === fieldName);
@@ -214,6 +218,10 @@ export class DynamicFormComponent {
   validateInput(name: string, i: number): void {
     const fieldKey = name;
     const currentControl = this.rows?.controls[i]?.get(name.split('-')[0]);
+
+    if (!this.validAutocompleteSelection[fieldKey]) {
+      currentControl?.setValue(null);
+    }
 
     if (this.filteredOptions[fieldKey]?.length === 0) {
       currentControl?.setValue(this.lastValidValue[fieldKey] || '');
