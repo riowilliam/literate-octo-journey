@@ -564,6 +564,32 @@ export class ArMonitoringComponent {
 
     formPartnerControl?.valueChanges.subscribe((partnerValue) => {
       if (partnerValue) {
+        this.formConfig = this.formConfig.map((config: any) => {
+          if (config.key === 'formContract') {
+            return { ...config, options: [] };
+          }
+          return config;
+        });
+        this.formPreviewConfig = this.formPreviewConfig.map((config: any) => {
+          if (config.key === 'formContract') {
+            return { ...config, options: [] };
+          }
+          return config;
+        });
+        this.arMonitoringForm.get('formContract')?.setValue(null);
+        this.formConfig = this.formConfig.map((config: any) => {
+          if (config.key === 'formProject') {
+            return { ...config, options: [] };
+          }
+          return config;
+        });
+        this.formPreviewConfig = this.formPreviewConfig.map((config: any) => {
+          if (config.key === 'formProject') {
+            return { ...config, options: [] };
+          }
+          return config;
+        });
+        this.arMonitoringForm.get('formProject')?.setValue(null);
         this.fetchContractListOnSelectPartner('', '', '', partnerValue);
       }
     });
@@ -585,6 +611,15 @@ export class ArMonitoringComponent {
           );
 
           if (selectedContract && selectedContract?.listDetail) {
+            this.arMonitoringForm.get('formProject')?.setValue(null);
+
+            this.formConfig = this.formConfig.map((config: any) => {
+              if (config.key === 'formProject') {
+                return { ...config, options: [] };
+              }
+              return config;
+            });
+
             const selectedContractData: any = {
               data: selectedContract?.listDetail,
             };

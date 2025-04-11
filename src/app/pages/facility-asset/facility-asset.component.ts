@@ -167,9 +167,7 @@ export class FacilityAssetComponent {
 
   ngOnInit() {
     this.fetchFacilityAsset();
-    const storedFacilityTransaction = sessionStorage.getItem(
-      'FACILITY_TYPE'
-    );
+    const storedFacilityTransaction = sessionStorage.getItem('FACILITY_TYPE');
     if (storedFacilityTransaction) {
       try {
         this.dropdownTransactionTypeOptions = JSON.parse(
@@ -304,6 +302,16 @@ export class FacilityAssetComponent {
       .get('formCompanyName')
       ?.valueChanges.subscribe((partnerValue) => {
         if (partnerValue) {
+          this.formConfig = this.formConfig.map((config: any) => {
+            if (config.key === 'formProjectName') {
+              return {
+                ...config,
+                options: [],
+              };
+            }
+            return config;
+          });
+          this.facilityAssetForm.get('formProjectName')?.setValue(null);
           this.fetchProjectList(partnerValue);
         }
       });

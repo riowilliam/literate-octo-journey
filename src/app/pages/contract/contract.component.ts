@@ -256,6 +256,7 @@ export class ContractComponent {
     this.contractForm
       .get('formPartnerName')
       ?.valueChanges.subscribe((partnerValue) => {
+        this.contractForm.get('formActiveProject')?.setValue(null);
         const selectedPartner = this.dropdownOptionsPartner.find(
           (option) =>
             option?.value === partnerValue || option?.label === partnerValue

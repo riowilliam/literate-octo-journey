@@ -452,6 +452,7 @@ export class CashInComponent {
 
   selectedPartnerName(partnerValue: string) {
     if (partnerValue) {
+      this.dropdownOptionsProject = [];
       this.fetchProjectList(partnerValue);
     }
   }
