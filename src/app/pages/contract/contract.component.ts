@@ -205,7 +205,7 @@ export class ContractComponent {
       formContractNo: ['', Validators.required],
       formContractName: ['', Validators.required],
       formPartnerName: ['', Validators.required],
-      formActiveProject: ['', Validators.required],
+      formActiveProject: [''],
       formContractDate: ['', Validators.required],
       formEndContractDate: ['', Validators.required],
       formRevision: [''],
@@ -234,6 +234,7 @@ export class ContractComponent {
         label: 'Active Project',
         type: 'multicheckbox-dropdown',
         options: this.dropdownOptionsActiveProject,
+        hidden: true,
       },
       {
         key: 'formContractDate',
