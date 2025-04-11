@@ -68,7 +68,23 @@ export class PaymentBankPopupComponent {
   }
 
   hideDropdown(): void {
-    setTimeout(() => (this.showDropdown = false), 200);
+    setTimeout(() => {
+      const inputEl = document.getElementById(
+        'paymentBank'
+      ) as HTMLInputElement;
+      const inputValue = inputEl?.value.trim().toLowerCase();
+
+      const match = this.optionsPaymentBank.find(
+        (option) => option.bankName.toLowerCase() === inputValue
+      );
+
+      if (!match || !this.selectedBank) {
+        this.selectedBank = null;
+        inputEl.value = '';
+      }
+
+      this.showDropdown = false;
+    }, 200);
   }
 
   selectOption(option: any): void {

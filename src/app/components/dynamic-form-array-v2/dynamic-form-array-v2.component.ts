@@ -40,6 +40,8 @@ export class DynamicFormArrayV2Component implements OnChanges {
   selectedOptionsText: { [key: string]: string } = {};
   showDropdown: { [key: string]: boolean } = {};
 
+  private validAutocompleteSelection: { [key: string]: boolean } = {};
+
   get pph(): FormArray {
     return this.dynamicForm.get('formPPH') as FormArray;
   }
@@ -79,6 +81,7 @@ export class DynamicFormArrayV2Component implements OnChanges {
   filterOptions(event: Event, key: string): void {
     const input = event.target as HTMLInputElement;
     const searchTerm = input.value.toLowerCase();
+    this.validAutocompleteSelection[key] = false;
 
     const field = this.formConfig.find((f) => f.key === key);
     if (field && field.options) {
@@ -101,6 +104,7 @@ export class DynamicFormArrayV2Component implements OnChanges {
   selectOption(option: any, key: string): void {
     if (this.filteredOptions[key]?.length) {
       this.dynamicForm.get(key)?.setValue(option.label);
+      this.validAutocompleteSelection[key] = true;
       this.showDropdown[key] = false;
       this.filteredOptions[key] = [];
     }
@@ -119,6 +123,10 @@ export class DynamicFormArrayV2Component implements OnChanges {
         if (!isValid) {
           this.dynamicForm.get(key)?.setValue('');
         }
+      }
+
+      if (!this.validAutocompleteSelection[key]) {
+        this.dynamicForm.get(key)?.setValue(null);
       }
 
       this.showDropdown[key] = false;

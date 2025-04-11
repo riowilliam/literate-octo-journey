@@ -242,7 +242,20 @@ export class DynamicFormCashInComponent {
   }
 
   hideDropdown(): void {
-    setTimeout(() => (this.showDropdown = false), 200);
+    setTimeout(() => {
+      const inputValue = this.customForm
+        .get('paymentBank')
+        ?.value?.toLowerCase();
+      const match = this.optionsPaymentBank.find(
+        (option: any) => option.bankName.toLowerCase() === inputValue
+      );
+
+      if (!match) {
+        this.customForm.get('paymentBank')?.setValue('');
+      }
+
+      this.showDropdown = false;
+    }, 200);
   }
 
   selectOption(option: any): void {

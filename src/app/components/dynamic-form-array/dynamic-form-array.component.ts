@@ -38,6 +38,8 @@ export class DynamicFormArrayComponent implements OnChanges {
 
   searchTerm!: string;
 
+  private validAutocompleteSelection: { [key: string]: boolean } = {};
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['formValue'] && this.formValue) {
       this.dynamicForm.patchValue(this.formValue);
@@ -78,6 +80,7 @@ export class DynamicFormArrayComponent implements OnChanges {
   filterOptions(event: Event, key: string): void {
     const input = event.target as HTMLInputElement;
     const searchTerm = input.value.toLowerCase();
+    this.validAutocompleteSelection[key] = false;
 
     const field = this.formConfig.find((f) => f.key === key);
     if (field && field.options) {
@@ -99,12 +102,16 @@ export class DynamicFormArrayComponent implements OnChanges {
 
   selectOption(option: any, key: string): void {
     this.dynamicForm.get(key)?.setValue(option.label);
+    this.validAutocompleteSelection[key] = true;
     this.showDropdown[key] = false;
     this.filteredOptions[key] = [];
   }
 
   hideDropdown(key: string): void {
     setTimeout(() => {
+      if (!this.validAutocompleteSelection[key]) {
+        this.dynamicForm.get(key)?.setValue(null);
+      }
       this.showDropdown[key] = false;
     }, 200);
   }
