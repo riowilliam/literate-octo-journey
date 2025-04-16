@@ -1,4 +1,4 @@
-<form [formGroup]="formGroup">
+<form [formGroup]="formGroup" class="h-full">
   <div formArrayName="rows" class="contents overflow-x-auto">
     <div
       *ngFor="let row of rows.controls; let i = index"
@@ -248,7 +248,7 @@
   </div>
 </form>
 
-<div class="absolute left-0 right-0 mt-4 flex items-center justify-center">
+<div class="absolute left-0 right-0 mt-[28px] flex items-center justify-center">
   <button
     type="button"
     (click)="addRow()"
