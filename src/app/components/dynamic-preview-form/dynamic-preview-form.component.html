@@ -1,5 +1,5 @@
 <form [formGroup]="formGroup">
-  <div formArrayName="rows" class="overflow-x-auto">
+  <div formArrayName="rows" class="overflow-auto max-h-[400px]">
     <div
       *ngFor="let row of rows.controls; let i = index"
       [formGroupName]="i"
