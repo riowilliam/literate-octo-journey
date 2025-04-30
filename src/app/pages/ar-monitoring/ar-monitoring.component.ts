@@ -525,6 +525,7 @@ export class ArMonitoringComponent {
       startDate: [''],
       endDate: [''],
       invoiceStatus: [''],
+      invoiceNo: [''],
     });
     const params = this.route.snapshot.queryParams;
     this.filterForm.controls['startDate']?.setValue(params['startDate'] || '');
@@ -804,6 +805,7 @@ export class ArMonitoringComponent {
       .set('partnerName', this.filterForm.get('partnerName')?.value || '')
       .set('projectName', this.filterForm.get('projectName')?.value || '')
       .set('invoiceStatus', this.filterForm.get('invoiceStatus')?.value || '')
+      .set('invoiceNo', this.filterForm.get('invoiceNo')?.value || '')
       .set('startDate', this.filterForm.get('startDate')?.value || '')
       .set('endDate', this.filterForm.get('endDate')?.value || '');
     this.loaderService.show();
@@ -1428,6 +1430,7 @@ export class ArMonitoringComponent {
           startDate: '',
           endDate: '',
           invoiceStatus: '',
+          invoiceNo: '',
         });
         this.fetchArMonitoring();
         break;

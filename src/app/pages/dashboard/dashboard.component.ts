@@ -39,6 +39,7 @@ import { FormCashInRequest, FormCashInResponse } from './dto/cash-in.dto';
 import { InvoiceListResponse } from './dto/invoice.dto';
 import { PaymentBankListResponse } from './dto/payment-bank.dto';
 import { BalanceSummaryComponent } from '../../components/balance-summary/balance-summary.component';
+import { FormatterUtilService } from '../../utils/formatter.util';
 
 @Component({
   selector: 'app-dashboard',
@@ -234,7 +235,8 @@ export class DashboardComponent {
     private authService: AuthService,
     private loaderService: LoaderService,
     private notificationService: NotificationService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private formatterUtilService: FormatterUtilService
   ) {
     this.formConfig = [
       {
@@ -412,7 +414,7 @@ export class DashboardComponent {
       yAxis: {
         type: 'value',
         axisLabel: {
-          fontSize: isMobile ? 10 : 12,
+          fontSize: isMobile ? 10 : 6,
         },
       },
       dataZoom: [{ type: 'slider', show: true, xAxisIndex: 0 }],
@@ -863,6 +865,31 @@ export class DashboardComponent {
     this.endingBalance = response?.data?.endingBalance;
 
     const statsDetails = response?.data?.statisticsDetailsDtoList || [];
+
+    const maxCashIn = Math.max(
+      ...statsDetails.map((detail) => detail.totalCashIn || 0)
+    );
+
+    const maxCashOut = Math.max(
+      ...statsDetails.map((detail) => detail.totalCashOut || 0)
+    );
+
+    if (!this.chartBarOptions.yAxis.splitLine) {
+      this.chartBarOptions.yAxis.splitLine = {};
+    }
+
+    const maxYAxisValue = this.formatterUtilService.roundToSignificantFigures(
+      Math.max(maxCashIn, maxCashOut) * 1.05,
+      4
+    );
+
+    if (maxYAxisValue > 0) {
+      this.chartBarOptions.yAxis.max = maxYAxisValue;
+
+      this.chartBarOptions.yAxis.interval = maxYAxisValue / 10;
+
+      this.chartBarOptions.yAxis.splitLine.show = true;
+    }
 
     this.chartBarOptions.xAxis.data = statsDetails.map(
       (detail, index) => detail.statsHeader || `Project ${index + 1}`

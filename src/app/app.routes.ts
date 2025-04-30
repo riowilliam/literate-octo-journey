@@ -20,6 +20,7 @@ import { authRedirectGuard } from './guards/auth-redirect.guard';
 import { authGuard } from './guards/auth.guard';
 import { AccountInformationComponent } from './pages/account-information/account-information.component';
 import { UserComponent } from './pages/user/user.component';
+import { BankComponent } from './pages/bank/bank.component';
 
 export const routes: Routes = [
   {
@@ -93,6 +94,11 @@ export const routes: Routes = [
   {
     path: 'change-full-name',
     component: ChangeFullNameComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'bank',
+    component: BankComponent,
     canActivate: [authGuard],
   },
 ];

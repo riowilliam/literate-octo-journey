@@ -1,0 +1,70 @@
+<app-dynamic-modal
+  [title]="'Add new Bank'"
+  [showModal]="showModalAdd"
+  (closeModal)="closeModalAdd()"
+>
+  <app-dynamic-form-on-pop-up
+    [dynamicForm]="bankForm"
+    [formConfig]="formConfig"
+    (formSubmit)="handleFormSubmit($event, 'add')"
+    (formCancel)="handleFormCancel()"
+  >
+  </app-dynamic-form-on-pop-up>
+</app-dynamic-modal>
+
+<app-dynamic-modal
+  [title]="'Edit Bank'"
+  [showModal]="showModalEdit"
+  (closeModal)="closeModalEdit()"
+>
+  <app-dynamic-form-on-pop-up
+    [formValue]="{
+      formBankName: bankForm.get('formBankName')?.value,
+      formBankShortName: bankForm.get('formBankShortName')?.value,
+      formBankCode: bankForm.get('formBankCode')?.value,
+      id: bankForm.get('id')?.value,
+    }"
+    [dynamicForm]="bankForm"
+    [formConfig]="formConfig"
+    (formSubmit)="handleFormSubmit($event, 'edit')"
+    (formCancel)="handleFormCancel()"
+  >
+  </app-dynamic-form-on-pop-up>
+</app-dynamic-modal>
+
+<app-content-filter
+  [title]="'Filter'"
+  (buttonClickApply)="handleButtonClick({ key: 'apply' })"
+  (buttonClickClear)="handleButtonClick({ key: 'clear' })"
+>
+  <app-dynamic-input
+    type="text"
+    [value]="filterForm.get('bankName')?.value"
+    placeholder="Enter text"
+    label="Bank Name"
+    formControlName="bankName"
+    [inputClass]="
+      'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+    "
+    [labelClass]="'font-medium text-sm mb-1'"
+    (valueChange)="handleValueChange($event, 'bankName')"
+  ></app-dynamic-input>
+</app-content-filter>
+
+<app-content-table
+  [title]="'Bank List'"
+  [label]="'Add New Bank'"
+  [hasButton]="true"
+  (buttonClick)="handleButtonClick({ key: 'add' })"
+>
+  <app-dynamic-table
+    [headers]="headers"
+    [rows]="data"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [currentPage]="pageNo + 1"
+    (buttonPagination)="onPageChange($event)"
+    (buttonClick)="handleButtonClick($event)"
+  >
+  </app-dynamic-table>
+</app-content-table>

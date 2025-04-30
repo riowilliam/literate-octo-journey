@@ -117,6 +117,12 @@ export class HeaderComponent {
           isActive: false,
           requiredPermissions: ['manage_user'],
         },
+        {
+          name: 'Bank',
+          link: '/bank',
+          isActive: false,
+          requiredPermissions: ['manage_bank'],
+        },
       ],
       subMenuOpen: false,
       isActive: false,

@@ -286,6 +286,12 @@
             class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
             >User</a
           >
+          <a
+            *ngIf="hasAccess(['manage_bank'])"
+            href="/bank"
+            class="block text-white hover:text-black hover:bg-custom-light-yellow py-2 px-2 rounded-l-md transition-colors duration-200 ease-in-out"
+            >Bank</a
+          >
         </div>
       </nav>
     </div>

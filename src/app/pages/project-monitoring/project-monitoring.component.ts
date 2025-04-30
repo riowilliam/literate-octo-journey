@@ -13,6 +13,7 @@ import { ContentChartComponent } from '../../components/content-chart/content-ch
 import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card.component';
 
 import * as echarts from 'echarts';
+import { FormatterUtilService } from '../../utils/formatter.util';
 
 @Component({
   selector: 'app-project-monitoring',
@@ -37,7 +38,8 @@ export class ProjectMonitoringComponent {
     private httpService: HttpService,
     private authService: AuthService,
     private loaderService: LoaderService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private formatterUtilService: FormatterUtilService
   ) {}
 
   ngOnInit() {
@@ -85,7 +87,7 @@ export class ProjectMonitoringComponent {
       yAxis: {
         type: 'value',
         axisLabel: {
-          fontSize: isMobile ? 10 : 12,
+          fontSize: isMobile ? 10 : 6,
         },
       },
       dataZoom: [{ type: 'slider', show: true, xAxisIndex: 0 }],
@@ -172,6 +174,31 @@ export class ProjectMonitoringComponent {
       mostCashInProject: '',
       mostCashOutProject: '',
     };
+
+    const maxCashIn = Math.max(
+      ...details.map((detail) => detail.cashInValue || 0)
+    );
+
+    const maxCashOut = Math.max(
+      ...details.map((detail) => detail.cashOutValue || 0)
+    );
+
+    if (!this.chartOptions.yAxis.splitLine) {
+      this.chartOptions.yAxis.splitLine = {};
+    }
+
+    const maxYAxisValue = this.formatterUtilService.roundToSignificantFigures(
+      Math.max(maxCashIn, maxCashOut) * 1.05,
+      4
+    );
+
+    if (maxYAxisValue > 0) {
+      this.chartOptions.yAxis.max = maxYAxisValue;
+
+      this.chartOptions.yAxis.interval = maxYAxisValue / 10;
+
+      this.chartOptions.yAxis.splitLine.show = true;
+    }
 
     this.chartOptions.xAxis.data = details.map((detail) => detail.projectName);
     this.chartOptions.series[0].data = details.map(

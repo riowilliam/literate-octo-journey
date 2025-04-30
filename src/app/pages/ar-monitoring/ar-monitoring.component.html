@@ -133,6 +133,19 @@
   ></app-dynamic-input>
 
   <app-dynamic-input
+    type="text"
+    [value]="filterForm.get('invoiceNo')?.value"
+    placeholder="Enter text"
+    label="Inovice No"
+    formControlName="invoiceNo"
+    [inputClass]="
+      'px-3 py-2 border rounded rounded-lg border-black border-[0.37px] text-sm placeholder:text-black focus:outline-none focus:ring-2 focus:ring-custom-light-yellow'
+    "
+    [labelClass]="'font-medium text-sm mb-1'"
+    (valueChange)="handleValueChange($event, 'invoiceNo')"
+  ></app-dynamic-input>
+
+  <app-dynamic-input
     type="dropdown"
     [value]="filterForm.get('invoiceStatus')?.value"
     placeholder="Select an option"
