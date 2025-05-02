@@ -42,7 +42,7 @@
             <ul>
               <li
                 *ngFor="let option of filteredOptionsPartnerName"
-                (click)="selectOptionPartnerName(option)"
+                (mousedown)="selectOptionPartnerName(option)"
                 class="px-4 py-2 cursor-pointer hover:bg-gray-100"
               >
                 {{ option.label }}
@@ -94,7 +94,7 @@
               <ul>
                 <li
                   *ngFor="let option of filteredOptionsProjectName"
-                  (click)="selectOptionProjectName(option)"
+                  (mousedown)="selectOptionProjectName(option)"
                   class="px-4 py-2 cursor-pointer hover:bg-gray-100"
                 >
                   {{ option.label }}
