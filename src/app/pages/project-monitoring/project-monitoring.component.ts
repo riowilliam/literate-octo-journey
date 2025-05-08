@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
 
 import { HttpService } from '../../services/http.service';
 import { AuthService } from '../../services/auth.service';
@@ -14,6 +14,7 @@ import { DynamicCardComponent } from '../../components/dynamic-card/dynamic-card
 
 import * as echarts from 'echarts';
 import { FormatterUtilService } from '../../utils/formatter.util';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-project-monitoring',
@@ -23,6 +24,7 @@ import { FormatterUtilService } from '../../utils/formatter.util';
     ContentChartComponent,
     DynamicCardComponent,
     CommonModule,
+    FormsModule,
   ],
   templateUrl: './project-monitoring.component.html',
   styleUrls: ['./project-monitoring.component.scss'],
@@ -33,6 +35,12 @@ export class ProjectMonitoringComponent {
   public chartOptions: any;
 
   public cards: any;
+
+  selectedYear: string | null = new Date().getFullYear().toString();
+
+  years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
+
+  selectedTimeRange: string = 'All';
 
   constructor(
     private httpService: HttpService,
@@ -87,7 +95,7 @@ export class ProjectMonitoringComponent {
       yAxis: {
         type: 'value',
         axisLabel: {
-          fontSize: isMobile ? 10 : 6,
+          fontSize: isMobile ? 10 : 12,
         },
       },
       dataZoom: [{ type: 'slider', show: true, xAxisIndex: 0 }],
@@ -167,6 +175,47 @@ export class ProjectMonitoringComponent {
       });
   }
 
+  fetchProjectMonitoringYearly() {
+    const params = new HttpParams().set(
+      'year',
+      this.selectedYear
+        ? this.selectedYear
+        : new Date().getFullYear().toString()
+    );
+    this.loaderService.show();
+    this.httpService
+      .get<ProjectMonitoringResponse>(
+        environment.API_URL,
+        'api/projectMonitoring/getProjectListYearly?',
+        params,
+        new HttpHeaders({
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.loaderService.hide();
+
+          if (
+            response?.status === 200 &&
+            response?.info?.toLowerCase() === 'success'
+          ) {
+            this.updateChartAndCardData(response);
+          } else {
+            this.notificationService.show(response?.info, 'info');
+          }
+        },
+        error: (error: any) => {
+          this.loaderService.hide();
+          this.notificationService.show(
+            'Failed to fetch project monitoring data',
+            'error'
+          );
+          console.error('Error:', error);
+        },
+      });
+  }
+
   updateChartAndCardData(response: ProjectMonitoringResponse) {
     const details = response.data?.projectMonitoringDetailDtoList || [];
     const summary = response.data?.projectMonitoringSummaryDto || {
@@ -198,6 +247,11 @@ export class ProjectMonitoringComponent {
       this.chartOptions.yAxis.interval = maxYAxisValue / 10;
 
       this.chartOptions.yAxis.splitLine.show = true;
+
+      this.chartOptions.yAxis.axisLabel = {
+        formatter: (value: number) =>
+          this.formatterUtilService.formatNumber(value),
+      };
     }
 
     this.chartOptions.xAxis.data = details.map((detail) => detail.projectName);
@@ -224,5 +278,23 @@ export class ProjectMonitoringComponent {
         sections: [[{ label: '', value: summary.mostCashOutProject }]],
       },
     ];
+  }
+
+  async onSelectionYearlyChange() {
+    if (this.selectedYear) {
+      await this.fetchProjectMonitoringYearly();
+    }
+  }
+
+  async changeTimeRange(timeRange: string): Promise<void> {
+    this.selectedTimeRange = timeRange;
+    this.selectedYear = null;
+    const today = new Date();
+    if (timeRange === 'Yearly') {
+      this.selectedYear = today.getFullYear().toString();
+      await this.fetchProjectMonitoringYearly();
+    } else {
+      await this.fetchProjectMonitoring();
+    }
   }
 }

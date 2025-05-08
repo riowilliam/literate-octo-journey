@@ -12,4 +12,13 @@ export class FormatterUtilService {
     const roundedLeading = Math.ceil(leadingPart / 100) * 100;
     return roundedLeading * divisor;
   }
+  formatNumber(value: number): string {
+    if (value >= 1e12)
+      return (value / 1e12).toFixed(2).replace('.', ',') + ' Triliun';
+    if (value >= 1e9)
+      return (value / 1e9).toFixed(2).replace('.', ',') + ' Miliar';
+    if (value >= 1e6)
+      return (value / 1e6).toFixed(2).replace('.', ',') + ' Juta';
+    return value.toString();
+  }
 }

@@ -414,7 +414,7 @@ export class DashboardComponent {
       yAxis: {
         type: 'value',
         axisLabel: {
-          fontSize: isMobile ? 10 : 6,
+          fontSize: isMobile ? 10 : 12,
         },
       },
       dataZoom: [{ type: 'slider', show: true, xAxisIndex: 0 }],
@@ -889,6 +889,11 @@ export class DashboardComponent {
       this.chartBarOptions.yAxis.interval = maxYAxisValue / 10;
 
       this.chartBarOptions.yAxis.splitLine.show = true;
+
+      this.chartBarOptions.yAxis.axisLabel = {
+        formatter: (value: number) =>
+          this.formatterUtilService.formatNumber(value),
+      };
     }
 
     this.chartBarOptions.xAxis.data = statsDetails.map(
